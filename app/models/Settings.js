@@ -2,9 +2,10 @@ import mongoose from "mongoose";
 
 const SettingsSchema = new mongoose.Schema(
   {
-    dropDate:    { type: Date,   default: null },
-    bandeauText: { type: String, default: "" },
-    badgeText:   { type: String, default: "" },
+    dropDate:        { type: Date,    default: null },
+    bandeauText:     { type: String,  default: "" },
+    badgeText:       { type: String,  default: "" },
+    maintenanceMode: { type: Boolean, default: false },
   },
   { timestamps: true }
 );

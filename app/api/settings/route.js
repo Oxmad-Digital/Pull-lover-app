@@ -9,13 +9,16 @@ export async function GET() {
     await connectDB();
     const settings = await Settings.findOne();
     return NextResponse.json({
-      dropDate:    settings?.dropDate    ?? null,
-      startDate:   settings?.updatedAt   ?? null,
-      bandeauText: settings?.bandeauText ?? "",
-      badgeText:   settings?.badgeText   ?? "",
+      dropDate:        settings?.dropDate        ?? null,
+      startDate:       settings?.updatedAt       ?? null,
+      bandeauText:     settings?.bandeauText     ?? "",
+      badgeText:       settings?.badgeText       ?? "",
+      maintenanceMode: settings?.maintenanceMode ?? false,
+    }, {
+      headers: { "Cache-Control": "public, s-maxage=5, stale-while-revalidate=30" },
     });
   } catch (err) {
     console.error("GET /api/settings:", err);
-    return NextResponse.json({ dropDate: null, startDate: null, bandeauText: "", badgeText: "" }, { status: 500 });
+    return NextResponse.json({ dropDate: null, startDate: null, bandeauText: "", badgeText: "", maintenanceMode: false }, { status: 500 });
   }
 }

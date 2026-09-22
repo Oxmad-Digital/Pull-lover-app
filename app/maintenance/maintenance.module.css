@@ -1,0 +1,38 @@
+.container {
+  min-height: 70vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 40px 20px;
+  text-align: center;
+}
+
+.card {
+  max-width: 480px;
+  width: 100%;
+}
+
+.logo {
+  font-family: var(--font-pinyon), cursive;
+  font-size: 48px;
+  color: var(--color-accent);
+  margin-bottom: 20px;
+}
+
+.icon {
+  font-size: 48px;
+  margin-bottom: 16px;
+}
+
+.title {
+  font-size: 26px;
+  font-weight: 700;
+  color: var(--dark);
+  margin-bottom: 12px;
+}
+
+.text {
+  font-size: 15px;
+  color: var(--stone-600);
+  line-height: 1.6;
+}

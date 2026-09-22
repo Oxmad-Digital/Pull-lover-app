@@ -71,6 +71,10 @@ export default function AdminSettingsPage() {
     setLoading(false);
   }
 
+  function toggleMaintenance() {
+    patch("maintenanceMode", !current?.maintenanceMode, "Mode maintenance");
+  }
+
   async function patch(field, value, label) {
     setSaving(field);
     setErrors((e) => ({ ...e, [field]: "" }));
@@ -116,6 +120,30 @@ export default function AdminSettingsPage() {
             grid-template-columns: 1fr;
           }
         }
+        .ap-toggle {
+          position: relative;
+          width: 36px;
+          height: 20px;
+          border: none;
+          border-radius: var(--radius-md);
+          cursor: pointer;
+          flex-shrink: 0;
+          transition: background 0.2s;
+        }
+        .ap-toggle.on  { background: #C95D5D; }
+        .ap-toggle.off { background: #d4d4d0; }
+        .ap-toggle-thumb {
+          position: absolute;
+          top: 3px;
+          left: 3px;
+          width: 14px;
+          height: 14px;
+          border-radius: var(--radius-full);
+          background: #fff;
+          box-shadow: 0 1px 3px rgba(0,0,0,0.18);
+          transition: left 0.2s;
+        }
+        .ap-toggle.on .ap-toggle-thumb { left: 19px; }
       `}</style>
 
       <div className="ap-topbar">
@@ -225,6 +253,32 @@ export default function AdminSettingsPage() {
               )}
             </div>
           </form>
+        </div>
+
+        {/* ── Mode maintenance ── */}
+        <div style={cardStyle}>
+          <p style={{ fontSize: 12, fontWeight: 700, color: "#78716c", textTransform: "uppercase", letterSpacing: "0.05em", marginBottom: 14 }}>
+            Mode maintenance
+          </p>
+          <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 16, flexWrap: "wrap" }}>
+            <button
+              type="button"
+              className={`ap-toggle ${current?.maintenanceMode ? "on" : "off"}`}
+              onClick={toggleMaintenance}
+              disabled={saving === "maintenanceMode"}
+              title={current?.maintenanceMode ? "Désactiver le mode maintenance" : "Activer le mode maintenance"}
+            >
+              <span className="ap-toggle-thumb" />
+            </button>
+            <StatusBadge active={!!current?.maintenanceMode} activeLabel="Activé" inactiveLabel="Désactivé" />
+          </div>
+          <p style={{ fontSize: 11, color: "#a8a29e", marginTop: 5 }}>
+            Une fois activé, les visiteurs de <strong>pull-lover.com</strong> voient un écran
+            « site en cours de construction ». Le lien de déploiement Vercel (*.vercel.app)
+            n&apos;est pas concerné : vous pouvez continuer à y accéder normalement pour
+            travailler sur le site, tout comme depuis ce panneau d&apos;administration une fois connecté.
+          </p>
+          {errors.maintenanceMode && <p style={{ fontSize: 13, color: "#C95D5D", marginTop: 8 }}>{errors.maintenanceMode}</p>}
         </div>
 
       </div>
