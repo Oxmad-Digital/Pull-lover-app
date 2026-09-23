@@ -98,7 +98,7 @@ export default function AdminNewsletterPage() {
             Ajouter
           </button>
           <button className="ap-btn-add" onClick={exportCSV} disabled={loading || total === 0}
-            style={{ background: "#fff", color: "#0f172a", border: "1.5px solid #e7e5e4" }}>
+            style={{ background: "#fff", color: "#252323", border: "1.5px solid #e7e5e4" }}>
             Exporter CSV
           </button>
         </div>
@@ -150,7 +150,7 @@ export default function AdminNewsletterPage() {
                     <button
                       onClick={() => handleDelete(s._id, s.email)}
                       style={{
-                        background: "none", border: "none", color: "#C95D5D",
+                        background: "none", border: "none", color: "#C75C5C",
                         cursor: "pointer", fontSize: 13, fontWeight: 600,
                       }}
                     >
@@ -196,7 +196,7 @@ export default function AdminNewsletterPage() {
               width: "100%", maxWidth: 420, boxShadow: "0 8px 40px rgba(0,0,0,0.18)",
             }}
           >
-            <h2 style={{ fontSize: 18, fontWeight: 700, marginBottom: 20, color: "#0f172a" }}>
+            <h2 style={{ fontSize: 18, fontWeight: 700, marginBottom: 20, color: "#252323" }}>
               Ajouter un abonné
             </h2>
             <form onSubmit={handleAdd}>

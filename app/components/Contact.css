@@ -40,7 +40,7 @@
     font-size: 2.75rem;
     font-weight: 700;
     line-height: 1.15;
-    color: #1a1a1a;
+    color: #243B3B;
     margin: 0;
 }
 
@@ -74,7 +74,7 @@
 .contact__info-icon {
     display: flex;
     align-items: center;
-    color: #C95D5D;
+    color: #C75C5C;
     flex-shrink: 0;
 }
 
@@ -92,7 +92,7 @@
     font-family: var(--font-montserrat, 'Montserrat', sans-serif);
     font-size: 0.875rem;
     font-weight: 500;
-    color: #1a1a1a;
+    color: #243B3B;
     margin: 0;
 }
 
@@ -114,7 +114,7 @@
     font-family: var(--font-montserrat, 'Montserrat', sans-serif);
     font-size: 0.8125rem;
     font-weight: 600;
-    color: #1a1a1a;
+    color: #243B3B;
 }
 
 .contact__input,
@@ -122,7 +122,7 @@
     font-family: var(--font-montserrat, 'Montserrat', sans-serif);
     font-size: 0.875rem;
     font-weight: 400;
-    color: #1a1a1a;
+    color: #243B3B;
     background-color: #ffffff;
     border: 1px solid #e5e7eb;
     border-radius: var(--radius-md);
@@ -140,8 +140,8 @@
 
 .contact__input:focus,
 .contact__textarea:focus {
-    border-color: #C95D5D;
-    box-shadow: 0 0 0 3px rgba(201, 93, 93, 0.1);
+    border-color: #C75C5C;
+    box-shadow: 0 0 0 3px rgba(199, 92, 92, 0.1);
 }
 
 .contact__textarea {
@@ -156,7 +156,7 @@
     letter-spacing: 0.08em;
     text-transform: uppercase;
     color: #ffffff;
-    background-color: #1a1a1a;
+    background-color: #243B3B;
     border: none;
     border-radius: var(--radius-md);
     padding: 12px 24px;
@@ -167,7 +167,7 @@
 }
 
 .contact__btn:hover:not(:disabled) {
-    background-color: #C95D5D;
+    background-color: #AD4646;
 }
 
 .contact__btn:disabled {
@@ -192,7 +192,7 @@
 
 .contact__feedback--error {
     background-color: #fdf2f2;
-    color: #c0392b;
+    color: #C75C5C;
     border: 1px solid #f5c6c6;
 }
 

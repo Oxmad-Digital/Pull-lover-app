@@ -4,12 +4,12 @@ export const runtime = "nodejs";
 import { NextResponse }      from "next/server";
 import { getServerSession }  from "next-auth";
 import { authOptions }       from "@/app/api/auth/[...nextauth]/route";
-import { connectDB }         from "@/app/lib/db";
+import { connectDB, isValidId } from "@/app/lib/db";
 import Order                 from "@/app/models/Order";
-import mongoose              from "mongoose";
 import { generateLabel, getTrackingUrl, COLISSIMO_CONFIGURED } from "@/app/lib/colissimo";
 import { sendEmail }         from "@/app/lib/mailer";
 import { getOrderStatusUpdateEmailTemplate } from "@/app/lib/emailTemplates";
+import { uploadToR2 } from "@/app/lib/r2";
 
 export async function POST(req, { params }) {
   try {
@@ -19,7 +19,7 @@ export async function POST(req, { params }) {
     }
 
     const { id } = await params;
-    if (!mongoose.Types.ObjectId.isValid(id)) {
+    if (!isValidId(id)) {
       return NextResponse.json({ message: "ID invalide" }, { status: 400 });
     }
 
@@ -58,21 +58,17 @@ export async function POST(req, { params }) {
       relayId: order.delivery?.relayId || undefined,
     });
 
-    // Optionnel : uploader le PDF sur Cloudinary pour stockage permanent
+    // Stocker le PDF sur R2 pour le conserver durablement
     let labelUrl = null;
     if (labelBase64) {
       try {
-        const { v2: cloudinary } = await import("cloudinary");
-        cloudinary.config({
-          cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
-          api_key:    process.env.CLOUDINARY_API_KEY,
-          api_secret: process.env.CLOUDINARY_API_SECRET,
+        const upload = await uploadToR2({
+          key: "colissimo-labels/order_" + id + ".pdf",
+          body: Buffer.from(labelBase64, "base64"),
+          contentType: "application/pdf",
+          cacheControl: "private, max-age=0, no-store",
         });
-        const upload = await cloudinary.uploader.upload(
-          `data:application/pdf;base64,${labelBase64}`,
-          { resource_type: "raw", folder: "colissimo_labels", public_id: `order_${id}` }
-        );
-        labelUrl = upload.secure_url;
+        labelUrl = upload.url;
       } catch {
         // L'URL restera null — le numéro de suivi est quand même enregistré
       }

@@ -1,22 +1,53 @@
+import Image from "next/image";
 import styles from "./maintenance.module.css";
 
 export const metadata = {
-  title: "Site en construction",
+  title: "Une maille se prépare",
+  description:
+    "Pull-Lover prépare sa nouvelle expérience. Notre maille de Madagascar revient bientôt.",
   robots: { index: false, follow: false },
 };
 
 export default function MaintenancePage() {
   return (
-    <div className={styles.container}>
-      <div className={styles.card}>
-        <p className={styles.logo}>Pull Lover</p>
-        <div className={styles.icon}>🧶</div>
-        <h1 className={styles.title}>Le site est en cours de construction</h1>
-        <p className={styles.text}>
-          Nous préparons quelque chose de tout doux. Le site sera bientôt disponible,
-          merci de votre patience !
+    <section className={styles.page} aria-labelledby="maintenance-title">
+      <div className={styles.content}>
+        <p className={styles.logo} aria-label="Pull-Lover">
+          pull<span aria-hidden="true">—</span>lover
         </p>
+
+        <div className={styles.message}>
+          <p className={styles.eyebrow}>Maille de Madagascar</p>
+          <h1 id="maintenance-title" className={styles.title}>
+            Une nouvelle maille <em>se prépare.</em>
+          </h1>
+          <p className={styles.text}>
+            Notre atelier met les dernières finitions à la nouvelle expérience
+            Pull-Lover. Nous revenons bientôt, avec le même goût du temps et du
+            geste juste.
+          </p>
+        </div>
+
+        <div className={styles.footer}>
+          <span className={styles.line} aria-hidden="true" />
+          <p>Imaginé et fabriqué à Madagascar</p>
+        </div>
       </div>
-    </div>
+
+      <div className={styles.visual} aria-hidden="true">
+        <Image
+          src="/api/media/site/mantasoa-hero.webp"
+          alt=""
+          fill
+          sizes="(max-width: 799px) 100vw, 50vw"
+          priority
+          className={styles.image}
+        />
+        <div className={styles.imageLabel}>
+          <span>Le Mantasoa</span>
+          <span>Bientôt disponible</span>
+        </div>
+      </div>
+    </section>
   );
 }

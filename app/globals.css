@@ -1,19 +1,41 @@
 ﻿/* globals.css */
 
 :root {
+  /* Pull-Lover — palette de marque */
+  --color-primary: #243b3b;
+  --color-primary-dark: #193030;
+  --color-secondary: #c75c5c;
+  --color-secondary-hover: #ad4646;
+  --color-background: #fff9f6;
+  --color-surface: #ffffff;
+  --color-text: #252323;
+  --color-text-muted: #706666;
+  --color-border: #e8dad6;
+
+  /* Tokens éditoriaux historiques, rattachés à la palette de marque */
+  --pl-ink: var(--color-primary);
+  --pl-paper: var(--color-background);
+  --pl-white: var(--color-surface);
+  --pl-lake: var(--color-secondary);
+  --pl-workshop: var(--color-primary);
+  --pl-mist: #f3eae7;
+  --pl-muted: var(--color-text-muted);
+  --pl-line: rgba(36, 59, 59, 0.17);
+  --pl-serif: Georgia, 'Times New Roman', serif;
+  --pl-sans: Arial, Helvetica, sans-serif;
   /* Typographie */
   --font: 'Montserrat', sans-serif;
   --font-main: 'Montserrat', sans-serif;
 
   /* Palette principale */
-  --primary: #6366f1;
-  --primary-dark: #4f46e5;
-  --dark: #0f172a;
-  --white: #ffffff;
+  --primary: var(--color-primary);
+  --primary-dark: var(--color-primary-dark);
+  --dark: var(--color-text);
+  --white: var(--color-surface);
   --error: #ef4444;
 
   /* Couleurs sémantiques */
-  --color-accent: #C95D5D;
+  --color-accent: var(--color-secondary);
   --color-danger: #be123c;
   --color-danger-dark: #9f1239;
   --color-warning: #b45309;
@@ -50,12 +72,13 @@
 }
 
 html {
-  background: var(--white);
+  background: var(--color-background);
 }
 
 body {
   font-family: var(--font-montserrat), sans-serif;
   color: var(--dark);
+  background: var(--color-background);
   line-height: 1.6;
 }
 

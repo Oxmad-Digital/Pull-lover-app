@@ -7,7 +7,7 @@ export const metadata = {
 
 export default function ConditionsDeVentePage() {
   return (
-    <main style={{ maxWidth: 800, margin: "0 auto", padding: "60px 32px", fontFamily: "Montserrat, sans-serif", color: "#0f172a", lineHeight: 1.8 }}>
+    <main style={{ maxWidth: 800, margin: "0 auto", padding: "60px 32px", fontFamily: "Montserrat, sans-serif", color: "#252323", lineHeight: 1.8 }}>
       <h1 style={{ fontSize: 32, fontWeight: 700, marginBottom: 8 }}>Conditions générales de vente</h1>
       <p style={{ color: "#64748b", marginBottom: 48 }}>Dernière mise à jour : juin 2025</p>
 
@@ -69,7 +69,7 @@ export default function ConditionsDeVentePage() {
         Conformément à l'article L.221-18 du Code de la consommation, le Client dispose d'un délai
         de <strong>14 jours</strong> à compter de la réception de sa commande pour exercer son droit
         de rétractation, sans avoir à justifier sa décision. Pour ce faire, il doit contacter Pull
-        Lover à <a href="mailto:tom.wybo@yahoo.fr" style={{ color: "#6366f1" }}>tom.wybo@yahoo.fr</a>{" "}
+        Lover à <a href="mailto:tom.wybo@yahoo.fr" style={{ color: "#C75C5C" }}>tom.wybo@yahoo.fr</a>{" "}
         avant de retourner l'article dans son état d'origine. Les frais de retour sont à la charge
         du Client.
       </Section>
@@ -85,21 +85,21 @@ export default function ConditionsDeVentePage() {
         Les produits bénéficient de la garantie légale de conformité (articles L.217-4 et suivants
         du Code de la consommation) et de la garantie contre les vices cachés (articles 1641 et
         suivants du Code civil). En cas de défaut constaté, contactez-nous à{" "}
-        <a href="mailto:tom.wybo@yahoo.fr" style={{ color: "#6366f1" }}>tom.wybo@yahoo.fr</a>.
+        <a href="mailto:tom.wybo@yahoo.fr" style={{ color: "#C75C5C" }}>tom.wybo@yahoo.fr</a>.
       </Section>
 
       <Section title="10. Propriété intellectuelle">
         L'ensemble des visuels, textes et contenus du site sont la propriété de Pull Lover. Toute
         reproduction sans autorisation écrite est interdite. Pour plus d'informations, consultez
         nos{" "}
-        <Link href="/mentions-legales" style={{ color: "#6366f1", fontWeight: 600 }}>
+        <Link href="/mentions-legales" style={{ color: "#C75C5C", fontWeight: 600 }}>
           Mentions légales
         </Link>.
       </Section>
 
       <Section title="11. Données personnelles">
         Les données collectées lors de la commande sont traitées conformément à notre{" "}
-        <Link href="/politique-de-confidentialite" style={{ color: "#6366f1", fontWeight: 600 }}>
+        <Link href="/politique-de-confidentialite" style={{ color: "#C75C5C", fontWeight: 600 }}>
           Politique de confidentialité
         </Link>.
       </Section>
@@ -109,14 +109,14 @@ export default function ConditionsDeVentePage() {
         sera recherchée en priorité. À défaut, le litige sera porté devant les tribunaux compétents.
         Le Client peut également recourir à une médiation de la consommation via la plateforme
         européenne de règlement en ligne des litiges :{" "}
-        <a href="https://ec.europa.eu/consumers/odr" target="_blank" rel="noopener noreferrer" style={{ color: "#6366f1" }}>
+        <a href="https://ec.europa.eu/consumers/odr" target="_blank" rel="noopener noreferrer" style={{ color: "#C75C5C" }}>
           ec.europa.eu/consumers/odr
         </a>.
       </Section>
 
       <Section title="13. Contact">
         Pour toute question relative à une commande ou aux présentes CGV :{" "}
-        <a href="mailto:tom.wybo@yahoo.fr" style={{ color: "#6366f1" }}>tom.wybo@yahoo.fr</a>
+        <a href="mailto:tom.wybo@yahoo.fr" style={{ color: "#C75C5C" }}>tom.wybo@yahoo.fr</a>
       </Section>
     </main>
   );
@@ -125,7 +125,7 @@ export default function ConditionsDeVentePage() {
 function Section({ title, children }) {
   return (
     <section style={{ marginBottom: 40 }}>
-      <h2 style={{ fontSize: 18, fontWeight: 700, marginBottom: 12, color: "#0f172a" }}>{title}</h2>
+      <h2 style={{ fontSize: 18, fontWeight: 700, marginBottom: 12, color: "#252323" }}>{title}</h2>
       <div style={{ color: "#334155" }}>{children}</div>
     </section>
   );

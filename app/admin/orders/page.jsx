@@ -30,9 +30,9 @@ const PAYMENT_LABELS = {
 };
 
 const CHIP_FILTERS = [
-  { value: "",            label: "Toutes",      statsKey: "total",      color: "#0f172a" },
+  { value: "",            label: "Toutes",      statsKey: "total",      color: "#252323" },
   { value: "pending",     label: "En attente",  statsKey: "pending",    color: "#b45309" },
-  { value: "confirmed",   label: "Confirmées",  statsKey: "confirmed",  color: "#C95D5D" },
+  { value: "confirmed",   label: "Confirmées",  statsKey: "confirmed",  color: "#C75C5C" },
   { value: "processing",  label: "Préparation", statsKey: "processing", color: "#6d28d9" },
   { value: "paid",        label: "Payées",      statsKey: "paid",       color: "#15803d" },
   { value: "shipped",     label: "Expédiées",   statsKey: "shipped",    color: "#0e7490" },

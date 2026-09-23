@@ -39,37 +39,37 @@
 
 /* — Primary — */
 .btn-primary {
-  background: #1a1a1a;
+  background: #243B3B;
   color: #fff;
-  border-color: #1a1a1a;
+  border-color: #243B3B;
 }
 
 .btn-primary:hover:not(:disabled) {
-  background: #333;
-  border-color: #333;
+  background: #193030;
+  border-color: #193030;
 }
 
 /* — Secondary — */
 .btn-secondary {
   background: transparent;
-  color: #1a1a1a;
-  border-color: #1a1a1a;
+  color: #243B3B;
+  border-color: #243B3B;
 }
 
 .btn-secondary:hover:not(:disabled) {
-  background: #1a1a1a;
+  background: #243B3B;
   color: #fff;
 }
 
 /* — Ghost — */
 .btn-ghost {
   background: transparent;
-  color: #1a1a1a;
+  color: #243B3B;
   border-color: transparent;
   padding-left: 2px;
   padding-right: 2px;
 }
 
 .btn-ghost:hover:not(:disabled) {
-  color: #C95D5D;
+  color: #C75C5C;
 }

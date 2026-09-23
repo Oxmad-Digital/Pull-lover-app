@@ -13,7 +13,7 @@ export default function UserOrdersPage() {
   // 🔒 Rediriger si non connecté
   useEffect(() => {
     if (status === "unauthenticated") {
-      router.push("/login");
+      router.push("/auth/login");
     }
   }, [status, router]);
 

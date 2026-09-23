@@ -14,7 +14,7 @@
   content: '';
   position: absolute;
   inset: 0;
-  background-image: linear-gradient(to right, rgba(0,0,0,0.35) 0%, rgba(0,0,0,0.1) 60%, rgba(0,0,0,0.05) 100%), url('https://res.cloudinary.com/dewstflqp/image/upload/v1779987761/magnific_supprime-le-texte-dans-li_ubc58sNQLD_wj042j.jpg');
+  background-image: linear-gradient(to right, rgba(0,0,0,0.35) 0%, rgba(0,0,0,0.1) 60%, rgba(0,0,0,0.05) 100%), url('/api/media/site/header-hero.jpg');
   background-size: cover;
   opacity: 1;
   pointer-events: none;
@@ -319,7 +319,7 @@
 
 .hcb-progress-fill {
   height: 100%;
-  background: #C95D5D;
+  background: #C75C5C;
   transition: width 1.4s cubic-bezier(0.4, 0, 0.2, 1);
 }
 

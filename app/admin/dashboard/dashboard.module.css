@@ -1,44 +1,42 @@
-﻿/* =============================================
-   Admin — Dashboard
-   Palette : #C95D5D | #0f172a | #f5f5f4
-   ============================================= */
+/* Admin dashboard — Pull Lover editorial system. */
 
 .container {
-  padding: 28px 36px 60px;
-  font-family: var(--font-montserrat), 'Montserrat', sans-serif;
+  padding: 48px clamp(24px, 4vw, 72px) 72px;
+  font-family: var(--pl-sans);
 }
 
-/* ── Topbar ── */
 .topbar {
   display: flex;
   align-items: center;
   gap: 16px;
-  margin-bottom: 28px;
+  margin-bottom: 36px;
+  padding-bottom: 20px;
+  border-bottom: 2px solid var(--color-secondary);
 }
 
 .title {
-  font-size: 26px;
-  font-weight: 700;
-  color: #0f172a;
-  letter-spacing: -0.5px;
   flex: 1;
   margin: 0;
+  color: var(--pl-ink);
+  font-family: var(--pl-serif);
+  font-size: clamp(38px, 4vw, 58px);
+  font-weight: 400;
+  line-height: 1;
+  letter-spacing: -0.04em;
 }
 
-/* ── Bottom grid (dernières commandes + top clients) ── */
 .bottomGrid {
   display: grid;
   grid-template-columns: 3fr 2fr;
-  gap: 12px;
+  gap: 16px;
 }
 
-/* ── Responsive ── */
 @media (max-width: 900px) {
-  .container { padding: 16px; }
-  .title     { font-size: 20px; margin-top: 40px; }
+  .container { padding: 40px 24px 64px; }
+  .title { font-size: 42px; }
 }
 
 @media (max-width: 640px) {
-  .container  { padding: 12px; }
+  .container { padding: 32px 20px 64px; }
   .bottomGrid { grid-template-columns: 1fr; }
 }

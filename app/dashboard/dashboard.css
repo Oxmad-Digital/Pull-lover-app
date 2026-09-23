@@ -59,7 +59,7 @@
 .user-info h3 {
   font-size: 13px;
   font-weight: 600;
-  color: #1a1a1a;
+  color: #243B3B;
   margin: 0;
   white-space: nowrap;
   overflow: hidden;
@@ -154,7 +154,7 @@
 .db-page-title {
   font-size: 20px;
   font-weight: 600;
-  color: #1a1a1a;
+  color: #243B3B;
   padding: 32px 32px 24px 32px;
   border-bottom: 1px solid #e8eaed;
   max-width: 960px;
@@ -192,7 +192,7 @@
 .db-kpi-value {
   font-size: 26px;
   font-weight: 700;
-  color: #1a1a1a;
+  color: #243B3B;
   line-height: 1.2;
 }
 
@@ -238,7 +238,7 @@
 .db-profile-field-value {
   font-size: 13px;
   font-weight: 600;
-  color: #1a1a1a;
+  color: #243B3B;
 }
 
 .db-edit-icon {
@@ -282,7 +282,7 @@
 .db-section-title {
   font-size: 13px;
   font-weight: 600;
-  color: #1a1a1a;
+  color: #243B3B;
   margin: 0 0 16px 0;
   text-align: left;
   text-transform: uppercase;
@@ -303,7 +303,7 @@
 }
 
 .db-table thead tr {
-  background: #1a1a1a;
+  background: #243B3B;
   color: #fff;
 }
 
@@ -333,7 +333,7 @@
 
 .db-order-num {
   font-weight: 600;
-  color: #1a1a1a;
+  color: #243B3B;
   font-family: monospace;
   font-size: 13px;
 }
@@ -470,7 +470,7 @@
 .db-summary-name {
   font-size: 14px;
   font-weight: 600;
-  color: #1a1a1a;
+  color: #243B3B;
   margin: 0 0 2px 0;
 }
 
@@ -513,7 +513,7 @@
 .db-recent-order-total {
   font-size: 13px;
   font-weight: 600;
-  color: #1a1a1a;
+  color: #243B3B;
   margin-left: auto;
 }
 
@@ -595,7 +595,7 @@
 .order-card-id {
   font-size: 13px;
   font-weight: 700;
-  color: #1a1a1a;
+  color: #243B3B;
   font-family: monospace;
 }
 
@@ -739,7 +739,7 @@
   border: 1px solid #e2e5ea;
   border-radius: var(--radius-sm);
   font-size: 14px;
-  color: #1a1a1a;
+  color: #243B3B;
   background: #fff;
   transition: border-color 0.15s;
   outline: none;
@@ -766,7 +766,7 @@
 .db-form-btn {
   align-self: flex-start;
   padding: 10px 24px;
-  background: #1a1a1a;
+  background: #243B3B;
   color: #fff;
   border: none;
   border-radius: var(--radius-sm);
@@ -777,7 +777,7 @@
   font-family: inherit;
 }
 
-.db-form-btn:hover:not(:disabled) { background: #333; }
+.db-form-btn:hover:not(:disabled) { background: #193030; }
 .db-form-btn:disabled { opacity: 0.5; cursor: not-allowed; }
 
 .db-form-success {

@@ -19,7 +19,7 @@ export default function UnauthorizedPage() {
             Retour � l�accueil
           </Link>
 
-          <Link href="/login" className={styles.buttonSecondary}>
+          <Link href="/auth/login" className={styles.buttonSecondary}>
             Se connecter avec un autre compte
           </Link>
         </div>

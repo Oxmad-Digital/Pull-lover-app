@@ -8,7 +8,7 @@ import {
   PieChart, Pie, Cell,
 } from "recharts";
 
-const PIE_COLORS = ["#C95D5D", "#0f172a", "#78716c", "#c4b5a5", "#e7e5e4"];
+const PIE_COLORS = ["#C75C5C", "#243B3B", "#AD4646", "#706666", "#E8DAD6"];
 
 const STATUS_LABELS = {
   pending:    "En attente",
@@ -20,16 +20,18 @@ const STATUS_LABELS = {
   cancelled:  "Annulée",
 };
 
-const font = "var(--font-montserrat), 'Montserrat', sans-serif";
+const font = "var(--pl-sans)";
 
 const N = {
-  border:      "#e9e9e7",
-  borderLight: "#f0f0ee",
+  border:      "rgba(36, 59, 59, 0.17)",
+  borderLight: "rgba(36, 59, 59, 0.09)",
   bg:          "#ffffff",
-  bgMuted:     "#f7f7f5",
-  text:        "#1a1a1a",
-  muted:       "#9b9b9b",
-  radius:      "8px",
+  bgMuted:     "#FFF9F6",
+  text:        "#243B3B",
+  muted:       "#706666",
+  accent:      "#C75C5C",
+  accentDark:  "#AD4646",
+  radius:      "0px",
 };
 
 const thStyle = {
@@ -60,7 +62,6 @@ export default function DashboardStats() {
   const [period, setPeriod] = useState("7");
 
   useEffect(() => {
-    setData(null);
     fetch(`/api/admin/stats?period=${period}`)
       .then(async (res) => { if (!res.ok) throw new Error(); return res.json(); })
       .then(setData)
@@ -94,10 +95,10 @@ export default function DashboardStats() {
             { label: "30 j.", value: "30"  },
             { label: "Année", value: "365" },
           ].map((p) => (
-            <button key={p.value} onClick={() => setPeriod(p.value)} style={{
+            <button key={p.value} onClick={() => { if (p.value !== period) { setData(null); setError(false); setPeriod(p.value); } }} style={{
               padding: "5px 14px", borderRadius: "4px", border: "none",
-              background: period === p.value ? N.bg    : "transparent",
-              color:      period === p.value ? N.text  : N.muted,
+              background: period === p.value ? N.accent : "transparent",
+              color:      period === p.value ? "#fff" : N.muted,
               fontWeight: period === p.value ? "600"   : "400",
               boxShadow:  period === p.value ? "0 1px 3px rgba(0,0,0,0.08)" : "none",
               cursor: "pointer", fontSize: "12px", fontFamily: font,
@@ -110,7 +111,7 @@ export default function DashboardStats() {
       </div>
 
       {/* ── KPI Row 1 — métriques principales ── */}
-      <div className="kpi-grid" style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", background: N.bg, border: `1px solid ${N.border}`, borderRadius: N.radius, overflow: "hidden" }}>
+      <div className="kpi-grid" style={{ background: N.bg, border: `1px solid ${N.border}`, borderRadius: N.radius, overflow: "hidden" }}>
         <KPICell border small label="Clients"    value={stats.customersCount ?? 0}   sub={`+${stats.newCustomers ?? 0} nouveaux`} />
         <KPICell border small label="Commandes"  value={stats.ordersCount ?? 0}       sub={`${stats.periodOrders ?? 0} / période`} />
         <KPICell border small label="CA période" value={`${parseFloat(stats.periodRevenue || 0).toLocaleString("fr-FR")} €`}
@@ -122,7 +123,7 @@ export default function DashboardStats() {
       </div>
 
       {/* ── KPI Row 2 — métriques secondaires ── */}
-      <div className="kpi-grid" style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", background: N.bg, border: `1px solid ${N.border}`, borderRadius: N.radius, overflow: "hidden" }}>
+      <div className="kpi-grid" style={{ background: N.bg, border: `1px solid ${N.border}`, borderRadius: N.radius, overflow: "hidden" }}>
         <KPICell border small label="Taux d'annulation" value={`${stats.cancellationRate ?? 0}%`}    sub={`${stats.cancelledOrders ?? 0} cmd annulées`} />
         <KPICell border small label="Fidélisation"       value={`${stats.loyaltyRate ?? 0}%`}          sub={`${stats.returningCustomers ?? 0} clients récurrents`} />
         <KPICell border small label="Clients dormants"   value={stats.dormantCustomers ?? 0}            sub="sans achat depuis 30 j" />
@@ -139,7 +140,7 @@ export default function DashboardStats() {
       )}
 
       {/* ── Graphiques : évolution + modes de paiement ── */}
-      <div style={{ display: "grid", gridTemplateColumns: "2fr 1fr", gap: "12px" }}>
+      <div className="dashboard-charts">
         <MiniCard label="Évolution des ventes">
           <ResponsiveContainer width="100%" height={170}>
             <LineChart data={salesEvolution} margin={{ top: 4, right: 4, bottom: 0, left: -22 }}>
@@ -147,8 +148,8 @@ export default function DashboardStats() {
               <XAxis dataKey="date" fontSize={10} tick={{ fill: N.muted, fontFamily: font }} tickLine={false} axisLine={false} />
               <YAxis fontSize={10} tick={{ fill: N.muted, fontFamily: font }} tickLine={false} axisLine={false} />
               <Tooltip contentStyle={{ background: N.bg, border: `1px solid ${N.border}`, borderRadius: "6px", fontSize: "11px", fontFamily: font, boxShadow: "none" }} />
-              <Line type="monotone" dataKey="revenue" stroke="#C95D5D" strokeWidth={1.5} name="CA (€)"    dot={false} />
-              <Line type="monotone" dataKey="orders"  stroke="#0f172a"  strokeWidth={1.5} name="Commandes" dot={false} />
+              <Line type="monotone" dataKey="revenue" stroke={N.accent} strokeWidth={1.5} name="CA (€)"    dot={false} />
+              <Line type="monotone" dataKey="orders"  stroke={N.text}  strokeWidth={1.5} name="Commandes" dot={false} />
             </LineChart>
           </ResponsiveContainer>
         </MiniCard>
@@ -192,7 +193,7 @@ export default function DashboardStats() {
             <XAxis type="number" fontSize={10} tick={{ fill: N.muted, fontFamily: font }} tickLine={false} axisLine={false} />
             <YAxis dataKey="name" type="category" width={130} tick={{ fill: N.text, fontSize: 11, fontFamily: font }} tickLine={false} axisLine={false} />
             <Tooltip contentStyle={{ background: N.bg, border: `1px solid ${N.border}`, borderRadius: "6px", fontSize: "11px", fontFamily: font, boxShadow: "none" }} />
-            <Bar dataKey="quantity" fill="#C95D5D" radius={[0, 4, 4, 0]} maxBarSize={10} />
+            <Bar dataKey="quantity" fill={N.accent} radius={0} maxBarSize={10} />
           </BarChart>
         </ResponsiveContainer>
       </MiniCard>
@@ -246,11 +247,11 @@ export default function DashboardStats() {
 
 function KPICell({ label, value, sub, border, small }) {
   return (
-    <div style={{ padding: small ? "13px 18px" : "18px 22px", borderRight: border ? `1px solid ${N.border}` : "none" }}>
+    <div className={border ? "kpi-cell kpi-cell-bordered" : "kpi-cell"} style={{ padding: small ? "13px 18px" : "18px 22px" }}>
       <div style={{ fontSize: "10px", fontWeight: "600", textTransform: "uppercase", letterSpacing: "0.09em", color: N.muted, marginBottom: "7px", fontFamily: font }}>
         {label}
       </div>
-      <div style={{ fontSize: small ? "19px" : "24px", fontWeight: "700", color: N.text, lineHeight: 1.1, marginBottom: "4px", fontFamily: font }}>
+      <div style={{ fontSize: small ? "24px" : "28px", fontWeight: "400", color: N.text, lineHeight: 1.05, marginBottom: "6px", fontFamily: "var(--pl-serif)" }}>
         {value}
       </div>
       <div style={{ fontSize: "11px", color: N.muted, fontFamily: font }}>

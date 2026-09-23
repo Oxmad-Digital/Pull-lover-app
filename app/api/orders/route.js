@@ -1,8 +1,7 @@
 // app/api/order/route.js
 
 import { NextResponse } from "next/server";
-import mongoose from "mongoose";
-import { connectDB } from "@/app/lib/db";
+import { connectDB, isValidId } from "@/app/lib/db";
 import Order from "@/app/models/Order";
 import { sendEmail } from "@/app/lib/mailer";
 import { getOrderConfirmationEmailTemplate, getAdminNewOrderEmailTemplate } from "@/app/lib/emailTemplates";
@@ -60,12 +59,12 @@ export async function POST(req) {
        FORMAT PRODUITS
     ====================== */
     const products = cartItems.map((item) => {
-      if (!mongoose.Types.ObjectId.isValid(item._id)) {
+      if (!isValidId(item._id)) {
         throw new Error("ID produit invalide");
       }
 
       return {
-        product: new mongoose.Types.ObjectId(item._id),
+        product: item._id,
         quantity: Number(item.quantity) || 1,
       };
     });

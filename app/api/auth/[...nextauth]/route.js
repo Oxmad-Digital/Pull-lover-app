@@ -82,7 +82,7 @@ export const authOptions = {
         token.role = user.role ?? "customer";
         token.emailVerified = user.emailVerified ?? account?.provider === "google";
       }
-      // Charger l'id et le rôle réels depuis MongoDB pour les providers OAuth
+      // Charger l'id et le rôle réels depuis PostgreSQL pour les providers OAuth
       if (account?.provider && account.provider !== "credentials") {
         await connectDB();
         const dbUser = await User.findOne({ email: token.email });

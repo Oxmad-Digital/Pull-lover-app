@@ -20,7 +20,7 @@
   font-weight: 700;
   letter-spacing: 0.15em;
   text-transform: uppercase;
-  color: #C95D5D;
+  color: #C75C5C;
   margin: 0;
 }
 
@@ -30,8 +30,8 @@
   font-family: var(--font-montserrat, 'Montserrat', sans-serif);
   font-size: 0.7rem;
   font-weight: 700;
-  color: #fff;
-  background: #C95D5D;
+  color: #111;
+  background: #C75C5C;
   padding: 4px 10px;
   border-radius: var(--radius-lg);
   letter-spacing: 0.02em;

@@ -37,10 +37,12 @@ export default function AdminSidebar() {
       {/* Sidebar desktop / tablette */}
       <aside className="admin-sidebar">
         <div className="admin-sidebar-header">
-          <div className="admin-sidebar-avatar">A</div>
+          <Link href="/" className="admin-sidebar-brand" aria-label="Accueil Pull Lover">
+            <span className="admin-sidebar-wordmark">PULL—LOVER</span>
+            <span className="admin-sidebar-brand-origin">Maille de Madagascar</span>
+          </Link>
           <div className="admin-sidebar-info">
-            <h3>Administration</h3>
-            <p>Pull Lover</p>
+            <span>Administration</span>
           </div>
         </div>
 

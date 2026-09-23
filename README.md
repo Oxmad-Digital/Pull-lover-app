@@ -2,6 +2,15 @@ This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-
 
 ## Getting Started
 
+Create a `.env.local` file and configure the Neon connection:
+
+```bash
+DATABASE_URL=postgresql://USER:PASSWORD@HOST/DATABASE?sslmode=require
+```
+
+The PostgreSQL tables and uniqueness indexes are created automatically on the
+first connection. No MongoDB service is required.
+
 First, run the development server:
 
 ```bash

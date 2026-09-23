@@ -1,7 +1,7 @@
 ﻿/* ── PAGE ── */
 .favoris-page {
   min-height: 100vh;
-  background: #faf8f7;
+  background: #FFF9F6;
   padding: 80px 64px;
   position: relative;
   overflow: hidden;
@@ -27,7 +27,7 @@
 .favoris-bg span:nth-child(1) {
   width: 600px;
   height: 600px;
-  background: #C95D5D;
+  background: #C75C5C;
   top: -15%;
   left: -10%;
   opacity: 0.16;
@@ -37,7 +37,7 @@
 .favoris-bg span:nth-child(2) {
   width: 500px;
   height: 500px;
-  background: #870003;
+  background: #AD4646;
   bottom: -18%;
   right: -8%;
   opacity: 0.12;
@@ -47,7 +47,7 @@
 .favoris-bg span:nth-child(3) {
   width: 340px;
   height: 340px;
-  background: #C95D5D;
+  background: #C75C5C;
   top: 45%;
   left: 50%;
   opacity: 0.08;
@@ -57,7 +57,7 @@
 .favoris-bg span:nth-child(4) {
   width: 260px;
   height: 260px;
-  background: #1a1a1a;
+  background: #243B3B;
   top: 18%;
   right: 16%;
   opacity: 0.04;
@@ -109,7 +109,7 @@
 .favoris-count {
   font-family: 'Montserrat', sans-serif;
   font-size: 14px;
-  color: #C95D5D;
+  color: #C75C5C;
   margin: 0;
 }
 
@@ -148,7 +148,7 @@
   display: inline-block;
   margin-top: 8px;
   padding: 14px 32px;
-  background: #1a1a1a;
+  background: #243B3B;
   color: #fff;
   font-family: 'Montserrat', sans-serif;
   font-size: 14px;
@@ -160,7 +160,7 @@
 }
 
 .favoris-btn-boutique:hover {
-  background: #C95D5D;
+  background: #AD4646;
 }
 
 /* ── GRILLE ── */
@@ -178,12 +178,12 @@
   overflow: hidden;
   display: flex;
   flex-direction: column;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04), 0 8px 24px rgba(201, 93, 93, 0.06);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04), 0 8px 24px rgba(199, 92, 92, 0.06);
   transition: box-shadow 0.25s, transform 0.25s;
 }
 
 .fav-card:hover {
-  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08), 0 16px 40px rgba(201, 93, 93, 0.1);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08), 0 16px 40px rgba(199, 92, 92, 0.1);
   transform: translateY(-3px);
 }
 
@@ -197,8 +197,8 @@
 }
 
 .fav-img {
-  width: 100% !important;
-  height: 100% !important;
+  width: 100%;
+  height: 100%;
   object-fit: cover;
   transition: transform 0.4s ease;
 }
@@ -230,7 +230,7 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  color: #C95D5D;
+  color: #C75C5C;
   transition: background 0.2s, transform 0.2s;
   backdrop-filter: blur(4px);
 }
@@ -238,7 +238,7 @@
 .fav-remove-icon:hover {
   background: #fff;
   transform: scale(1.1);
-  color: #870003;
+  color: #AD4646;
 }
 
 /* ── INFOS ── */
@@ -263,7 +263,7 @@
 }
 
 .fav-name:hover {
-  color: #C95D5D;
+  color: #C75C5C;
 }
 
 /* ── PRIX ── */
@@ -285,7 +285,7 @@
   font-family: 'Montserrat', sans-serif;
   font-size: 14px;
   font-weight: 700;
-  color: #C95D5D;
+  color: #C75C5C;
 }
 
 .fav-price-old {
@@ -313,7 +313,7 @@
 .fav-add-cart {
   width: 100%;
   padding: 10px;
-  background: #1a1a1a;
+  background: #243B3B;
   color: #fff;
   font-family: 'Montserrat', sans-serif;
   font-size: 12px;
@@ -326,7 +326,7 @@
 }
 
 .fav-add-cart:hover:not(:disabled) {
-  background: #C95D5D;
+  background: #AD4646;
 }
 
 .fav-add-cart:disabled {
@@ -365,13 +365,13 @@
   font-family: 'Montserrat', sans-serif;
   font-size: 14px;
   font-weight: 600;
-  color: #C95D5D;
+  color: #C75C5C;
   text-decoration: none;
   transition: color 0.2s;
 }
 
 .favoris-link-boutique:hover {
-  color: #870003;
+  color: #AD4646;
   text-decoration: underline;
 }
 

@@ -100,16 +100,6 @@ export default function AdminPromosPage() {
   return (
     <div className="ap-page">
 
-      <style>{`
-        @media (max-width: 767px) {
-          .promo-form-wrap  { padding: 16px !important; }
-          .promo-form-grid  { grid-template-columns: 1fr !important; }
-        }
-        @media (max-width: 640px) {
-          .promo-search-input { min-width: 0 !important; }
-        }
-      `}</style>
-
       <Toast toast={toast} />
       <ConfirmationDialog confirmModal={confirmModal} onClose={closeConfirm} />
 
@@ -143,19 +133,15 @@ export default function AdminPromosPage() {
 
       {/* Formulaire création */}
       {showForm && (
-        <div className="promo-form-wrap" style={{
-          background: "#fff", border: "1px solid #e7e5e4", borderRadius: 10,
-          padding: "24px 28px", marginBottom: 20,
-        }}>
-          <h2 style={{ fontSize: 16, fontWeight: 700, marginBottom: 20, color: "#0f172a" }}>
+        <div className="promo-form-wrap">
+          <h2 style={{ fontSize: 16, fontWeight: 700, marginBottom: 20, color: "#252323" }}>
             Nouveau code promo
           </h2>
           <form onSubmit={handleCreate} style={{ display: "flex", flexDirection: "column", gap: 14 }}>
-            <div className="promo-form-grid" style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12 }}>
+            <div className="promo-form-grid">
               <div>
                 <label style={labelStyle}>Code *</label>
                 <input
-                  style={inputStyle}
                   placeholder="SUMMER20"
                   value={form.code}
                   onChange={(e) => setForm({ ...form, code: e.target.value.toUpperCase() })}
@@ -165,7 +151,6 @@ export default function AdminPromosPage() {
               <div>
                 <label style={labelStyle}>Description</label>
                 <input
-                  style={inputStyle}
                   placeholder="Soldes été 2026"
                   value={form.description}
                   onChange={(e) => setForm({ ...form, description: e.target.value })}
@@ -174,7 +159,6 @@ export default function AdminPromosPage() {
               <div>
                 <label style={labelStyle}>Type *</label>
                 <select
-                  style={inputStyle}
                   value={form.type}
                   onChange={(e) => setForm({ ...form, type: e.target.value })}
                 >
@@ -187,7 +171,6 @@ export default function AdminPromosPage() {
                   Valeur * {form.type === "percentage" ? "(en %)" : "(en €)"}
                 </label>
                 <input
-                  style={inputStyle}
                   type="number"
                   min="0"
                   max={form.type === "percentage" ? 100 : undefined}
@@ -200,7 +183,6 @@ export default function AdminPromosPage() {
               <div>
                 <label style={labelStyle}>Montant minimum (€)</label>
                 <input
-                  style={inputStyle}
                   type="number"
                   min="0"
                   placeholder="0"
@@ -211,7 +193,6 @@ export default function AdminPromosPage() {
               <div>
                 <label style={labelStyle}>Utilisations max (vide = illimité)</label>
                 <input
-                  style={inputStyle}
                   type="number"
                   min="1"
                   placeholder="—"
@@ -222,7 +203,6 @@ export default function AdminPromosPage() {
               <div>
                 <label style={labelStyle}>Date d'expiration</label>
                 <input
-                  style={inputStyle}
                   type="date"
                   value={form.expiresAt}
                   onChange={(e) => setForm({ ...form, expiresAt: e.target.value })}
@@ -243,7 +223,7 @@ export default function AdminPromosPage() {
             </div>
 
             {formError && (
-              <p style={{ fontSize: 13, color: "#C95D5D", margin: 0 }}>{formError}</p>
+              <p style={{ fontSize: 13, color: "#C75C5C", margin: 0 }}>{formError}</p>
             )}
 
             <div style={{ display: "flex", gap: 10, flexWrap: "wrap" }}>
@@ -289,7 +269,7 @@ export default function AdminPromosPage() {
               {promos.map((promo) => (
                 <tr key={promo._id} style={{ borderBottom: "1px solid #f5f5f4" }}>
                   <td style={tdStyle}>
-                    <span style={{ fontWeight: 700, fontSize: 13, color: "#0f172a", letterSpacing: "0.04em" }}>
+                    <span style={{ fontWeight: 700, fontSize: 13, color: "#252323", letterSpacing: "0.04em" }}>
                       {promo.code}
                     </span>
                     {promo.description && (
@@ -308,7 +288,7 @@ export default function AdminPromosPage() {
                     </span>
                   </td>
                   <td style={tdStyle}>
-                    <span style={{ fontWeight: 700, color: "#C95D5D" }}>
+                    <span style={{ fontWeight: 700, color: "#C75C5C" }}>
                       {promo.type === "percentage" ? `${promo.value}%` : `${promo.value} €`}
                     </span>
                   </td>
@@ -339,7 +319,7 @@ export default function AdminPromosPage() {
                     <button
                       onClick={() => handleDelete(promo)}
                       style={{
-                        background: "none", border: "none", color: "#C95D5D",
+                        background: "none", border: "none", color: "#C75C5C",
                         cursor: "pointer", fontSize: 13, fontWeight: 600,
                       }}
                     >
@@ -360,12 +340,6 @@ export default function AdminPromosPage() {
 const labelStyle = {
   display: "block", fontSize: 11, fontWeight: 700, color: "#78716c",
   marginBottom: 6, textTransform: "uppercase", letterSpacing: "0.05em",
-};
-
-const inputStyle = {
-  width: "100%", padding: "9px 12px", border: "1.5px solid #e7e5e4",
-  borderRadius: 6, fontSize: 13, fontFamily: "inherit", color: "#0f172a",
-  outline: "none", boxSizing: "border-box", background: "#fff",
 };
 
 const tdStyle = { padding: "12px 16px", fontSize: 13 };

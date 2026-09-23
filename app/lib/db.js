@@ -1,41 +1,104 @@
-import mongoose from "mongoose";
+import { neon } from "@neondatabase/serverless";
 
-const MONGODB_URI = process.env.MONGODB_URI;
+const DATABASE_URL = process.env.DATABASE_URL || process.env.POSTGRES_URL;
 
-if (!MONGODB_URI) {
-  throw new Error("❌ MONGODB_URI non défini");
+const TABLES = [
+  "categories",
+  "customers",
+  "newsletter_subscribers",
+  "orders",
+  "products",
+  "promos",
+  "reviews",
+  "settings",
+  "users",
+];
+
+const UNIQUE_INDEXES = [
+  ["categories", "name"],
+  ["customers", "email"],
+  ["newsletter_subscribers", "email"],
+  ["products", "slug"],
+  ["promos", "code"],
+  ["users", "email"],
+];
+
+function getClient() {
+  if (!DATABASE_URL) {
+    throw new Error("DATABASE_URL n'est pas définie pour Neon PostgreSQL");
+  }
+
+  if (!globalThis.__pullLoverPostgres) {
+    const query = neon(DATABASE_URL);
+    const sql = (strings, ...values) => {
+      if (typeof strings === "string") {
+        if (!/^[a-z_][a-z0-9_]*$/i.test(strings)) throw new Error("Identifiant SQL invalide");
+        return { identifier: strings };
+      }
+
+      let text = strings[0];
+      const parameters = [];
+      values.forEach((value, index) => {
+        if (value?.identifier) {
+          text += `"${value.identifier}"`;
+        } else if (value?.literal) {
+          text += `'${value.literal}'`;
+        } else {
+          parameters.push(value?.jsonValue ?? value);
+          text += `$${parameters.length}`;
+        }
+        text += strings[index + 1];
+      });
+      return query.query(text, parameters);
+    };
+    sql.json = (value) => ({ jsonValue: JSON.stringify(value) });
+    sql.literal = (value) => {
+      if (!/^[a-z_][a-z0-9_]*$/i.test(value)) throw new Error("Littéral SQL invalide");
+      return { literal: value };
+    };
+    sql.end = async () => {};
+    globalThis.__pullLoverPostgres = sql;
+  }
+
+  return globalThis.__pullLoverPostgres;
 }
 
-let cached = global.mongoose;
+async function initializeSchema(sql) {
+  for (const table of TABLES) {
+    await sql`
+      CREATE TABLE IF NOT EXISTS ${sql(table)} (
+        id uuid PRIMARY KEY,
+        data jsonb NOT NULL DEFAULT '{}'::jsonb,
+        created_at timestamptz NOT NULL DEFAULT now(),
+        updated_at timestamptz NOT NULL DEFAULT now()
+      )
+    `;
+  }
 
-if (!cached) {
-  cached = global.mongoose = { conn: null, promise: null };
+  for (const [table, field] of UNIQUE_INDEXES) {
+    const indexName = `${table}_${field}_unique_idx`;
+    await sql`
+      CREATE UNIQUE INDEX IF NOT EXISTS ${sql(indexName)}
+      ON ${sql(table)} ((lower(data->>${sql.literal(field)})))
+      WHERE data ? ${sql.literal(field)}
+    `;
+  }
 }
 
 export async function connectDB() {
-  if (cached.conn && mongoose.connection.readyState === 1) {
-    return cached.conn;
+  const sql = getClient();
+
+  if (!globalThis.__pullLoverSchemaPromise) {
+    globalThis.__pullLoverSchemaPromise = initializeSchema(sql).catch((error) => {
+      globalThis.__pullLoverSchemaPromise = null;
+      throw error;
+    });
   }
 
-  if (!cached.promise) {
-    cached.promise = mongoose
-      .connect(MONGODB_URI, {
-        bufferCommands: false,
-        serverSelectionTimeoutMS: 10000,
-        maxPoolSize: 10,
-      })
-      .then((m) => {
-        console.log("✅ MongoDB connecté");
-        return m;
-      });
-  }
+  await globalThis.__pullLoverSchemaPromise;
+  return sql;
+}
 
-  try {
-    cached.conn = await cached.promise;
-  } catch (e) {
-    cached.promise = null;
-    throw e;
-  }
-
-  return cached.conn;
+export function isValidId(value) {
+  return typeof value === "string" && /^[0-9a-f]{8}-[0-9a-f-]{27}$/i.test(value);
 }

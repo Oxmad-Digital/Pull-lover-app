@@ -2,10 +2,10 @@
 
 /* ── VARIABLES ── */
 .product-detail-page {
-  --brand: #C95D5D;
-  --brand-dark: #870003;
+  --brand: #C75C5C;
+  --brand-dark: #AD4646;
   --brand-light: #fdf5f5;
-  --dark: #1a1a1a;
+  --dark: #243B3B;
   --gray: #6b7280;
   --gray-light: #f9fafb;
   --border: #d1d5db;
@@ -594,7 +594,7 @@
 .product-detail-page .review-form input:focus,
 .product-detail-page .review-form textarea:focus {
   border-color: var(--brand);
-  box-shadow: 0 0 0 3px rgba(201, 93, 93, 0.1);
+  box-shadow: 0 0 0 3px rgba(199, 92, 92, 0.1);
 }
 
 .product-detail-page .star-selector {

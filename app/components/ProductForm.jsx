@@ -28,8 +28,8 @@ export default function ProductForm({
   const [uploadedUrls, setUploadedUrls] = useState(
     editingProduct?.images || (editingProduct?.image ? [editingProduct.image] : [])
   );
-  const [uploadedPublicIds, setUploadedPublicIds] = useState(
-    editingProduct?.imagePublicIds || []
+  const [uploadedKeys, setUploadedKeys] = useState(
+    editingProduct?.imageKeys || []
   );
   const [imagePreviews, setImagePreviews] = useState(
     editingProduct?.images || (editingProduct?.image ? [editingProduct.image] : [])
@@ -39,7 +39,7 @@ export default function ProductForm({
   const [loading, setLoading] = useState(false);
   const [msg, setMsg] = useState("");
 
-  // ✅ Upload immédiat sur Cloudinary
+  // ✅ Upload immédiat sur R2
   const handleImageChange = async (e) => {
     const files = Array.from(e.target.files);
     if (files.length === 0) return;
@@ -71,7 +71,7 @@ export default function ProductForm({
 
         setImagePreviews((prev) => [...prev.slice(0, -1), data.url]);
         setUploadedUrls((prev) => [...prev, data.url]);
-        setUploadedPublicIds((prev) => [...prev, data.publicId]);
+        setUploadedKeys((prev) => [...prev, data.key]);
       }
 
       setMsg("✅ Images uploadées !");
@@ -85,7 +85,7 @@ export default function ProductForm({
   const removeImage = (index) => {
     setImagePreviews((prev) => prev.filter((_, i) => i !== index));
     setUploadedUrls((prev) => prev.filter((_, i) => i !== index));
-    setUploadedPublicIds((prev) => prev.filter((_, i) => i !== index));
+    setUploadedKeys((prev) => prev.filter((_, i) => i !== index));
   };
 
   // ✅ Envoie du JSON pur
@@ -123,7 +123,7 @@ export default function ProductForm({
         category: category || null,
         images: uploadedUrls,
         image: uploadedUrls[0] || "",
-        imagePublicIds: uploadedPublicIds,
+        imageKeys: uploadedKeys,
       };
 
       if (editingProduct?._id) body._id = editingProduct._id;
@@ -264,12 +264,12 @@ export default function ProductForm({
           disabled={uploading}
         />
         {uploading && (
-          <p style={{ color: "#C95D5D", marginTop: "8px", fontSize: "13px", fontWeight: "500" }}>
+          <p style={{ color: "#C75C5C", marginTop: "8px", fontSize: "13px", fontWeight: "500" }}>
             ⏳ Upload en cours...
           </p>
         )}
         <p className="image-count">
-          {uploadedUrls.length} image(s) sur Cloudinary ✅
+          {uploadedUrls.length} image(s) sur R2 ✅
         </p>
       </div>
 

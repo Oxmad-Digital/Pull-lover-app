@@ -107,7 +107,7 @@ export default function NotreMarque() {
                             preload="metadata"
                         >
                             <source
-                                src="https://res.cloudinary.com/dewstflqp/video/upload/v1778740605/vid%C3%A9o_de_pr%C3%A9sentation_Ultramaille_jtpbab.mp4"
+                                src="/api/media/site/presentation-ultramaille.mp4"
                                 type="video/mp4"
                             />
                             Votre navigateur ne supporte pas la lecture vidéo.
@@ -148,7 +148,7 @@ export default function NotreMarque() {
                         <p className="nm-cta__sub">
                             Découvrez nos pulls et accessoires faits main, créés à Madagascar.
                         </p>
-                        <ButtonPrimary href="/nos-mailles" size="lg">
+                        <ButtonPrimary href="/#piece" size="lg">
                             Voir la collection
                         </ButtonPrimary>
                     </div>

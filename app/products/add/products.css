@@ -157,9 +157,9 @@
   background: #f9fafb;
 }
 
-.empty-row {
+.products-table td.empty-row {
   text-align: center;
-  padding: 3rem !important;
+  padding: 3rem;
   color: #6b7280;
   font-size: 1.1rem;
 }
@@ -482,8 +482,8 @@
   gap: 1.5rem;
 }
 
-.file-input {
-  padding: 0.5rem !important;
+.form-group input.file-input {
+  padding: 0.5rem;
   cursor: pointer;
 }
 

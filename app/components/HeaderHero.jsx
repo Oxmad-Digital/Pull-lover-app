@@ -130,7 +130,7 @@ export default function HeaderHero() {
           <p className="hero-sub" ref={subRef}>
             Eo adducta re per Isauriam, rege Persarum bellis finitimis
           </p>
-          <Link href="/nos-mailles" className="hero-cta">
+          <Link href="/#piece" className="hero-cta">
             Je précommande
           </Link>
         </div>

@@ -37,14 +37,14 @@
     font-weight: 700;
     letter-spacing: 0.15em;
     text-transform: uppercase;
-    color: #C95D5D;
+    color: #C75C5C;
     margin: 0;
 }
 
 .ncs-title {
     font-family: 'Montserrat', sans-serif;
     font-weight: 700;
-    color: #1a1a1a;
+    color: #243B3B;
     margin: 0;
     line-height: 1.15;
 }
@@ -93,12 +93,12 @@
 }
 
 .ncs-wishlist-btn:hover {
-    color: #c0392b;
+    color: #C75C5C;
     transform: scale(1.1);
 }
 
 .ncs-wishlist-btn.active {
-    color: #c0392b;
+    color: #C75C5C;
 }
 
 /* Badge promo */
@@ -171,7 +171,7 @@
     justify-content: center;
     font-size: 0.8rem;
     font-weight: 600;
-    color: #1a1a1a;
+    color: #243B3B;
     letter-spacing: 0.05em;
     text-transform: uppercase;
 }
@@ -196,7 +196,7 @@
     font-size: 1rem;
     font-style: italic;
     font-weight: 500;
-    color: #1a1a1a;
+    color: #243B3B;
     text-decoration: none;
     line-height: 1.4;
     width: 100%;
@@ -217,11 +217,11 @@
 }
 
 .ncs-price-current {
-    color: #1a1a1a;
+    color: #243B3B;
 }
 
 .ncs-price-promo {
-    color: #c0392b;
+    color: #C75C5C;
 }
 
 .ncs-price-old {
@@ -271,9 +271,9 @@
     display: inline-flex;
     align-items: center;
     padding: 0.4rem 1.2rem;
-    border: 1px solid #1a1a1a;
+    border: 1px solid #243B3B;
     background: #ffffff;
-    color: #1a1a1a;
+    color: #243B3B;
     font-size: 0.72rem;
     font-family: 'Montserrat', sans-serif;
     letter-spacing: 0.06em;
@@ -286,7 +286,7 @@
 }
 
 .ncs-voir-produit:hover {
-    background: #1a1a1a;
+    background: #243B3B;
     color: #ffffff;
 }
 
@@ -295,8 +295,8 @@
     display: inline-block;
     padding: 9px 20px;
     background-color: #ffffff;
-    color: #1a1a1a;
-    border: 1.5px solid #1a1a1a;
+    color: #243B3B;
+    border: 1.5px solid #243B3B;
     border-radius: var(--radius-md);
     font-family: 'Montserrat', sans-serif;
     font-size: 0.75rem;
@@ -310,7 +310,7 @@
 }
 
 .ncs-btn-all:hover {
-    background-color: #1a1a1a;
+    background-color: #243B3B;
     color: #ffffff;
 }
 
@@ -414,7 +414,7 @@
         font-family: 'Montserrat', sans-serif;
         font-size: 1.4rem;
         font-weight: 700;
-        color: #1a1a1a;
+        color: #243B3B;
         margin: 0;
         line-height: 1.3;
     }
@@ -503,7 +503,7 @@
         font-family: 'Montserrat', sans-serif;
         font-size: 1.4rem;
         font-weight: 700;
-        color: #1a1a1a;
+        color: #243B3B;
         margin: 0;
         line-height: 1.3;
     }

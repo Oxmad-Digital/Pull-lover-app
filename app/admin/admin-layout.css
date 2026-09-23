@@ -14,7 +14,7 @@
   animation: adminBblFadeInOut 1.8s infinite ease-in-out;
 }
 .admin-loader {
-  color: #C95D5D;
+  color: #C75C5C;
   font-size: 7px;
   position: relative;
   text-indent: -9999em;
@@ -119,7 +119,7 @@
   width: 40px;
   height: 40px;
   border-radius: var(--radius-full);
-  background: #c0616a;
+  background: #C75C5C;
   color: #fff;
   display: flex;
   align-items: center;
@@ -132,7 +132,7 @@
 .admin-sidebar-info h3 {
   font-size: 13px;
   font-weight: 600;
-  color: #1a1a1a;
+  color: #243B3B;
   margin: 0;
   white-space: nowrap;
   overflow: hidden;
@@ -170,14 +170,14 @@
 }
 
 .admin-nav-item:hover {
-  background: #fdf0f1;
-  color: #c0616a;
+  background: #F3EAE7;
+  color: #C75C5C;
 }
 
 .admin-nav-item.active {
-  background: #fdf0f1;
-  color: #c0616a;
-  border-left-color: #c0616a;
+  background: #F3EAE7;
+  color: #C75C5C;
+  border-left-color: #C75C5C;
   font-weight: 600;
 }
 
@@ -237,7 +237,7 @@
 
   .admin-nav-item.active {
     border-left: none;
-    background: #fdf0f1;
+    background: #F3EAE7;
   }
 
   .admin-nav-label {
@@ -296,7 +296,7 @@
 
   .admin-bottom-nav-item:hover,
   .admin-bottom-nav-item.active {
-    color: #c0616a;
+    color: #C75C5C;
   }
 
   .admin-bottom-nav-icon {
@@ -359,8 +359,8 @@
 
   .admin-more-item:hover,
   .admin-more-item.active {
-    background: #fdf0f1;
-    color: #c0616a;
+    background: #F3EAE7;
+    color: #C75C5C;
   }
 
   .admin-more-item-icon {
@@ -375,13 +375,13 @@
   .admin-more-logout {
     margin-top: 4px;
     border-top: 1px solid #f0f0ee;
-    color: #c0616a;
+    color: #C75C5C;
     font-weight: 600;
   }
 
   /* ── KPI cards — 2 colonnes sur mobile ── */
   .kpi-grid {
-    grid-template-columns: repeat(2, 1fr) !important;
+    grid-template-columns: repeat(2, 1fr);
   }
 }
 

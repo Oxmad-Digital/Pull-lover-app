@@ -1,20 +1,19 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import Link from "next/link";
 import { useToast } from "@/app/hooks/useToast";
 import { useConfirmDialog } from "@/app/hooks/useConfirmDialog";
 import { Toast } from "@/app/components/ui/Toast";
 import { ConfirmationDialog } from "@/app/components/ui/ConfirmationDialog";
 
 const P = {
-  bg:     "#f5f5f4",
+  bg:     "var(--pl-paper)",
   card:   "#fff",
-  border: "#e7e5e4",
-  text:   "#0f172a",
-  muted:  "#a8a29e",
-  accent: "#C95D5D",
-  font:   "var(--font-montserrat), 'Montserrat', sans-serif",
+  border: "var(--pl-line)",
+  text:   "var(--pl-ink)",
+  muted:  "var(--pl-muted)",
+  accent: "var(--pl-lake)",
+  font:   "var(--pl-sans)",
 };
 
 export default function CategoriesPage() {
@@ -90,13 +89,14 @@ export default function CategoriesPage() {
       <ConfirmationDialog confirmModal={confirmModal} onClose={closeConfirm} />
 
       {/* Topbar */}
-      <div style={{ display: "flex", alignItems: "center", gap: "16px", marginBottom: "24px" }}>
-        <h1 style={{ fontSize: "26px", fontWeight: "700", color: P.text, letterSpacing: "-0.5px", flex: 1, margin: 0 }}>
+      <div className="ap-topbar">
+        <h1 className="ap-topbar-title">
           Catégories
         </h1>
 
         <button
           onClick={() => { setShowForm((v) => !v); setNewName(""); }}
+          className="ap-btn-add"
           style={{
             display: "inline-flex", alignItems: "center", gap: "8px",
             padding: "10px 20px", background: P.accent, color: "#fff",
@@ -113,7 +113,7 @@ export default function CategoriesPage() {
 
       {/* Formulaire d'ajout inline */}
       {showForm && (
-        <form onSubmit={handleCreate} className="admin-cat-form" style={{
+        <form onSubmit={handleCreate} className="admin-cat-form ap-toolbar" style={{
           display: "flex", gap: "8px", alignItems: "center",
           background: P.card, border: `1px solid ${P.border}`,
           borderRadius: "12px", padding: "14px 18px", marginBottom: "16px",
@@ -122,6 +122,7 @@ export default function CategoriesPage() {
             ref={inputRef}
             type="text"
             placeholder="Nom de la catégorie…"
+            className="ap-search-input"
             value={newName}
             onChange={(e) => setNewName(e.target.value)}
             style={{
@@ -132,14 +133,14 @@ export default function CategoriesPage() {
             onFocus={(e)  => { e.target.style.borderColor = P.accent; e.target.style.background = P.card; }}
             onBlur={(e)   => { e.target.style.borderColor = P.border; e.target.style.background = "#fafaf9"; }}
           />
-          <button type="submit" style={{
+          <button type="submit" className="ap-search-btn" style={{
             padding: "8px 18px", background: P.text, color: "#fff",
             border: "none", borderRadius: "8px", fontSize: "13px",
             fontWeight: "600", fontFamily: P.font, cursor: "pointer",
           }}>
             Créer
           </button>
-          <button type="button" onClick={() => setShowForm(false)} style={{
+          <button type="button" onClick={() => setShowForm(false)} className="ap-back-btn" style={{
             padding: "8px 14px", background: "#f5f5f4", color: "#78716c",
             border: `1.5px solid ${P.border}`, borderRadius: "8px",
             fontSize: "13px", fontWeight: "600", fontFamily: P.font, cursor: "pointer",
@@ -150,7 +151,7 @@ export default function CategoriesPage() {
       )}
 
       {/* Table */}
-      <div style={{ background: P.card, border: `1px solid ${P.border}`, borderRadius: "12px", overflow: "hidden" }}>
+      <div className="ap-table-wrap">
         {loading ? (
           <div className="admin-loading-wrap"><span className="admin-loader" />Chargement</div>
         ) : categories.length === 0 ? (
@@ -159,7 +160,7 @@ export default function CategoriesPage() {
           </div>
         ) : (
           <div style={{ overflowX: "auto" }}>
-          <table style={{ width: "100%", borderCollapse: "collapse", minWidth: "480px" }}>
+          <table className="ap-table" style={{ minWidth: "480px" }}>
             <thead>
               <tr style={{ background: "#fafaf9", borderBottom: `1px solid ${P.border}` }}>
                 {["Nom", "Créée le", "Actions"].map((h) => (
@@ -243,10 +244,10 @@ export default function CategoriesPage() {
 
 function ActionBtn({ onClick, variant, children }) {
   const styles = {
-    edit:   { bg: "#f5f5f4", color: "#0f172a", border: "#e7e5e4", hoverBg: "#0f172a", hoverColor: "#fff" },
+    edit:   { bg: "#f5f5f4", color: "#252323", border: "var(--pl-line)", hoverBg: "#252323", hoverColor: "#fff" },
     delete: { bg: "#fff1f2", color: "#be123c", border: "#fecdd3", hoverBg: "#be123c", hoverColor: "#fff" },
     save:   { bg: "#f0fdf4", color: "#15803d", border: "#bbf7d0", hoverBg: "#15803d", hoverColor: "#fff" },
-    cancel: { bg: "#f5f5f4", color: "#78716c", border: "#e7e5e4", hoverBg: "#78716c", hoverColor: "#fff" },
+    cancel: { bg: "#f5f5f4", color: "#78716c", border: "var(--pl-line)", hoverBg: "#78716c", hoverColor: "#fff" },
   };
   const s = styles[variant];
   return (
@@ -256,7 +257,7 @@ function ActionBtn({ onClick, variant, children }) {
         padding: "6px 12px", background: s.bg, color: s.color,
         border: `1.5px solid ${s.border}`, borderRadius: "7px",
         fontSize: "12px", fontWeight: "600",
-        fontFamily: "var(--font-montserrat), 'Montserrat', sans-serif",
+        fontFamily: "var(--pl-sans)",
         cursor: "pointer", transition: "all 0.15s", whiteSpace: "nowrap",
       }}
       onMouseEnter={(e) => { e.currentTarget.style.background = s.hoverBg; e.currentTarget.style.color = s.hoverColor; e.currentTarget.style.borderColor = s.hoverBg; }}

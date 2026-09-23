@@ -1,13 +1,13 @@
-import mongoose from "mongoose";
+import { createPostgresModel } from "@/app/lib/postgres-model";
 
-const SettingsSchema = new mongoose.Schema(
-  {
-    dropDate:        { type: Date,    default: null },
-    bandeauText:     { type: String,  default: "" },
-    badgeText:       { type: String,  default: "" },
-    maintenanceMode: { type: Boolean, default: false },
+const Settings = createPostgresModel({
+  table: "settings",
+  defaults: {
+    dropDate: null,
+    bandeauText: "",
+    badgeText: "",
+    maintenanceMode: false,
   },
-  { timestamps: true }
-);
+});
 
-export default mongoose.models.Settings || mongoose.model("Settings", SettingsSchema);
+export default Settings;

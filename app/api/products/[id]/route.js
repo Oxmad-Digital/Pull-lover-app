@@ -1,7 +1,7 @@
 // app/api/products/[id]/route.js
 
 import { NextResponse } from "next/server";
-import { connectDB } from "@/app/lib/db";
+import { connectDB, isValidId } from "@/app/lib/db";
 import Product from "@/app/models/Product";
 import "@/app/models/Category";
 
@@ -21,7 +21,13 @@ export async function GET(req, { params }) {
       );
     }
 
-    const product = await Product.findById(id)
+    const productQuery = id.toLowerCase() === "mantasoa"
+      ? Product.findOne({ name: { $regex: /^(le\s+)?mantasoa$/i } })
+      : isValidId(id)
+        ? Product.findById(id)
+        : Product.findOne({ slug: id });
+
+    const product = await productQuery
       .populate({
         path: "category",
         select: "name slug",

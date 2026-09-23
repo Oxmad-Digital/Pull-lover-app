@@ -4,6 +4,7 @@ import { authOptions } from "@/app/api/auth/[...nextauth]/route";
 import { connectDB } from "@/app/lib/db";
 import User from "@/app/models/User";
 import bcrypt from "bcryptjs";
+import { deleteFromR2 } from "@/app/lib/r2";
 
 export async function PATCH(request) {
   try {
@@ -11,7 +12,7 @@ export async function PATCH(request) {
     if (!session) return NextResponse.json({ message: "Non autorisé" }, { status: 401 });
 
     const body = await request.json();
-    const { name, phone, currentPassword, newPassword, avatar, avatarPublicId } = body;
+    const { name, phone, currentPassword, newPassword, avatar, avatarKey } = body;
 
     await connectDB();
     const user = await User.findOne({ email: session.user.email });
@@ -20,9 +21,11 @@ export async function PATCH(request) {
     if (name?.trim()) user.name = name.trim();
     if (phone !== undefined) user.phone = phone.trim() || null;
 
+    let previousAvatarKey = null;
     if (avatar !== undefined && session.user.role === "admin") {
+      previousAvatarKey = user.avatarKey;
       user.avatar = avatar || null;
-      if (avatarPublicId !== undefined) user.avatarPublicId = avatarPublicId || null;
+      if (avatarKey !== undefined) user.avatarKey = avatarKey || null;
     }
 
     if (newPassword) {
@@ -40,6 +43,11 @@ export async function PATCH(request) {
     }
 
     await user.save();
+    if (previousAvatarKey && previousAvatarKey !== user.avatarKey) {
+      await deleteFromR2(previousAvatarKey).catch((error) =>
+        console.error("Suppression de l’ancien avatar R2 impossible:", error)
+      );
+    }
     return NextResponse.json({ message: "Profil mis à jour" });
   } catch (err) {
     console.error("PATCH /api/user/profile:", err);

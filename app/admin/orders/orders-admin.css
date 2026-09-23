@@ -1,6 +1,6 @@
 ﻿/* =============================================
    Admin — Gestion des commandes
-   Palette : #C95D5D | #0f172a | #f5f5f4
+   Palette : #C75C5C | #252323 | #f5f5f4
    ============================================= */
 
 .ap-page {
@@ -34,12 +34,12 @@
   white-space: nowrap;
   flex-shrink: 0;
 }
-.ap-back-btn:hover { background: #0f172a; color: #fff; border-color: #0f172a; }
+.ap-back-btn:hover { background: #252323; color: #fff; border-color: #252323; }
 
 .ap-topbar-title {
   font-size: 26px;
   font-weight: 700;
-  color: #0f172a;
+  color: #252323;
   letter-spacing: -0.5px;
   flex: 1;
 }
@@ -50,7 +50,7 @@
   gap: 6px;
   padding: 9px 16px;
   background: #fff;
-  color: #0f172a;
+  color: #252323;
   border: 1.5px solid #e7e5e4;
   border-radius: var(--radius-sm);
   font-size: 13px;
@@ -61,7 +61,7 @@
   flex-shrink: 0;
   transition: all 0.15s;
 }
-.ac-btn-export:hover:not(:disabled) { border-color: #0f172a; background: #f5f5f4; }
+.ac-btn-export:hover:not(:disabled) { border-color: #252323; background: #f5f5f4; }
 .ac-btn-export:disabled { color: #a8a29e; cursor: not-allowed; }
 
 /* ── Toolbar — recherche + filtres + tri ── */
@@ -111,12 +111,12 @@
 }
 
 .ao-chip:hover {
-  border-color: var(--chip-color, #0f172a);
+  border-color: var(--chip-color, #252323);
 }
 
 .ao-chip-active {
-  background: var(--chip-color, #0f172a);
-  border-color: var(--chip-color, #0f172a);
+  background: var(--chip-color, #252323);
+  border-color: var(--chip-color, #252323);
   color: #fff;
 }
 
@@ -124,7 +124,7 @@
   width: 7px;
   height: 7px;
   border-radius: 50%;
-  background: var(--chip-color, #0f172a);
+  background: var(--chip-color, #252323);
   flex-shrink: 0;
   transition: background 0.15s;
 }
@@ -149,7 +149,7 @@
   letter-spacing: 0.01em;
 }
 
-.ao-chip:not(.ao-chip-active) .ao-chip-count { color: var(--chip-color, #0f172a); }
+.ao-chip:not(.ao-chip-active) .ao-chip-count { color: var(--chip-color, #252323); }
 .ao-chip:not(.ao-chip-active) .ao-chip-label  { color: #57534e; }
 
 /* ── Toolbar legacy (gardé pour compatibilité autres pages) ── */
@@ -173,12 +173,12 @@
   border-radius: var(--radius-sm);
   font-size: 13px;
   font-family: inherit;
-  color: #0f172a;
+  color: #252323;
   background: #fafaf9;
   outline: none;
   transition: border-color 0.2s;
 }
-.ap-search-input:focus { border-color: #C95D5D; background: #fff; }
+.ap-search-input:focus { border-color: #C75C5C; background: #fff; }
 .ap-search-input::placeholder { color: #a8a29e; }
 
 .ap-divider {
@@ -203,8 +203,8 @@
   transition: all 0.15s;
   white-space: nowrap;
 }
-.ap-filter-btn:hover  { border-color: #C95D5D; color: #C95D5D; }
-.ap-filter-btn.active { background: #0f172a; color: #fff; border-color: #0f172a; }
+.ap-filter-btn:hover  { border-color: #C75C5C; color: #C75C5C; }
+.ap-filter-btn.active { background: #252323; color: #fff; border-color: #252323; }
 
 /* Sort */
 .ap-sort-wrap { position: relative; }
@@ -217,7 +217,7 @@
   border: 1.5px solid #e7e5e4;
   border-radius: var(--radius-sm);
   background: #fff;
-  color: #0f172a;
+  color: #252323;
   font-size: 13px;
   font-weight: 600;
   font-family: inherit;
@@ -225,7 +225,7 @@
   white-space: nowrap;
   transition: border-color 0.15s;
 }
-.ap-sort-trigger:hover { border-color: #0f172a; }
+.ap-sort-trigger:hover { border-color: #252323; }
 
 .ap-sort-trigger-arrow {
   font-size: 10px;
@@ -261,7 +261,7 @@
   padding: 9px 15px;
   font-size: 13px;
   font-family: inherit;
-  color: #0f172a;
+  color: #252323;
   cursor: pointer;
   transition: background 0.12s;
   display: flex;
@@ -270,7 +270,7 @@
 }
 .ap-sort-option:hover    { background: #f5f5f4; }
 .ap-sort-option.selected { font-weight: 700; }
-.ap-sort-check { font-size: 11px; color: #C95D5D; }
+.ap-sort-check { font-size: 11px; color: #C75C5C; }
 
 
 /* Stats inline */
@@ -292,7 +292,7 @@
 .ap-stat-chip-value {
   font-size: 17px;
   font-weight: 700;
-  color: #0f172a;
+  color: #252323;
 }
 .ap-stat-chip-label {
   font-size: 10px;
@@ -339,7 +339,7 @@
   border-bottom: 1px solid #f5f5f4;
   vertical-align: middle;
   font-size: 14px;
-  color: #0f172a;
+  color: #252323;
 }
 
 .ap-table tbody tr:last-child td { border-bottom: none; }
@@ -363,7 +363,7 @@
 .ap-page-btn {
   padding: 8px 16px;
   background: #fff;
-  color: #0f172a;
+  color: #252323;
   border: 1.5px solid #e7e5e4;
   border-radius: var(--radius-sm);
   font-size: 13px;
@@ -372,10 +372,10 @@
   cursor: pointer;
   transition: all 0.15s;
 }
-.ap-page-btn:hover:not(:disabled) { background: #0f172a; color: #fff; border-color: #0f172a; }
+.ap-page-btn:hover:not(:disabled) { background: #252323; color: #fff; border-color: #252323; }
 .ap-page-btn:disabled { opacity: 0.4; cursor: not-allowed; }
 
-.ap-page-info { font-size: 13px; font-weight: 600; color: #0f172a; }
+.ap-page-info { font-size: 13px; font-weight: 600; color: #252323; }
 .ap-page-total { color: #a8a29e; font-weight: 500; }
 
 /* ── Actions ── */
@@ -398,7 +398,7 @@
   transition: all 0.15s;
   line-height: 1;
 }
-.ap-btn-view:hover { background: #0f172a; color: #fff; border-color: #0f172a; }
+.ap-btn-view:hover { background: #252323; color: #fff; border-color: #252323; }
 
 .ap-btn-delete {
   padding: 6px 12px;
@@ -432,7 +432,7 @@
   width: 34px;
   height: 34px;
   border-radius: var(--radius-full);
-  background: #0f172a;
+  background: #252323;
   color: #fff;
   font-size: 12px;
   font-weight: 700;
@@ -446,7 +446,7 @@
 .ao-client-name {
   font-size: 13px;
   font-weight: 600;
-  color: #0f172a;
+  color: #252323;
   line-height: 1.3;
 }
 
@@ -459,7 +459,7 @@
 
 .ao-email {
   font-size: 13px;
-  color: #C95D5D;
+  color: #C75C5C;
   text-decoration: none;
   font-weight: 500;
 }
@@ -469,14 +469,14 @@
 
 /* Location */
 .ao-location { display: flex; flex-direction: column; gap: 2px; }
-.ao-city    { font-size: 13px; font-weight: 600; color: #0f172a; }
+.ao-city    { font-size: 13px; font-weight: 600; color: #252323; }
 .ao-address { font-size: 12px; color: #78716c; }
 
 /* Total */
 .ao-total {
   font-size: 14px;
   font-weight: 700;
-  color: #C95D5D;
+  color: #C75C5C;
   white-space: nowrap;
 }
 
@@ -492,7 +492,7 @@
 }
 .ao-payment-cash          { background: #f5f5f4; color: #57534e; }
 .ao-payment-mobile_money  { background: #fff7ed; color: #c2410c; }
-.ao-payment-card          { background: #fef2f2; color: #C95D5D; }
+.ao-payment-card          { background: #fef2f2; color: #C75C5C; }
 .ao-payment-bank_transfer { background: #f5f3ff; color: #6d28d9; }
 
 /* Status select */
@@ -512,7 +512,7 @@
 .ao-status-select:disabled { opacity: 0.6; cursor: not-allowed; }
 
 .ao-status-pending    { background: #fffbeb; color: #b45309; }
-.ao-status-confirmed  { background: #fef2f2; color: #C95D5D; }
+.ao-status-confirmed  { background: #fef2f2; color: #C75C5C; }
 .ao-status-processing { background: #f5f3ff; color: #6d28d9; }
 .ao-status-paid       { background: #f0fdf4; color: #15803d; }
 .ao-status-shipped    { background: #ecfeff; color: #0e7490; }
