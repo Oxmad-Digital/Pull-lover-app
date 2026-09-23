@@ -24,7 +24,7 @@ export default function HomePage() {
   return (
     <div className="pl-home" id="accueil">
       <section className="pl-hero" aria-labelledby="home-title">
-        <Image src="/api/media/site/mantasoa-hero.webp" alt="Le pull Mantasoa porté au bord du lac, dans les hauts plateaux de Madagascar" fill sizes="100vw" preload className="pl-hero-image" />
+        <Image src="/pull-lover-hero.webp" alt="Le pull Mantasoa porté au bord du lac, dans les hauts plateaux de Madagascar" fill sizes="100vw" preload className="pl-hero-image" />
         <div className="pl-hero-copy">
           <p className="pl-eyebrow">Maille de Madagascar · Le Mantasoa</p>
           <h1 id="home-title">Le pull qui prend <em>son temps.</em></h1>
