@@ -37,6 +37,7 @@ export default function ProductDetailPage() {
   const [reviewRating, setReviewRating] = useState(5);
   const [reviewSuccess, setReviewSuccess] = useState(false);
   const [expandedReviews, setExpandedReviews] = useState({});
+  const productId = product?._id;
 
   const averageRating =
     reviews.length > 0
@@ -92,19 +93,19 @@ export default function ProductDetailPage() {
   };
 
   useEffect(() => {
-    if (!id) return;
-    fetch(`/api/reviews?productId=${id}`)
+    if (!productId) return;
+    fetch(`/api/reviews?productId=${productId}`)
       .then((res) => res.json())
       .then((data) => { if (Array.isArray(data)) setReviews(data); })
       .catch((err) => console.error(err));
-  }, [id]);
+  }, [productId]);
 
   const submitReview = async () => {
-    if (!reviewName || !reviewComment) return;
+    if (!productId || !reviewName || !reviewComment) return;
     await fetch("/api/reviews", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ productId: id, name: reviewName, rating: reviewRating, comment: reviewComment }),
+      body: JSON.stringify({ productId, name: reviewName, rating: reviewRating, comment: reviewComment }),
     });
     setReviewName("");
     setReviewComment("");
@@ -112,7 +113,7 @@ export default function ProductDetailPage() {
     setShowReviewForm(false);
     setReviewSuccess(true);
     setTimeout(() => setReviewSuccess(false), 3000);
-    const res = await fetch(`/api/reviews?productId=${id}`);
+    const res = await fetch(`/api/reviews?productId=${productId}`);
     const data = await res.json();
     if (Array.isArray(data)) setReviews(data);
   };
@@ -185,7 +186,7 @@ export default function ProductDetailPage() {
         <div className="product-detail-page">
           <div className="product-error">
             <h2>{error}</h2>
-            <Link href="/nos-mailles" className="back-link">← Retour à la boutique</Link>
+            <Link href="/#piece" className="back-link">← Découvrir le Mantasoa</Link>
           </div>
         </div>
       </div>
@@ -294,7 +295,19 @@ export default function ProductDetailPage() {
                 </button>
                 {detailsOpen && (
                   <div className="accordion-body">
-                    <p>{product.details || "Aucun détail disponible."}</p>
+                    {product.details && <p>{product.details}</p>}
+                    {(product.brand || product.condition || product.specifications?.length > 0) && (
+                      <table className="specs-table">
+                        <tbody>
+                          {product.brand && <tr><td>Marque</td><td>{product.brand}</td></tr>}
+                          {product.condition && <tr><td>État</td><td>{product.condition}</td></tr>}
+                          {product.specifications?.map((spec, index) => (
+                            <tr key={`${spec.label}-${index}`}><td>{spec.label}</td><td>{spec.value}</td></tr>
+                          ))}
+                        </tbody>
+                      </table>
+                    )}
+                    {!product.details && !product.brand && !product.condition && !product.specifications?.length && <p>Aucun détail disponible.</p>}
                   </div>
                 )}
               </div>

@@ -35,7 +35,7 @@
 .apropos-product-image {
     width: 100%;
     max-width: 420px;
-    height: auto !important;
+    height: auto;
     object-fit: contain;
     display: block;
     position: relative;
@@ -73,7 +73,7 @@
     font-family: 'Montserrat', sans-serif;
     font-weight: 700;
     line-height: 1.15;
-    color: #1a1a1a;
+    color: #243B3B;
     margin: 0;
 }
 
@@ -116,8 +116,8 @@
     width: fit-content;
     padding: 9px 20px;
     background-color: #ffffff;
-    color: #1a1a1a;
-    border: 1.5px solid #1a1a1a;
+    color: #243B3B;
+    border: 1.5px solid #243B3B;
     border-radius: var(--radius-md);
     font-family: 'Montserrat', sans-serif;
     font-size: 0.75rem;
@@ -131,7 +131,7 @@
 }
 
 .apropos-btn:hover {
-    background-color: #1a1a1a;
+    background-color: #243B3B;
     color: #ffffff;
 }
 

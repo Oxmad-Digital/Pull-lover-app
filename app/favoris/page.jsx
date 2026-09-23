@@ -67,9 +67,9 @@ export default function FavorisPage() {
               </svg>
             </div>
             <h2>Votre liste de favoris est vide</h2>
-            <p>Ajoutez des articles en cliquant sur le cœur dans la boutique.</p>
-            <ButtonPrimary href="/nos-mailles">
-              Découvrir la boutique
+            <p>Retrouvez ici les pièces que vous avez enregistrées.</p>
+            <ButtonPrimary href="/#piece">
+              Découvrir le Mantasoa
             </ButtonPrimary>
           </div>
         ) : (
@@ -166,7 +166,7 @@ export default function FavorisPage() {
             </div>
 
             <div className="favoris-footer">
-              <ButtonGhost href="/nos-mailles" style={{ color: '#C95D5D' }}>
+              <ButtonGhost href="/#piece" style={{ color: '#C75C5C' }}>
                 Continuer mes achats
               </ButtonGhost>
             </div>

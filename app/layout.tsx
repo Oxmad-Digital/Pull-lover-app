@@ -1,8 +1,9 @@
 import React from "react";
 import "./globals.css";
+import "./mantasoa-product.css";
 import { Montserrat, Pinyon_Script } from 'next/font/google';
 import HeaderWrapper from "./components/HeaderWrapper";
-import Footer from "./components/Footer";
+import FooterWrapper from "./components/FooterWrapper";
 import Providers from "./components/Providers";
 
 const montserrat = Montserrat({
@@ -44,10 +45,10 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
       <body className={montserrat.className}>
         <Providers>
           <HeaderWrapper />
-          <main style={{ background: "transparent" }}>
+          <main id="contenu" style={{ background: "transparent" }}>
             {children}
           </main>
-          <Footer />
+          <FooterWrapper />
         </Providers>
       </body>
     </html>

@@ -148,7 +148,7 @@ export default function Contact() {
                 <div className="contact__image-side reveal" ref={imageRef}>
                     <img
                         className="contact__image"
-                        src="https://res.cloudinary.com/dewstflqp/image/upload/v1780126255/pull-over-polo-vert-olive-homme-malgache-chemin-sable_js6kmt.jpg"
+                        src="/api/media/site/contact-pull-vert-olive.jpg"
                         alt="Homme portant un pull-over vert olive sur un chemin de sable"
                     />
                 </div>

@@ -8,9 +8,9 @@ const P = {
   bg:     "#f5f5f4",
   card:   "#fff",
   border: "#e7e5e4",
-  text:   "#0f172a",
+  text:   "#252323",
   muted:  "#a8a29e",
-  accent: "#C95D5D",
+  accent: "#C75C5C",
   font:   "var(--font-montserrat), 'Montserrat', sans-serif",
 };
 

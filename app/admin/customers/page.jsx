@@ -14,7 +14,7 @@ const VIP_THRESHOLD = 50_000;
 const PER_PAGE = 25;
 
 const CHIP_FILTERS = [
-  { value: "all",     label: "Tous",    color: "#0f172a" },
+  { value: "all",     label: "Tous",    color: "#252323" },
   { value: "active",  label: "Actifs",  color: "#15803d" },
   { value: "blocked", label: "Bloqués", color: "#be123c" },
   { value: "vip",     label: "VIP",     color: "#f59e0b" },

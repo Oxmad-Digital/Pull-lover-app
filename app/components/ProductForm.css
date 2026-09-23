@@ -1,6 +1,6 @@
 ﻿/* ========================================
    ProductForm — design cohérent avec le site
-   Variables : --primary #6366f1 | --dark #0f172a
+   Variables : --primary #C75C5C | --dark #252323
    ======================================== */
 
 .product-form {
@@ -32,8 +32,8 @@
 .product-form input:focus,
 .product-form select:focus,
 .product-form textarea:focus {
-  border-color: #C95D5D;
-  box-shadow: 0 0 0 3px rgba(201, 93, 93, 0.12);
+  border-color: #C75C5C;
+  box-shadow: 0 0 0 3px rgba(199, 92, 92, 0.12);
   background: var(--white);
 }
 
@@ -86,7 +86,7 @@
 }
 
 .product-form input[type="file"]:hover {
-  border-color: #C95D5D;
+  border-color: #C75C5C;
 }
 
 .image-count {
@@ -117,7 +117,7 @@
 }
 
 .image-preview-item:hover img {
-  border-color: #C95D5D;
+  border-color: #C75C5C;
 }
 
 .remove-image-btn {
@@ -158,8 +158,8 @@
   font-size: 14px;
   font-weight: 700;
   font-family: inherit;
-  color: white;
-  background: #C95D5D;
+  color: #111;
+  background: #C75C5C;
   border: none;
   border-radius: var(--radius-md);
   cursor: pointer;
@@ -168,7 +168,8 @@
 }
 
 .btn-submit:hover:not(:disabled) {
-  background: #b04d4d;
+  background: #AD4646;
+  color: #fff;
 }
 
 .btn-submit:active:not(:disabled) {
@@ -210,7 +211,7 @@
 
 .form-message.success {
   background: #fdf0f0;
-  color: #b04d4d;
+  color: #AD4646;
   border: 1px solid #e8a0a0;
 }
 
@@ -236,7 +237,7 @@
 }
 
 .form-required {
-  color: #C95D5D;
+  color: #C75C5C;
 }
 
 .form-row {
@@ -283,7 +284,7 @@
 
 .stock-size-item input[type="number"] {
   width: 100%;
-  padding: 8px 4px !important;
+  padding: 8px 4px;
   text-align: center;
   font-size: 15px;
   font-weight: 700;
@@ -298,7 +299,7 @@
 }
 
 .stock-total strong {
-  color: #C95D5D;
+  color: #C75C5C;
   font-weight: 700;
 }
 

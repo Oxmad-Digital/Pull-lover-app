@@ -75,7 +75,7 @@ export default function CartPage() {
       {cartItems.length === 0 ? (
         <div className="cart-empty">
           <p>Votre panier est vide.</p>
-          <Link href="/nos-mailles">Retour à la boutique</Link>
+          <Link href="/#piece">Découvrir le Mantasoa</Link>
         </div>
       ) : (
         <div className="cart-wrapper">
@@ -206,7 +206,7 @@ export default function CartPage() {
                 <span>{total} €</span>
               </div>
               {hasZeroQty && (
-                <p style={{ fontSize: 12, color: "#C95D5D", textAlign: "center", marginBottom: 8 }}>
+                <p style={{ fontSize: 12, color: "#C75C5C", textAlign: "center", marginBottom: 8 }}>
                   Un article a une quantité de 0. Supprimez-le ou augmentez la quantité.
                 </p>
               )}

@@ -1,6 +1,6 @@
 ﻿:root {
-  --red: #c0392b;
-  --dark: #1a1a1a;
+  --red: #C75C5C;
+  --dark: #243B3B;
   --gray: #6b7280;
   --gray-light: #f0f0f0;
   --border: #e8e8e8;
@@ -114,12 +114,12 @@
 }
 
 /* ── CARD ── */
-.product-card {
+.boutique-container .product-card {
   position: relative;
-  background: transparent !important;
-  border: none !important;
-  border-radius: 0 !important;
-  box-shadow: none !important;
+  background: transparent;
+  border: none;
+  border-radius: 0;
+  box-shadow: none;
   display: flex;
   flex-direction: column;
 }

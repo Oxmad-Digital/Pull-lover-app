@@ -31,14 +31,14 @@
     font-weight: 700;
     letter-spacing: 0.15em;
     text-transform: uppercase;
-    color: #C95D5D;
+    color: #C75C5C;
     margin: 0;
 }
 
 .process-title {
     font-family: 'Montserrat', sans-serif;
     font-weight: 700;
-    color: #1a1a1a;
+    color: #243B3B;
     line-height: 1.15;
     margin: 0;
 }
@@ -72,8 +72,8 @@
 }
 
 .process-card:hover {
-    border-color: #C95D5D;
-    box-shadow: 0 8px 32px rgba(201, 93, 93, 0.08);
+    border-color: #C75C5C;
+    box-shadow: 0 8px 32px rgba(199, 92, 92, 0.08);
 }
 
 /* Haut de carte : numéro + icône */
@@ -87,7 +87,7 @@
     font-family: 'Montserrat', sans-serif;
     font-size: 1.75rem;
     font-weight: 800;
-    color: #C95D5D;
+    color: #C75C5C;
     line-height: 1;
     letter-spacing: -0.02em;
 }
@@ -101,7 +101,7 @@
 .process-card-icon svg {
     width: 44px;
     height: 44px;
-    color: #1a1a1a;
+    color: #243B3B;
 }
 
 /* Corps */
@@ -115,7 +115,7 @@
     font-family: 'Montserrat', sans-serif;
     font-size: 1rem;
     font-weight: 700;
-    color: #1a1a1a;
+    color: #243B3B;
     margin: 0;
     line-height: 1.4;
 }

@@ -15,7 +15,7 @@
   font-family: var(--font-montserrat, 'Montserrat', sans-serif);
   font-size: 48px;
   font-weight: 700;
-  color: #1a1a1a;
+  color: #243B3B;
   line-height: 1.15;
   margin-bottom: 0.5rem;
 }
@@ -62,7 +62,7 @@
   border: none;
   font-size: 0.9rem;
   font-family: var(--font-montserrat, 'Montserrat', sans-serif);
-  color: #1a1a1a;
+  color: #243B3B;
   background: transparent;
   outline: none;
 }
@@ -89,7 +89,7 @@
   font-weight: 400;
   letter-spacing: 0.08em;
   text-transform: uppercase;
-  color: #1a1a1a;
+  color: #243B3B;
   cursor: pointer;
   opacity: 0.38;
   transition: opacity 0.2s;
@@ -136,7 +136,7 @@
 .error-state {
   text-align: center;
   padding: 3rem;
-  color: #c0392b;
+  color: #C75C5C;
   font-weight: 600;
 }
 
@@ -154,9 +154,9 @@
 
 .reset-btn {
   padding: 0.75rem 2rem;
-  border: 1px solid #1a1a1a;
+  border: 1px solid #243B3B;
   background: transparent;
-  color: #1a1a1a;
+  color: #243B3B;
   font-size: 0.875rem;
   cursor: pointer;
   border-radius: var(--radius-md);
@@ -166,7 +166,7 @@
 }
 
 .reset-btn:hover {
-  background: #1a1a1a;
+  background: #243B3B;
   color: #ffffff;
 }
 
@@ -242,14 +242,14 @@
     font-family: var(--font-montserrat, 'Montserrat', sans-serif);
     font-size: 0.8rem;
     font-weight: 500;
-    color: #1a1a1a;
+    color: #243B3B;
     cursor: pointer;
     white-space: nowrap;
     transition: border-color 0.2s;
   }
 
   .filter-dropdown-btn.active {
-    border-color: #1a1a1a;
+    border-color: #243B3B;
     font-weight: 600;
   }
 
@@ -284,7 +284,7 @@
     font-family: var(--font-montserrat, 'Montserrat', sans-serif);
     font-size: 0.85rem;
     font-weight: 400;
-    color: #1a1a1a;
+    color: #243B3B;
     text-align: left;
     cursor: pointer;
     letter-spacing: 0.04em;

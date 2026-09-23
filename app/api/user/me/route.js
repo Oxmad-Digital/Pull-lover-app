@@ -11,7 +11,7 @@ export async function GET() {
 
     await connectDB();
     const user = await User.findOne({ email: session.user.email })
-      .select("name email phone address avatar avatarPublicId")
+      .select("name email phone address avatar avatarKey")
       .lean();
 
     if (!user) return NextResponse.json({ message: "Introuvable" }, { status: 404 });

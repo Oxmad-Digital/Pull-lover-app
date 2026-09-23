@@ -34,7 +34,8 @@ export default async function OrdersPage() {
   const orders = await Order.find({ "customer.email": session.user.email })
     .populate("products.product", "name price")
     .sort({ createdAt: -1 })
-    .lean();
+    .lean()
+    .exec();
 
   return (
     <div>
@@ -46,8 +47,8 @@ export default async function OrdersPage() {
             <p style={{ fontSize: 14, color: "#888", marginBottom: 16 }}>
               Vous n&apos;avez pas encore de commandes.
             </p>
-            <Link href="/nos-mailles" className="db-add-address" style={{ display: "inline-flex" }}>
-              Découvrir la boutique
+            <Link href="/#piece" className="db-add-address" style={{ display: "inline-flex" }}>
+              Découvrir le Mantasoa
             </Link>
           </div>
         ) : (
@@ -196,19 +197,19 @@ export default async function OrdersPage() {
                     }}>
                       {order.customer?.address && (
                         <span>
-                          <strong style={{ color: "#1a1a1a" }}>Adresse : </strong>
+                          <strong style={{ color: "#243B3B" }}>Adresse : </strong>
                           {order.customer.address}, {order.customer.city}
                         </span>
                       )}
                       {order.payment && (
                         <span>
-                          <strong style={{ color: "#1a1a1a" }}>Paiement : </strong>
+                          <strong style={{ color: "#243B3B" }}>Paiement : </strong>
                           {PAYMENT_LABELS[order.payment] || order.payment}
                         </span>
                       )}
                       {(order as any).delivery?.method && (
                         <span>
-                          <strong style={{ color: "#1a1a1a" }}>Livraison : </strong>
+                          <strong style={{ color: "#243B3B" }}>Livraison : </strong>
                           {(order as any).delivery.method === "colissimo_relais" ? "Point relais Colissimo" : "Colissimo domicile"}
                         </span>
                       )}

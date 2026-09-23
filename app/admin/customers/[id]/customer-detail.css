@@ -1,6 +1,6 @@
 ﻿/* =============================================
    Admin — Détail client
-   Palette : #C95D5D | #0f172a | #f5f5f4
+   Palette : #C75C5C | #252323 | #f5f5f4
    ============================================= */
 
 .acd-page {
@@ -44,7 +44,7 @@
   white-space: nowrap;
   flex-shrink: 0;
 }
-.acd-back-btn:hover { background: #0f172a; color: #fff; border-color: #0f172a; }
+.acd-back-btn:hover { background: #252323; color: #fff; border-color: #252323; }
 
 /* ── Profil dans la topbar ── */
 .acd-profile {
@@ -57,7 +57,7 @@
 .acd-avatar {
   width: 48px;
   height: 48px;
-  background: #0f172a;
+  background: #252323;
   color: #fff;
   border-radius: var(--radius-md);
   display: flex;
@@ -78,7 +78,7 @@
 .acd-fullname {
   font-size: 20px;
   font-weight: 700;
-  color: #0f172a;
+  color: #252323;
   letter-spacing: -0.3px;
 }
 .acd-vip {
@@ -114,7 +114,7 @@
   display: block;
   transition: color 0.15s;
 }
-.acd-email-sub:hover { color: #C95D5D; }
+.acd-email-sub:hover { color: #C75C5C; }
 
 /* ── Boutons header ── */
 .acd-header-btns {
@@ -126,7 +126,7 @@
 
 .acd-btn-primary {
   padding: 8px 18px;
-  background: #C95D5D;
+  background: #C75C5C;
   color: #fff;
   border: none;
   border-radius: var(--radius-sm);
@@ -137,7 +137,7 @@
   transition: background 0.15s;
   white-space: nowrap;
 }
-.acd-btn-primary:hover:not(:disabled)  { background: #b04d4d; }
+.acd-btn-primary:hover:not(:disabled)  { background: #AD4646; color: #fff; }
 .acd-btn-primary:disabled { background: #e8a0a0; cursor: not-allowed; }
 
 .acd-btn-ghost {
@@ -153,7 +153,7 @@
   transition: all 0.15s;
   white-space: nowrap;
 }
-.acd-btn-ghost:hover { background: #0f172a; color: #fff; border-color: #0f172a; }
+.acd-btn-ghost:hover { background: #252323; color: #fff; border-color: #252323; }
 
 .acd-btn-warn {
   padding: 8px 16px;
@@ -270,7 +270,7 @@
 .acd-info-row dd {
   margin: 0;
   font-size: 14px;
-  color: #0f172a;
+  color: #252323;
   word-break: break-word;
 }
 .acd-info-notes { align-items: flex-start; }
@@ -281,7 +281,7 @@
   text-decoration: none;
   transition: color 0.15s;
 }
-.acd-link:hover { color: #C95D5D; text-decoration: underline; }
+.acd-link:hover { color: #C75C5C; text-decoration: underline; }
 
 /* ── Formulaire d'édition ── */
 .acd-form { display: flex; flex-direction: column; gap: 12px; }
@@ -301,12 +301,12 @@
   border-radius: var(--radius-sm);
   font-size: 13px;
   font-family: inherit;
-  color: #0f172a;
+  color: #252323;
   background: #fafaf9;
   outline: none;
   transition: border-color 0.2s;
 }
-.acd-field-input:focus { border-color: #C95D5D; background: #fff; }
+.acd-field-input:focus { border-color: #C75C5C; background: #fff; }
 .acd-textarea { resize: vertical; min-height: 72px; }
 
 /* ── Statistiques ── */
@@ -329,7 +329,7 @@
 .acd-stat-val {
   font-size: 22px;
   font-weight: 700;
-  color: #0f172a;
+  color: #252323;
   line-height: 1.1;
 }
 .acd-stat-val--sm { font-size: 16px; }
@@ -364,7 +364,7 @@
   border-bottom: 1px solid #f5f5f4;
   vertical-align: middle;
   font-size: 14px;
-  color: #0f172a;
+  color: #252323;
 }
 .acd-table tbody tr:last-child td { border-bottom: none; }
 .acd-table tbody tr:hover { background: #fafaf9; }
@@ -373,7 +373,7 @@
   font-family: 'Courier New', monospace;
   font-size: 13px;
   font-weight: 700;
-  color: #0f172a;
+  color: #252323;
   letter-spacing: 0.05em;
 }
 .acd-order-total {
@@ -420,7 +420,7 @@
   transition: all 0.15s;
   line-height: 1;
 }
-.acd-btn-view:hover { background: #0f172a; color: #fff; border-color: #0f172a; }
+.acd-btn-view:hover { background: #252323; color: #fff; border-color: #252323; }
 
 .acd-btn-sm {
   padding: 6px 12px;

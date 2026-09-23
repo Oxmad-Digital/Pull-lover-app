@@ -2,13 +2,12 @@
 export const runtime = "nodejs";
 export const revalidate = 60;
 
-import mongoose from "mongoose";
 import "@/app/models/Category";
 
 import { connectDB } from "@/app/lib/db";
 import Product from "@/app/models/Product";
 import { NextResponse } from "next/server";
-import cloudinary from "@/app/lib/cloudinary";
+import { deleteFromR2 } from "@/app/lib/r2";
 
 /* =======================
    GET
@@ -28,9 +27,7 @@ export async function GET(req) {
 
     if (search) filter.name = { $regex: search, $options: "i" };
     if (category && category !== "") {
-      filter.category = mongoose.Types.ObjectId.isValid(category)
-        ? new mongoose.Types.ObjectId(category)
-        : category;
+      filter.category = category;
     }
 
     const [result] = await Product.aggregate([
@@ -70,13 +67,13 @@ export async function GET(req) {
 }
 
 /* =======================
-   Supprimer de Cloudinary
+   Supprimer de R2
 ======================= */
-async function deleteFromCloudinary(publicIds) {
+async function deleteKeys(keys) {
   await Promise.all(
-    publicIds.filter(Boolean).map((id) =>
-      cloudinary.uploader.destroy(id).catch((err) =>
-        console.error(`❌ Erreur suppression: ${id}`, err)
+    keys.filter(Boolean).map((key) =>
+      deleteFromR2(key).catch((err) =>
+        console.error(`❌ Erreur suppression: ${key}`, err)
       )
     )
   );
@@ -98,7 +95,7 @@ export async function POST(req) {
     const {
       name, brand, size, sizes, condition, description, details, careInstructions,
       price, promoPrice, stock, stocks, category,
-      images, image, imagePublicIds,
+      images, image, imageKeys,
     } = body;
 
     if (!name) {
@@ -126,7 +123,7 @@ export async function POST(req) {
         : undefined,
       images: images || [],
       image: image || images?.[0] || "",
-      imagePublicIds: imagePublicIds || [],
+      imageKeys: imageKeys || [],
       isAvailable: Number(stock) > 0,
     });
 
@@ -152,11 +149,16 @@ export async function PUT(req) {
     const {
       _id, name, brand, size, sizes, condition, description, details, careInstructions,
       price, promoPrice, stock, stocks, category,
-      images, image, imagePublicIds,
+      images, image, imageKeys,
     } = body;
 
     if (!_id) {
       return NextResponse.json({ message: "ID manquant" }, { status: 400 });
+    }
+
+    const previousProduct = await Product.findById(_id);
+    if (!previousProduct) {
+      return NextResponse.json({ message: "Produit introuvable" }, { status: 404 });
     }
 
     const updateData = {
@@ -177,15 +179,14 @@ export async function PUT(req) {
         : undefined,
       images: images || [],
       image: image || images?.[0] || "",
-      imagePublicIds: imagePublicIds || [],
+      imageKeys: imageKeys || [],
       isAvailable: Number(stock) > 0,
     };
 
     const product = await Product.findByIdAndUpdate(_id, updateData, { new: true });
 
-    if (!product) {
-      return NextResponse.json({ message: "Produit introuvable" }, { status: 404 });
-    }
+    const keptKeys = new Set(imageKeys || []);
+    await deleteKeys((previousProduct.imageKeys || []).filter((key) => !keptKeys.has(key)));
 
     console.log(`✅ Produit modifié: ${product.name}`);
     return NextResponse.json({ product });
@@ -211,8 +212,8 @@ export async function DELETE(req) {
     }
 
     const product = await Product.findById(id);
-    if (product?.imagePublicIds?.length > 0) {
-      await deleteFromCloudinary(product.imagePublicIds);
+    if (product?.imageKeys?.length > 0) {
+      await deleteKeys(product.imageKeys);
     }
 
     await Product.findByIdAndDelete(id);

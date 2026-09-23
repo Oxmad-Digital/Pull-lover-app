@@ -2,16 +2,11 @@
 
 import { usePathname } from "next/navigation";
 import Header from "./Header";
-import HeaderHero from "./HeaderHero";
 
 export default function HeaderWrapper() {
     const pathname = usePathname();
     const isHome = pathname === "/";
+    if (pathname.startsWith("/admin") || pathname === "/maintenance") return null;
 
-    return (
-        <>
-            <Header transparent={isHome} />
-            {isHome && <HeaderHero />}
-        </>
-    );
+    return <Header transparent={isHome} />;
 }

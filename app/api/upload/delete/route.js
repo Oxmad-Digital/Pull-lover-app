@@ -1,30 +1,33 @@
 // app/api/upload/delete/route.js
 import { NextResponse } from "next/server";
-import cloudinary from "@/app/lib/cloudinary";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/app/api/auth/[...nextauth]/route";
+import { deleteFromR2 } from "@/app/lib/r2";
 
 export async function DELETE(req) {
   try {
     const session = await getServerSession(authOptions);
-    if (!session) {
+    if (!session || session.user.role !== "admin") {
       return NextResponse.json(
         { message: "Non autorisé" },
         { status: 401 }
       );
     }
 
-    const { publicId } = await req.json();
+    const { key } = await req.json();
 
-    if (!publicId) {
+    if (!key) {
       return NextResponse.json(
-        { message: "publicId manquant" },
+        { message: "Clé R2 manquante" },
         { status: 400 }
       );
     }
 
-    // ✅ Supprimer de Cloudinary
-    await cloudinary.uploader.destroy(publicId);
+    if (!key.startsWith("products/") && !key.startsWith("avatars/")) {
+      return NextResponse.json({ message: "Clé R2 non autorisée" }, { status: 400 });
+    }
+
+    await deleteFromR2(key);
 
     return NextResponse.json({
       success: true,

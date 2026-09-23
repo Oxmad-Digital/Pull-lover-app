@@ -4,7 +4,7 @@ import Product from "@/app/models/Product";
 
 export async function GET(req) {
   try {
-    // Connexion MongoDB
+    // Connexion PostgreSQL (Neon)
     await connectDB();
 
     // Récupération du mot-clé ?q=
@@ -16,7 +16,7 @@ export async function GET(req) {
       return NextResponse.json([]);
     }
 
-    // Recherche MongoDB (insensible à la casse)
+    // Recherche insensible à la casse
     const products = await Product.find({
       $or: [
         { name: { $regex: q, $options: "i" } },

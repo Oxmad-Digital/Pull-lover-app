@@ -1,17 +1,8 @@
+import { createPostgresModel } from "@/app/lib/postgres-model";
 
-import mongoose from "mongoose";
+const Category = createPostgresModel({
+  table: "categories",
+  normalize: (category) => ({ ...category, name: category.name?.trim() }),
+});
 
-const CategorySchema = new mongoose.Schema(
-  {
-    name: {
-      type: String,
-      required: true,
-      unique: true,
-      trim: true,
-    },
-  },
-  { timestamps: true }
-);
-
-export default mongoose.models.Category ||
-  mongoose.model("Category", CategorySchema);
+export default Category;

@@ -244,7 +244,7 @@ export async function POST(req) {
       code: error.code,
     });
 
-    // Erreur de doublon MongoDB
+    // Erreur de contrainte d'unicité PostgreSQL
     if (error.code === 11000) {
       return NextResponse.json(
         { message: "Cet email est déjà utilisé" },

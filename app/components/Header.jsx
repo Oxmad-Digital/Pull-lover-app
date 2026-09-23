@@ -1,226 +1,99 @@
 "use client";
 
-import { useState, useRef, useEffect } from "react";
+import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import Image from "next/image";
-import { usePathname } from "next/navigation";
-import { useClickOutside } from "@/app/hooks/useClickOutside";
-import { useCart } from "./CartContext";
-import { useFavorites } from "./FavoritesContext";
 import { useSession, signOut } from "next-auth/react";
-import { HeartIcon, BagIcon, UserIcon, BurgerIcon } from "@/app/components/icons";
+import { useCart } from "./CartContext";
+import { BagIcon, UserIcon } from "./icons";
 import "./Header.css";
 
-// ── Data ───────────────────────────────────────────────────────────
-
-const navLinks = [
-    { label: "Accueil", href: "/" },
-    { label: "Nos mailles", href: "/nos-mailles" },
-    { label: "Notre marque", href: "/NotreMarque" },
-    { label: "Contact", href: "/contact" },
+const links = [
+  { label: "La pièce", href: "/#piece" },
+  { label: "L’atelier", href: "/#atelier" },
+  { label: "Précommande", href: "/#precommande-info" },
 ];
 
-// ── Component ──────────────────────────────────────────────────────
-
 export default function Header({ transparent = false }) {
-    const [menuOpen, setMenuOpen] = useState(false);
-    const [userMenuOpen, setUserMenuOpen] = useState(false);
-    const [bandeauText, setBandeauText] = useState("");
+  const [bandeauText, setBandeauText] = useState("");
+  const { cartItems } = useCart();
+  const { data: session } = useSession();
+  const mobileMenu = useRef(null);
+  const accountMenu = useRef(null);
+  const count = cartItems.reduce((total, item) => total + (item.quantity || 0), 0);
+  const accountHref = session?.user?.role === "admin" ? "/admin/dashboard" : session ? "/dashboard" : "/auth/login";
 
-    useEffect(() => {
-        fetch("/api/settings")
-            .then((r) => r.ok ? r.json() : null)
-            .then((data) => { if (data) setBandeauText(data.bandeauText ?? ""); })
-            .catch(console.error);
-    }, []);
-    const userMenuRef = useRef(null);
-    const pathname = usePathname();
-
-    const { cartItems } = useCart();
-    const { favorites } = useFavorites();
-    const { data: session, status } = useSession();
-    const isAdmin = session?.user?.role === "admin";
-    const cartCount = cartItems?.reduce((total, item) => total + (item.quantity || 1), 0) || 0;
-    const favCount = favorites?.length || 0;
-
-    const close = () => setMenuOpen(false);
-
-    useEffect(() => {
-        document.body.style.overflow = menuOpen ? "hidden" : "";
-        return () => { document.body.style.overflow = ""; };
-    }, [menuOpen]);
-
-    const isActive = (href) => href === "/" ? pathname === "/" : pathname.startsWith(href);
-
-    const handleAccueilClick = (e) => {
-        close();
-        if (pathname === "/") {
-            e.preventDefault();
-            window.scrollTo({ top: 0, behavior: "smooth" });
+  useEffect(() => {
+    const controller = new AbortController();
+    fetch("/api/settings", { signal: controller.signal })
+      .then((response) => response.ok ? response.json() : null)
+      .then((data) => { if (data) setBandeauText(data.bandeauText || ""); })
+      .catch(() => {});
+    function dismiss(event) {
+      for (const ref of [mobileMenu, accountMenu]) {
+        if (!ref.current?.open) continue;
+        if (event.type === "keydown" && event.key === "Escape") {
+          ref.current.open = false;
+          ref.current.querySelector("summary")?.focus();
+        } else if (event.type === "pointerdown" && !ref.current.contains(event.target)) {
+          ref.current.open = false;
         }
+      }
+    }
+    document.addEventListener("keydown", dismiss);
+    document.addEventListener("pointerdown", dismiss);
+    return () => {
+      controller.abort();
+      document.removeEventListener("keydown", dismiss);
+      document.removeEventListener("pointerdown", dismiss);
     };
+  }, []);
 
-    useClickOutside([[userMenuRef, () => setUserMenuOpen(false)]]);
+  function closeMenus() {
+    if (mobileMenu.current) mobileMenu.current.open = false;
+    if (accountMenu.current) accountMenu.current.open = false;
+  }
 
-    return (
-        <header className={`h-wrapper${transparent ? " h-wrapper--transparent" : ""}`}>
-            {/* Bandeau — masqué en mode transparent (home) et si texte vide */}
-            {!transparent && bandeauText && (
-                <div className="h-bandeau">
-                    <div className="h-bandeau-track">
-                        {Array.from({ length: 8 }).map((_, i) => (
-                            <span key={i} className="h-bandeau-item">{bandeauText}</span>
-                        ))}
-                    </div>
-                </div>
-            )}
-
-            {/* Navbar */}
-            <nav className="h-navbar">
-                <Link href="/" className="h-logo">
-                    {transparent && (
-                      <Image
-                        src="https://res.cloudinary.com/dewstflqp/image/upload/v1778090909/pull-lover_logo_coeur_blanc_nc4sgu.png"
-                        alt=""
-                        aria-hidden="true"
-                        width={34}
-                        height={34}
-                        className="h-logo-coeur"
-                        priority
-                      />
-                    )}
-                    <span className="h-logo-bold">Pull</span>
-                    <span className="h-logo-script">Lover</span>
-                </Link>
-
-                {/* Nav links */}
-                <ul className={`h-nav-list${menuOpen ? " h-nav-list--open" : ""}`}>
-                    {/* En-tête du drawer (mobile/tablet uniquement) */}
-                    <li className="h-drawer-header">
-                        <span className="h-drawer-brand">Pull<span className="h-drawer-brand-script">Lover</span></span>
-                        <button className="h-drawer-close" onClick={close} aria-label="Fermer le menu">
-                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
-                                <line x1="18" y1="6" x2="6" y2="18" /><line x1="6" y1="6" x2="18" y2="18" />
-                            </svg>
-                        </button>
-                    </li>
-                    {navLinks.map((link) => (
-                        <li key={link.href}>
-                            <Link
-                                href={link.href}
-                                className={`h-nav-link${isActive(link.href) ? " h-nav-link--active" : ""}`}
-                                onClick={link.href === "/" ? handleAccueilClick : close}
-                            >
-                                {link.label}
-                            </Link>
-                        </li>
-                    ))}
-                    {isAdmin && (
-                        <li>
-                            <Link href="/admin/dashboard" className={`h-nav-link h-nav-link--admin${isActive("/admin/dashboard") ? " h-nav-link--active" : ""}`} onClick={close}>
-                                Dashboard
-                            </Link>
-                        </li>
-                    )}
-                    {session && !isAdmin && (
-                        <li>
-                            <Link href="/dashboard" className={`h-nav-link${isActive("/dashboard") ? " h-nav-link--active" : ""}`} onClick={close}>
-                                Mon espace
-                            </Link>
-                        </li>
-                    )}
-                    {/* Icônes dans le menu mobile */}
-                    <li className="h-nav-icons-mobile">
-                        {session && (
-                            <div className="h-drawer-user-info">
-                                <UserIcon size={14} />
-                                <span className="h-drawer-user-name">{session.user?.name || session.user?.email}</span>
-                            </div>
-                        )}
-                        <div className="h-drawer-icons-row">
-                            <Link href="/favoris" className="h-icon-btn h-cart-btn" onClick={close} aria-label="Favoris">
-                                <HeartIcon />
-                                {favCount > 0 && <span className="h-cart-badge">{favCount}</span>}
-                            </Link>
-                            <Link href="/panier" className="h-icon-btn h-cart-btn" onClick={close} aria-label="Panier">
-                                <BagIcon />
-                                {cartCount > 0 && <span className="h-cart-badge">{cartCount}</span>}
-                            </Link>
-                            {status === "loading" ? (
-                                <span className="h-icon-btn" aria-hidden="true"><UserIcon size={22} /></span>
-                            ) : !session ? (
-                                <Link href="/auth/login" className="h-icon-btn" onClick={close} aria-label="Connexion">
-                                    <UserIcon size={22} />
-                                </Link>
-                            ) : (
-                                <Link href="/dashboard" className="h-icon-btn" onClick={close} aria-label="Mon espace">
-                                    <UserIcon size={22} />
-                                </Link>
-                            )}
-                        </div>
-                    </li>
-                </ul>
-
-                {/* Icônes desktop */}
-                <div className="h-icons">
-                    <Link href="/favoris" className="h-icon-btn h-cart-btn" aria-label="Favoris">
-                        <HeartIcon />
-                        {favCount > 0 && <span className="h-cart-badge">{favCount}</span>}
-                    </Link>
-                    <Link href="/panier" className="h-icon-btn h-cart-btn" aria-label="Panier">
-                        <BagIcon />
-                        {cartCount > 0 && <span className="h-cart-badge">{cartCount}</span>}
-                    </Link>
-                    {status === "loading" ? (
-                        <span className="h-icon-btn" aria-hidden="true"><UserIcon size={22} /></span>
-                    ) : !session ? (
-                        <Link href="/auth/login" className="h-icon-btn" aria-label="Connexion">
-                            <UserIcon size={22} />
-                        </Link>
-                    ) : (
-                        <div className="h-user-menu" ref={userMenuRef}>
-                            <button
-                                className="h-icon-btn"
-                                onClick={() => setUserMenuOpen((prev) => !prev)}
-                                aria-label="Mon compte"
-                            >
-                                <UserIcon size={22} />
-                            </button>
-                            {userMenuOpen && (
-                                <div className="h-user-dropdown">
-                                    <p className="h-user-name">{session.user?.name || session.user?.email}</p>
-                                    <div className="h-user-divider" />
-                                    <Link
-                                        href="/dashboard"
-                                        className="h-user-link"
-                                        onClick={() => setUserMenuOpen(false)}
-                                    >
-                                        Mon espace
-                                    </Link>
-                                    <div className="h-user-divider" />
-                                    <button
-                                        className="h-user-signout"
-                                        onClick={() => { setUserMenuOpen(false); signOut({ callbackUrl: "/" }); }}
-                                    >
-                                        Se déconnecter
-                                    </button>
-                                </div>
-                            )}
-                        </div>
-                    )}
-                </div>
-
-                {/* Burger / Close */}
-                <button
-                    className="h-burger"
-                    onClick={() => setMenuOpen(!menuOpen)}
-                    aria-label="Menu"
-                >
-                    <BurgerIcon />
-                </button>
+  return (
+    <header className={`pl-header${transparent ? " pl-header-home" : ""}`}>
+      <a className="pl-skip-link" href="#contenu">Aller au contenu</a>
+      <div className="pl-announcement">{bandeauText || "Une maille essentielle · Imaginée et fabriquée à Madagascar"}</div>
+      <div className="pl-nav">
+        <Link href="/" className="pl-logo" aria-label="Pull-Lover, accueil">
+          <Image
+            className="pl-logo-image"
+            src="/api/media/pull-lover_logo_coeur_rouge-transparent.webp"
+            alt=""
+            width={500}
+            height={500}
+            sizes="(max-width: 599px) 52px, 60px"
+            priority
+          />
+        </Link>
+        <nav className="pl-nav-links" aria-label="Navigation principale">
+          {links.map((link) => <Link key={link.href} href={link.href}>{link.label}</Link>)}
+        </nav>
+        <div className="pl-nav-actions">
+          <details className="pl-account-menu" ref={accountMenu}>
+            <summary className="pl-icon-button" aria-label="Mon compte"><UserIcon size={20} /></summary>
+            <nav className="pl-account-panel" aria-label="Mon compte">
+              <Link href={accountHref} onClick={closeMenus}>{session?.user?.role === "admin" ? "Administration" : session ? "Mon espace" : "Se connecter"}</Link>
+              <Link href="/favoris" onClick={closeMenus}>Mes favoris</Link>
+              <Link href="/contact" onClick={closeMenus}>Nous écrire</Link>
+              {session && <button onClick={() => { closeMenus(); signOut({ callbackUrl: "/" }); }}>Se déconnecter</button>}
             </nav>
-
-            {menuOpen && <div className="h-overlay" onClick={close} />}
-        </header>
-    );
+          </details>
+          <Link href="/panier" className="pl-icon-button pl-bag" aria-label={`Panier, ${count} article${count > 1 ? "s" : ""}`}><BagIcon size={22} /><span className="pl-bag-count">{count}</span></Link>
+          <details className="pl-mobile-menu" ref={mobileMenu}>
+            <summary className="pl-icon-button" aria-label="Menu de navigation"><span className="pl-menu-lines" aria-hidden="true" /></summary>
+            <nav className="pl-mobile-panel" aria-label="Navigation mobile">
+              {links.map((link) => <Link key={link.href} href={link.href} onClick={closeMenus}>{link.label}<span aria-hidden="true">↗</span></Link>)}
+              <Link href={accountHref} onClick={closeMenus}>{session?.user?.role === "admin" ? "Administration" : "Mon compte"}</Link>
+              <Link href="/contact" onClick={closeMenus}>Nous écrire</Link>
+            </nav>
+          </details>
+        </div>
+      </div>
+    </header>
+  );
 }

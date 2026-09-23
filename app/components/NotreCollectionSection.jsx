@@ -39,7 +39,7 @@ const NotreCollectionSection = () => {
                         <Eyebrow className="ncs-eyebrow">Notre collection</Eyebrow>
                         <h2 className="ncs-title section-title">Nos meilleures ventes</h2>
                     </div>
-                    <ButtonPrimary href="/nos-mailles?sort=newest">
+                    <ButtonPrimary href="/#piece">
                         Voir tous les produits
                     </ButtonPrimary>
                 </div>
@@ -152,7 +152,7 @@ const NotreCollectionSection = () => {
                         <div className="ncs-card ncs-card-cta">
                             <div className="ncs-cta-body">
                                 <p className="ncs-cta-text">Découvrez toute<br />notre collection</p>
-                                <ButtonPrimary href="/nos-mailles?sort=newest">
+                                <ButtonPrimary href="/#piece">
                                     Voir tous les produits
                                 </ButtonPrimary>
                             </div>

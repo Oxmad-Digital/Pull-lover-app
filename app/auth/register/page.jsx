@@ -5,7 +5,8 @@ import { signIn } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { ButtonPrimary } from "../../components/ui/Button";
-import "./register.css";
+import AuthShell from "../AuthShell";
+import "../auth.css";
 
 export default function RegisterPage() {
   const [name, setName] = useState("");
@@ -22,9 +23,9 @@ export default function RegisterPage() {
 
   function getPasswordStrength(pwd) {
     if (!pwd) return null;
-    if (pwd.length < 6) return { label: "Faible", color: "#ef4444", width: "33%" };
-    if (pwd.length < 10) return { label: "Moyen", color: "#f59e0b", width: "66%" };
-    return { label: "Fort", color: "#10b981", width: "100%" };
+    if (pwd.length < 6) return { label: "Faible", color: "#a13b32", width: "33%" };
+    if (pwd.length < 10) return { label: "Moyen", color: "#9a6b22", width: "66%" };
+    return { label: "Fort", color: "#49705e", width: "100%" };
   }
 
   const strength = getPasswordStrength(password);
@@ -58,7 +59,7 @@ export default function RegisterPage() {
         setMessageType("error");
         return setMessage(data.message || "Erreur");
       }
-      setMessage("Compte créé ! Redirection...");
+      setMessage("Compte créé ! Redirection…");
       setMessageType("success");
       setTimeout(async () => {
         await signIn("credentials", { email, password, redirect: false });
@@ -73,132 +74,132 @@ export default function RegisterPage() {
   }
 
   return (
-    <div className="register-page">
+    <AuthShell
+      variant="register"
+      eyebrow="Rejoindre Pull-Lover"
+      title="Créer votre espace."
+      description="Suivez vos commandes et gardez vos informations à portée de main."
+      image="/api/media/site/atelier-maille.webp"
+      imageAlt="Les mains d’une artisane pendant les finitions d’un pull"
+      visualTitle="Votre histoire avec la maille commence ici."
+      visualText="Une fabrication à la demande, portée par les gestes de notre atelier familial à Antananarivo."
+    >
+      <form className="auth-form" onSubmit={handleSubmit}>
+        <div className="auth-fields">
+          <div className="auth-field">
+            <label htmlFor="register-name">Nom complet</label>
+            <div className="auth-input-wrap">
+              <input
+                id="register-name"
+                type="text"
+                placeholder="Votre nom"
+                value={name}
+                onChange={(e) => setName(e.target.value)}
+                autoComplete="name"
+                required
+              />
+            </div>
+          </div>
 
-      <div className="register-bg">
-        <span /><span /><span /><span />
-      </div>
+          <div className="auth-field">
+            <label htmlFor="register-email">Adresse e-mail</label>
+            <div className="auth-input-wrap">
+              <input
+                id="register-email"
+                type="email"
+                placeholder="vous@exemple.com"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                autoComplete="email"
+                required
+              />
+            </div>
+          </div>
 
-      <div className="register-card">
+          <div className="auth-field">
+            <label htmlFor="register-password">Mot de passe</label>
+            <div className="auth-input-wrap">
+              <input
+                id="register-password"
+                type={showPwd ? "text" : "password"}
+                placeholder="6 caractères minimum"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                autoComplete="new-password"
+                minLength={6}
+                required
+              />
+              <button
+                className="auth-password-toggle"
+                type="button"
+                aria-label={showPwd ? "Masquer le mot de passe" : "Afficher le mot de passe"}
+                onClick={() => setShowPwd(!showPwd)}
+              >
+                {showPwd ? "Masquer" : "Afficher"}
+              </button>
+            </div>
+            {strength && (
+              <div className="auth-strength">
+                <div className="auth-strength-bar" aria-hidden="true">
+                  <div style={{ width: strength.width, background: strength.color }} />
+                </div>
+                <span style={{ color: strength.color }}>Sécurité {strength.label.toLowerCase()}</span>
+              </div>
+            )}
+          </div>
 
-        <div className="register-card-header">
-          <h1>Créer un compte</h1>
+          <div className="auth-field">
+            <label htmlFor="register-confirm-password">Confirmer le mot de passe</label>
+            <div className="auth-input-wrap">
+              <input
+                id="register-confirm-password"
+                type={showConfirmPwd ? "text" : "password"}
+                placeholder="Confirmez votre mot de passe"
+                value={confirmPassword}
+                onChange={(e) => setConfirmPassword(e.target.value)}
+                autoComplete="new-password"
+                minLength={6}
+                required
+              />
+              <button
+                className="auth-password-toggle"
+                type="button"
+                aria-label={showConfirmPwd ? "Masquer le mot de passe" : "Afficher le mot de passe"}
+                onClick={() => setShowConfirmPwd(!showConfirmPwd)}
+              >
+                {showConfirmPwd ? "Masquer" : "Afficher"}
+              </button>
+            </div>
+          </div>
         </div>
 
-          {/* CHAMPS */}
-          <div className="register-inputs">
+        <label className="auth-terms">
+          <input type="checkbox" checked={acceptTerms} onChange={(e) => setAcceptTerms(e.target.checked)} />
+          <span>
+            J’accepte les <Link href="/conditions-de-vente">conditions de vente</Link> et la{" "}
+            <Link href="/politique-de-confidentialite">politique de confidentialité</Link>.
+          </span>
+        </label>
 
-            <div className="register-field">
-              <label htmlFor="register-name">Nom complet</label>
-              <div className="register-input-wrap">
-                <span aria-hidden="true">
-                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                    <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/>
-                  </svg>
-                </span>
-                <input id="register-name" type="text" placeholder="John Doe" value={name} onChange={e => setName(e.target.value)} required />
-              </div>
-            </div>
+        {message && <p className={`auth-message ${messageType}`} role="status">{message}</p>}
 
-            <div className="register-field">
-              <label htmlFor="register-email">Adresse e-mail</label>
-              <div className="register-input-wrap">
-                <span aria-hidden="true">
-                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                    <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/>
-                  </svg>
-                </span>
-                <input id="register-email" type="email" placeholder="vous@exemple.com" value={email} onChange={e => setEmail(e.target.value)} required />
-              </div>
-            </div>
+        <ButtonPrimary className="auth-submit" full type="submit" disabled={loading}>
+          {loading ? "Création…" : "Créer mon compte"}
+        </ButtonPrimary>
 
-            <div className="register-field">
-              <label htmlFor="register-password">Mot de passe</label>
-              <div className="register-input-wrap">
-                <span aria-hidden="true">
-                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                    <rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/>
-                  </svg>
-                </span>
-                <input id="register-password" type={showPwd ? "text" : "password"} placeholder="••••••••" value={password} onChange={e => setPassword(e.target.value)} required />
-                <button type="button" aria-label={showPwd ? "Masquer le mot de passe" : "Afficher le mot de passe"} onClick={() => setShowPwd(!showPwd)}>
-                  {showPwd ? (
-                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                      <path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"/><line x1="1" y1="1" x2="23" y2="23"/>
-                    </svg>
-                  ) : (
-                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                      <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/>
-                    </svg>
-                  )}
-                </button>
-              </div>
-              {strength && (
-                <div className="register-strength">
-                  <div className="register-strength-bar">
-                    <div style={{ width: strength.width, background: strength.color }} />
-                  </div>
-                  <span style={{ color: strength.color }}>{strength.label}</span>
-                </div>
-              )}
-            </div>
+        <div className="auth-divider" aria-hidden="true">
+          <span /><p>Ou s’inscrire avec</p><span />
+        </div>
 
-            <div className="register-field">
-              <label htmlFor="register-confirm-password">Confirmer le mot de passe</label>
-              <div className="register-input-wrap">
-                <span aria-hidden="true">
-                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                    <rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/>
-                  </svg>
-                </span>
-                <input id="register-confirm-password" type={showConfirmPwd ? "text" : "password"} placeholder="••••••••" value={confirmPassword} onChange={e => setConfirmPassword(e.target.value)} required />
-                <button type="button" aria-label={showConfirmPwd ? "Masquer le mot de passe" : "Afficher le mot de passe"} onClick={() => setShowConfirmPwd(!showConfirmPwd)}>
-                  {showConfirmPwd ? (
-                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                      <path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"/><line x1="1" y1="1" x2="23" y2="23"/>
-                    </svg>
-                  ) : (
-                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                      <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/>
-                    </svg>
-                  )}
-                </button>
-              </div>
-            </div>
+        <button className="auth-google" type="button" onClick={() => signIn("google", { callbackUrl: "/dashboard" })}>
+          Continuer avec Google
+        </button>
 
-          </div>
-
-          {/* CGU */}
-          <label className="register-terms">
-            <input type="checkbox" checked={acceptTerms} onChange={e => setAcceptTerms(e.target.checked)} />
-            <span>J'accepte les <Link href="/cgu">conditions d'utilisation</Link> et la <Link href="/privacy">politique de confidentialité</Link></span>
-          </label>
-
-          {/* MESSAGE */}
-          {message && <p className={`register-message ${messageType}`}>{message}</p>}
-
-          {/* BOUTON */}
-          <ButtonPrimary full onClick={handleSubmit} disabled={loading}>
-            {loading ? "Création..." : "Créer mon compte"}
-          </ButtonPrimary>
-
-          {/* DIVIDER */}
-          <div className="register-divider">
-            <span /><p>Ou s'inscrire avec</p><span />
-          </div>
-
-          {/* SOCIAL */}
-          <div className="register-social">
-            <button type="button" onClick={() => signIn("google")}>Google</button>
-          </div>
-
-          {/* FOOTER */}
-          <div className="register-footer">
-            <p>Vous avez déjà un compte ?</p>
-            <Link href="/auth/login">Se connecter</Link>
-          </div>
-
-      </div>
-    </div>
+        <div className="auth-switch">
+          <p>Vous avez déjà un compte ?</p>
+          <Link href="/auth/login">Se connecter</Link>
+        </div>
+      </form>
+    </AuthShell>
   );
 }

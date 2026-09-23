@@ -23,7 +23,7 @@ export async function middleware(req) {
 
   // ✅ Pages publiques
   if (
-    pathname.startsWith("/login") ||
+    pathname.startsWith("/auth/login") ||
     pathname.startsWith("/admin/unauthorized") ||
     pathname.startsWith("/api") ||
     pathname.startsWith("/_next") ||
@@ -61,7 +61,7 @@ export async function middleware(req) {
   // 🔒 PROTÉGER SEULEMENT LES SOUS-PAGES ADMIN
   if (pathname.startsWith("/admin/")) {
     if (!token) {
-      return NextResponse.redirect(new URL("/login", req.url));
+      return NextResponse.redirect(new URL("/auth/login", req.url));
     }
 
     if (token.role !== "admin") {

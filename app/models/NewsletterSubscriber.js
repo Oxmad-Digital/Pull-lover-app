@@ -1,20 +1,11 @@
-import mongoose from "mongoose";
+import { createPostgresModel } from "@/app/lib/postgres-model";
 
-const NewsletterSubscriberSchema = new mongoose.Schema(
-  {
-    email: {
-      type: String,
-      required: true,
-      unique: true,
-      lowercase: true,
-      trim: true,
-    },
-  },
-  { timestamps: true }
-);
-
-const NewsletterSubscriber =
-  mongoose.models.NewsletterSubscriber ||
-  mongoose.model("NewsletterSubscriber", NewsletterSubscriberSchema);
+const NewsletterSubscriber = createPostgresModel({
+  table: "newsletter_subscribers",
+  normalize: (subscriber) => ({
+    ...subscriber,
+    email: subscriber.email?.toLowerCase().trim(),
+  }),
+});
 
 export default NewsletterSubscriber;

@@ -1,5 +1,5 @@
 import { connectDB } from "@/app/lib/db";
-import mongoose from "mongoose";
+import Review from "@/app/models/Review";
 
 export async function GET(req) {
   try {
@@ -7,47 +7,36 @@ export async function GET(req) {
     const productId = searchParams.get("productId");
 
     if (!productId) {
-      return new Response(JSON.stringify({ error: "productId manquant" }), { status: 400 });
+      return Response.json({ error: "productId manquant" }, { status: 400 });
     }
 
     await connectDB();
-    const db = mongoose.connection.db;
-    const reviews = await db
-      .collection("reviews")
-      .find({ productId })
-      .sort({ date: -1 })
-      .toArray();
-
-    return new Response(JSON.stringify(reviews), { status: 200 });
-  } catch (err) {
-    return new Response(JSON.stringify({ error: err.message }), { status: 500 });
+    const reviews = await Review.find({ productId }).sort({ date: -1 }).lean();
+    return Response.json(reviews);
+  } catch (error) {
+    return Response.json({ error: error.message }, { status: 500 });
   }
 }
 
 export async function POST(req) {
   try {
-    const body = await req.json();
-    const { productId, name, rating, comment } = body;
+    const { productId, name, rating, comment } = await req.json();
 
     if (!productId || !name || !comment || !rating) {
-      return new Response(JSON.stringify({ error: "Informations manquantes" }), { status: 400 });
+      return Response.json({ error: "Informations manquantes" }, { status: 400 });
     }
 
     await connectDB();
-    const db = mongoose.connection.db;
-
-    const newReview = {
+    const review = await Review.create({
       productId,
       name,
-      rating,
+      rating: Number(rating),
       comment,
       date: new Date(),
-    };
+    });
 
-    await db.collection("reviews").insertOne(newReview);
-
-    return new Response(JSON.stringify(newReview), { status: 201 });
-  } catch (err) {
-    return new Response(JSON.stringify({ error: err.message }), { status: 500 });
+    return Response.json(review, { status: 201 });
+  } catch (error) {
+    return Response.json({ error: error.message }, { status: 500 });
   }
 }

@@ -25,9 +25,10 @@ export default async function DashboardOverview() {
 
   const allOrders = await Order.find({ "customer.email": session.user.email })
     .sort({ createdAt: -1 })
-    .lean();
+    .lean()
+    .exec() as any[];
 
-  const user = await User.findOne({ email: session.user.email }).lean() as any;
+  const user = await User.findOne({ email: session.user.email }).lean().exec() as any;
   const address = user?.address || null;
 
   // KPIs
@@ -77,8 +78,8 @@ export default async function DashboardOverview() {
           {recentOrders.length === 0 ? (
             <div className="db-summary-empty">
               <p>Aucune commande pour le moment.</p>
-              <Link href="/nos-mailles" className="db-add-address" style={{ marginTop: 12 }}>
-                Découvrir la boutique
+              <Link href="/#piece" className="db-add-address" style={{ marginTop: 12 }}>
+                Découvrir le Mantasoa
               </Link>
             </div>
           ) : (

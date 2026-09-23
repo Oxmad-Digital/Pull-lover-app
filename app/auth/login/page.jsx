@@ -5,7 +5,8 @@ import { useRouter } from "next/navigation";
 import { useState } from "react";
 import Link from "next/link";
 import { ButtonPrimary } from "../../components/ui/Button";
-import "./login.css";
+import AuthShell from "../AuthShell";
+import "../auth.css";
 
 export default function LoginPage() {
   const [email, setEmail] = useState("");
@@ -27,99 +28,86 @@ export default function LoginPage() {
   }
 
   return (
-    <div className="login-page">
-
-      <div className="login-bg">
-        <span /><span /><span /><span />
-      </div>
-
-      {/* CARD */}
-      <div className="login-card">
-
-        <form onSubmit={handleLogin}>
-          {/* INPUTS — Frame 4592 : gap 10px */}
-          <div className="login-inputs">
-            <div className="login-field">
-              <label htmlFor="login-email">Adresse e-mail</label>
-              <div className="login-input-wrap">
-                <span aria-hidden="true">
-                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                    <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/>
-                  </svg>
-                </span>
-                <input
-                  id="login-email"
-                  type="email"
-                  placeholder="Tom.exemple@gmail.com"
-                  value={email}
-                  onChange={e => setEmail(e.target.value)}
-                  required
-                />
-              </div>
-            </div>
-
-            <div className="login-field">
-              <label htmlFor="login-password">Mot de passe</label>
-              <div className="login-input-wrap">
-                <span aria-hidden="true">
-                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                    <rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/>
-                  </svg>
-                </span>
-                <input
-                  id="login-password"
-                  type={showPwd ? "text" : "password"}
-                  placeholder="••••••••••••"
-                  value={password}
-                  onChange={e => setPassword(e.target.value)}
-                  required
-                />
-                <button type="button" aria-label={showPwd ? "Masquer le mot de passe" : "Afficher le mot de passe"} onClick={() => setShowPwd(!showPwd)}>
-                  {showPwd ? (
-                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                      <path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"/><line x1="1" y1="1" x2="23" y2="23"/>
-                    </svg>
-                  ) : (
-                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                      <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/>
-                    </svg>
-                  )}
-                </button>
-              </div>
+    <AuthShell
+      variant="login"
+      eyebrow="Votre espace"
+      title="Heureux de vous revoir."
+      description="Retrouvez vos commandes, vos adresses et les pièces que vous avez choisies."
+      image="/api/media/site/mantasoa-hero.webp"
+      imageAlt="Le pull Mantasoa porté au bord du lac"
+      visualTitle="Des pièces qui traversent le temps."
+      visualText="Pensées à Madagascar, tricotées à la demande et faites pour vous accompagner saison après saison."
+    >
+      <form className="auth-form" onSubmit={handleLogin}>
+        <div className="auth-fields">
+          <div className="auth-field">
+            <label htmlFor="login-email">Adresse e-mail</label>
+            <div className="auth-input-wrap">
+              <input
+                id="login-email"
+                type="email"
+                placeholder="vous@exemple.com"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                autoComplete="email"
+                aria-invalid={Boolean(error)}
+                required
+              />
             </div>
           </div>
 
-          {/* OPTIONS + BOUTON — Frame 4592 : gap 20px */}
-          <div className="login-actions">
-            <div className="login-options">
-              <label><input type="checkbox" /> Se souvenir de moi</label>
-              <Link href="/auth/forgot-password">Mot de passe oublié</Link>
-            </div>
-
-            {error && <p className="login-error">{error}</p>}
-
-            <ButtonPrimary full type="submit" disabled={loading}>
-              {loading ? "Connexion..." : "Se connecter"}
-            </ButtonPrimary>
-
-            <div className="login-divider">
-              <span /><p>Ou continuer avec</p><span />
+          <div className="auth-field">
+            <label htmlFor="login-password">Mot de passe</label>
+            <div className="auth-input-wrap">
+              <input
+                id="login-password"
+                type={showPwd ? "text" : "password"}
+                placeholder="Votre mot de passe"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                autoComplete="current-password"
+                aria-invalid={Boolean(error)}
+                required
+              />
+              <button
+                className="auth-password-toggle"
+                type="button"
+                aria-label={showPwd ? "Masquer le mot de passe" : "Afficher le mot de passe"}
+                onClick={() => setShowPwd(!showPwd)}
+              >
+                {showPwd ? "Masquer" : "Afficher"}
+              </button>
             </div>
           </div>
-        </form>
-
-        {/* SOCIAL — Frame 4646 : h50px, gap 20px */}
-        <div className="login-social">
-          <button onClick={() => signIn("google", { callbackUrl: "/dashboard" })}>Google</button>
         </div>
 
-        {/* FOOTER — Frame 4644 : h30px, space-between */}
-        <div className="login-footer">
+        <div className="auth-inline-row">
+          <label className="auth-check">
+            <input type="checkbox" />
+            <span>Se souvenir de moi</span>
+          </label>
+          <Link className="auth-link" href="/auth/forgot-password">Mot de passe oublié</Link>
+        </div>
+
+        {error && <p className="auth-error" role="alert">{error}</p>}
+
+        <ButtonPrimary className="auth-submit" full type="submit" disabled={loading}>
+          {loading ? "Connexion…" : "Se connecter"}
+        </ButtonPrimary>
+
+        <div className="auth-divider" aria-hidden="true">
+          <span /><p>Ou continuer avec</p><span />
+        </div>
+
+        <button className="auth-google" type="button" onClick={() => signIn("google", { callbackUrl: "/dashboard" })}>
+          Continuer avec Google
+        </button>
+
+        <div className="auth-switch">
           <p>Pas encore de compte ?</p>
           <Link href="/auth/register">Créer un compte</Link>
         </div>
-
-      </div>
-    </div>
+      </form>
+    </AuthShell>
   );
 }

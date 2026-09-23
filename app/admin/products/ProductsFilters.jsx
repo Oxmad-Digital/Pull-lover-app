@@ -5,7 +5,7 @@ import { useClickOutside } from "@/app/hooks/useClickOutside";
 import { useState } from "react";
 
 const CHIP_FILTERS = [
-  { value: "all", label: "Tous",         statsKey: "total",      color: "#0f172a" },
+  { value: "all", label: "Tous",         statsKey: "total",      color: "#252323" },
   { value: "low", label: "Stock faible", statsKey: "lowStock",   color: "#b45309" },
   { value: "out", label: "Rupture",      statsKey: "outOfStock", color: "#be123c" },
 ];

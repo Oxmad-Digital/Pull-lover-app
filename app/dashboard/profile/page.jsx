@@ -48,7 +48,7 @@ export default function ProfilePage() {
       const saveRes = await fetch("/api/user/profile", {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ avatar: uploadData.url, avatarPublicId: uploadData.publicId }),
+        body: JSON.stringify({ avatar: uploadData.url, avatarKey: uploadData.key }),
       });
       if (saveRes.ok) {
         setAvatar(uploadData.url);
@@ -146,7 +146,7 @@ export default function ProfilePage() {
             <div>
               <label style={{
                 display: "inline-block", padding: "9px 18px",
-                background: "#0f172a", color: "#fff", borderRadius: 8,
+                background: "#252323", color: "#fff", borderRadius: 8,
                 fontSize: 13, fontWeight: 600,
                 cursor: avatarLoading ? "not-allowed" : "pointer",
                 opacity: avatarLoading ? 0.6 : 1,

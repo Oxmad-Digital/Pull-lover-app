@@ -5,12 +5,19 @@ const nextConfig: NextConfig = {
   turbopack: {
     root: __dirname,
   },
-  serverExternalPackages: ["mongoose"],
+  serverExternalPackages: ["@neondatabase/serverless"],
   async headers() {
     return [
       {
         source: "/_next/static/(.*)",
-        headers: [{ key: "Cache-Control", value: "public, max-age=31536000, immutable" }],
+        headers: [
+          {
+            key: "Cache-Control",
+            value: process.env.NODE_ENV === "production"
+              ? "public, max-age=31536000, immutable"
+              : "no-store, max-age=0",
+          },
+        ],
       },
       {
         source: "/icons/(.*)",
@@ -26,23 +33,20 @@ const nextConfig: NextConfig = {
     return [
       {
         source: "/boutique",
-        destination: "/nos-mailles",
-        permanent: true,
+        destination: "/#piece",
+        permanent: false,
       },
       {
         source: "/boutique/:path*",
-        destination: "/nos-mailles/:path*",
-        permanent: true,
+        destination: "/#piece",
+        permanent: false,
+      },
+      {
+        source: "/nos-mailles/:path*",
+        destination: "/#piece",
+        permanent: false,
       },
     ];
-  },
-  images: {
-    remotePatterns: [
-      {
-        protocol: "https",
-        hostname: "res.cloudinary.com",
-      },
-    ],
   },
 };
 

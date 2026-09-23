@@ -5,7 +5,7 @@ export const metadata = {
 
 export default function SuppressionDonneesPage() {
   return (
-    <main style={{ maxWidth: 800, margin: "0 auto", padding: "60px 24px", fontFamily: "Montserrat, sans-serif", color: "#0f172a", lineHeight: 1.8 }}>
+    <main style={{ maxWidth: 800, margin: "0 auto", padding: "60px 24px", fontFamily: "Montserrat, sans-serif", color: "#252323", lineHeight: 1.8 }}>
       <h1 style={{ fontSize: 32, fontWeight: 700, marginBottom: 8 }}>Suppression de vos données</h1>
       <p style={{ color: "#64748b", marginBottom: 48 }}>Conformément au RGPD et aux exigences de Meta (Facebook), vous pouvez demander la suppression de vos données à tout moment.</p>
 
@@ -23,7 +23,7 @@ export default function SuppressionDonneesPage() {
       <section style={{ marginBottom: 40 }}>
         <h2 style={{ fontSize: 18, fontWeight: 700, marginBottom: 12 }}>Comment faire une demande de suppression ?</h2>
         <p style={{ color: "#334155", marginBottom: 16 }}>
-          Envoyez un e-mail à <a href="mailto:tom.wybo@yahoo.fr?subject=Demande%20de%20suppression%20de%20données" style={{ color: "#6366f1", fontWeight: 600 }}>tom.wybo@yahoo.fr</a> avec :
+          Envoyez un e-mail à <a href="mailto:tom.wybo@yahoo.fr?subject=Demande%20de%20suppression%20de%20données" style={{ color: "#C75C5C", fontWeight: 600 }}>tom.wybo@yahoo.fr</a> avec :
         </p>
         <ul style={{ paddingLeft: 20, color: "#334155" }}>
           <li>L'objet : <strong>Demande de suppression de données</strong></li>
@@ -49,7 +49,7 @@ export default function SuppressionDonneesPage() {
       <div style={{ background: "#f1f5f9", borderRadius: 12, padding: "24px 28px", marginTop: 48 }}>
         <p style={{ color: "#334155", margin: 0 }}>
           <strong>Contact :</strong>{" "}
-          <a href="mailto:tom.wybo@yahoo.fr" style={{ color: "#6366f1" }}>tom.wybo@yahoo.fr</a>
+          <a href="mailto:tom.wybo@yahoo.fr" style={{ color: "#C75C5C" }}>tom.wybo@yahoo.fr</a>
           <br />
           <span style={{ fontSize: 14, color: "#64748b" }}>Réponse garantie sous 30 jours ouvrés.</span>
         </p>

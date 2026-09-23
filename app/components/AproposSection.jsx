@@ -14,7 +14,7 @@ const AproposSection = () => {
                 {/* Image produit */}
                 <div className="apropos-product-presentation">
                     <Image
-                        src="https://res.cloudinary.com/dewstflqp/image/upload/v1778080907/products/fafxr3b6fdauvoaaouaa.jpg"
+                        src="/api/media/site/apropos-pull-maille-bleue.jpg"
                         alt="Pull-lover maille bleue"
                         width={480}
                         height={560}

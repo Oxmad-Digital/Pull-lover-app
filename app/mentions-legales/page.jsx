@@ -7,7 +7,7 @@ export const metadata = {
 
 export default function MentionsLegalesPage() {
   return (
-    <main style={{ maxWidth: 800, margin: "0 auto", padding: "60px 32px", fontFamily: "Montserrat, sans-serif", color: "#0f172a", lineHeight: 1.8 }}>
+    <main style={{ maxWidth: 800, margin: "0 auto", padding: "60px 32px", fontFamily: "Montserrat, sans-serif", color: "#252323", lineHeight: 1.8 }}>
       <h1 style={{ fontSize: 32, fontWeight: 700, marginBottom: 48 }}>Mentions légales</h1>
 
       <Section title="1. Éditeur du site">
@@ -16,7 +16,7 @@ export default function MentionsLegalesPage() {
           <li><strong>Raison sociale :</strong> Pull Lover</li>
           <li><strong>Forme juridique :</strong> Entreprise individuelle</li>
           <li><strong>Adresse :</strong> France</li>
-          <li><strong>E-mail :</strong> <a href="mailto:tom.wybo@yahoo.fr" style={{ color: "#6366f1" }}>tom.wybo@yahoo.fr</a></li>
+          <li><strong>E-mail :</strong> <a href="mailto:tom.wybo@yahoo.fr" style={{ color: "#C75C5C" }}>tom.wybo@yahoo.fr</a></li>
         </ul>
       </Section>
 
@@ -29,11 +29,11 @@ export default function MentionsLegalesPage() {
         <p>Le site est hébergé par :</p>
         <ul style={{ marginTop: 12, paddingLeft: 20 }}>
           <li><strong>Vercel Inc.</strong> — 340 Pine Street, Suite 701, San Francisco, CA 94104, États-Unis</li>
-          <li>Site : <a href="https://vercel.com" target="_blank" rel="noopener noreferrer" style={{ color: "#6366f1" }}>vercel.com</a></li>
+          <li>Site : <a href="https://vercel.com" target="_blank" rel="noopener noreferrer" style={{ color: "#C75C5C" }}>vercel.com</a></li>
         </ul>
         <p style={{ marginTop: 12 }}>
-          Les médias (images, vidéos) sont hébergés sur <strong>Cloudinary</strong> et les données sur
-          <strong> MongoDB Atlas</strong> (cloud MongoDB, Inc.).
+          Les médias (images, vidéos) sont hébergés sur <strong>Cloudflare R2</strong> et les données sur
+          <strong> Neon</strong> (hébergement PostgreSQL managé).
         </p>
       </Section>
 
@@ -59,7 +59,7 @@ export default function MentionsLegalesPage() {
 
       <Section title="7. Données personnelles">
         La collecte et le traitement de vos données personnelles sont décrits dans notre{" "}
-        <Link href="/politique-de-confidentialite" style={{ color: "#6366f1", fontWeight: 600 }}>
+        <Link href="/politique-de-confidentialite" style={{ color: "#C75C5C", fontWeight: 600 }}>
           Politique de confidentialité
         </Link>
         , conformément au Règlement Général sur la Protection des Données (RGPD).
@@ -67,7 +67,7 @@ export default function MentionsLegalesPage() {
 
       <Section title="8. Contact">
         Pour toute question relative au site ou à son contenu :{" "}
-        <a href="mailto:tom.wybo@yahoo.fr" style={{ color: "#6366f1" }}>tom.wybo@yahoo.fr</a>
+        <a href="mailto:tom.wybo@yahoo.fr" style={{ color: "#C75C5C" }}>tom.wybo@yahoo.fr</a>
       </Section>
 
       <p style={{ color: "#64748b", marginTop: 48, fontSize: "0.875rem" }}>Dernière mise à jour : juin 2025</p>
@@ -78,7 +78,7 @@ export default function MentionsLegalesPage() {
 function Section({ title, children }) {
   return (
     <section style={{ marginBottom: 40 }}>
-      <h2 style={{ fontSize: 18, fontWeight: 700, marginBottom: 12, color: "#0f172a" }}>{title}</h2>
+      <h2 style={{ fontSize: 18, fontWeight: 700, marginBottom: 12, color: "#252323" }}>{title}</h2>
       <div style={{ color: "#334155" }}>{children}</div>
     </section>
   );

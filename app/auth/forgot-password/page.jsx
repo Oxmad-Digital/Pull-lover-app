@@ -63,7 +63,7 @@ export default function ForgotPasswordPage() {
             </p>
             <Link
               href="/auth/login"
-              style={{ fontSize: 13, color: "#C95D5D", fontWeight: 600, fontFamily: "'Montserrat', sans-serif", textDecoration: "none" }}
+              style={{ fontSize: 13, color: "#C75C5C", fontWeight: 600, fontFamily: "'Montserrat', sans-serif", textDecoration: "none" }}
             >
               Retour à la connexion
             </Link>

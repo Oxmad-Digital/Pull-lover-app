@@ -1,8 +1,11 @@
 // app/api/upload/route.js
 import { NextResponse } from "next/server";
-import cloudinary from "@/app/lib/cloudinary";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/app/api/auth/[...nextauth]/route";
+import { randomUUID } from "node:crypto";
+import { uploadToR2 } from "@/app/lib/r2";
+
+export const runtime = "nodejs";
 
 export async function POST(req) {
   try {
@@ -19,9 +22,9 @@ export async function POST(req) {
     const file = formData.get("file");
     const type = formData.get("type"); // "avatar" ou "product"
 
-    if (type === "avatar" && session.user.role !== "admin") {
+    if (session.user.role !== "admin") {
       return NextResponse.json(
-        { message: "Réservé aux administrateurs" },
+        { message: "Accès réservé aux administrateurs" },
         { status: 403 }
       );
     }
@@ -51,28 +54,23 @@ export async function POST(req) {
       );
     }
 
-    // ✅ Convertir en base64
     const bytes = await file.arrayBuffer();
     const buffer = Buffer.from(bytes);
-    const base64 = `data:${file.type};base64,${buffer.toString("base64")}`;
-
-    // ✅ Définir le dossier selon le type
     const folder = type === "avatar" ? "avatars" : "products";
-
-    // ✅ Upload sur Cloudinary
-    const result = await cloudinary.uploader.upload(base64, {
-      folder: folder,
-      transformation: type === "avatar"
-        ? [{ width: 200, height: 200, crop: "fill", gravity: "face" }]
-        : [{ width: 800, height: 800, crop: "limit", quality: "auto" }],
+    const extension = file.type === "image/jpeg" ? "jpg" : file.type.split("/")[1];
+    const key = folder + "/" + randomUUID() + "." + extension;
+    const result = await uploadToR2({
+      key,
+      body: buffer,
+      contentType: file.type,
     });
 
-    console.log(`✅ Image uploadée: ${result.secure_url}`);
+    console.log("✅ Image uploadée sur R2: " + result.key);
 
     return NextResponse.json({
       success: true,
-      url: result.secure_url,
-      publicId: result.public_id,
+      url: result.url,
+      key: result.key,
     });
 
   } catch (error) {

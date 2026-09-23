@@ -10,17 +10,6 @@ const labelStyle = {
   marginBottom: 6, textTransform: "uppercase", letterSpacing: "0.05em",
 };
 
-const inputStyle = {
-  width: "100%", padding: "9px 12px", border: "1.5px solid #e7e5e4",
-  borderRadius: 6, fontSize: 13, fontFamily: "inherit", color: "#0f172a",
-  outline: "none", boxSizing: "border-box", background: "#fff",
-};
-
-const cardStyle = {
-  background: "#fff", border: "1px solid #e7e5e4", borderRadius: 10,
-  padding: "20px 24px",
-};
-
 function toLocalDatetimeValue(date) {
   if (!date) return "";
   const d = new Date(date);
@@ -130,7 +119,7 @@ export default function AdminSettingsPage() {
           flex-shrink: 0;
           transition: background 0.2s;
         }
-        .ap-toggle.on  { background: #C95D5D; }
+        .ap-toggle.on  { background: #C75C5C; }
         .ap-toggle.off { background: #d4d4d0; }
         .ap-toggle-thumb {
           position: absolute;
@@ -153,12 +142,12 @@ export default function AdminSettingsPage() {
       <div className="content-grid">
 
         {/* ── Compteur drop ── */}
-        <div style={cardStyle}>
+        <div className="admin-content-card">
           <p style={{ fontSize: 12, fontWeight: 700, color: "#78716c", textTransform: "uppercase", letterSpacing: "0.05em", marginBottom: 14 }}>
             Compteur — date du prochain drop
           </p>
           <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 16, flexWrap: "wrap" }}>
-            <span style={{ fontSize: 14, fontWeight: 600, color: "#0f172a" }}>{formatDate(current?.dropDate)}</span>
+            <span style={{ fontSize: 14, fontWeight: 600, color: "#252323" }}>{formatDate(current?.dropDate)}</span>
             <StatusBadge
               active={!!(current?.dropDate && !dropExpired)}
               activeLabel="Actif"
@@ -169,12 +158,12 @@ export default function AdminSettingsPage() {
             style={{ display: "flex", flexDirection: "column", gap: 12 }}>
             <div>
               <label style={labelStyle}>Date & heure *</label>
-              <input style={inputStyle} type="datetime-local" value={dropDate} onChange={(e) => setDropDate(e.target.value)} />
+              <input type="datetime-local" value={dropDate} onChange={(e) => setDropDate(e.target.value)} />
               <p style={{ fontSize: 11, color: "#a8a29e", marginTop: 5 }}>
                 Le compteur est affiché sur la page d'accueil jusqu'à cette date, puis se cache automatiquement.
               </p>
             </div>
-            {errors.dropDate && <p style={{ fontSize: 13, color: "#C95D5D" }}>{errors.dropDate}</p>}
+            {errors.dropDate && <p style={{ fontSize: 13, color: "#C75C5C" }}>{errors.dropDate}</p>}
             <button type="submit" className="ap-btn-add" style={{ alignSelf: "flex-start" }} disabled={saving === "dropDate"}>
               {saving === "dropDate" ? "Sauvegarde…" : "Enregistrer"}
             </button>
@@ -182,7 +171,7 @@ export default function AdminSettingsPage() {
         </div>
 
         {/* ── Bandeau header ── */}
-        <div style={cardStyle}>
+        <div className="admin-content-card">
           <p style={{ fontSize: 12, fontWeight: 700, color: "#78716c", textTransform: "uppercase", letterSpacing: "0.05em", marginBottom: 14 }}>
             Bandeau header
           </p>
@@ -196,13 +185,13 @@ export default function AdminSettingsPage() {
             style={{ display: "flex", flexDirection: "column", gap: 12 }}>
             <div>
               <label style={labelStyle}>Texte du bandeau</label>
-              <input style={inputStyle} type="text" placeholder="Nouvel arrivage le 01/09/2026 à 19H" value={bandeauText}
+              <input type="text" placeholder="Nouvel arrivage le 01/09/2026 à 19H" value={bandeauText}
                 onChange={(e) => setBandeauText(e.target.value)} />
               <p style={{ fontSize: 11, color: "#a8a29e", marginTop: 5 }}>
                 Affiché en haut de toutes les pages (sauf accueil). Laisser vide pour masquer.
               </p>
             </div>
-            {errors.bandeauText && <p style={{ fontSize: 13, color: "#C95D5D" }}>{errors.bandeauText}</p>}
+            {errors.bandeauText && <p style={{ fontSize: 13, color: "#C75C5C" }}>{errors.bandeauText}</p>}
             <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
               <button type="submit" className="ap-btn-add" style={{ alignSelf: "flex-start" }} disabled={saving === "bandeauText"}>
                 {saving === "bandeauText" ? "Sauvegarde…" : "Enregistrer"}
@@ -210,7 +199,7 @@ export default function AdminSettingsPage() {
               {bandeauText && (
                 <button type="button" disabled={saving === "bandeauText"}
                   onClick={() => { setBandeauText(""); patch("bandeauText", "", "Bandeau"); }}
-                  style={{ padding: "10px 16px", background: "#fff", border: "1.5px solid #e7e5e4", borderRadius: 6, fontSize: 13, fontWeight: 600, cursor: "pointer", color: "#C95D5D" }}>
+                  style={{ padding: "10px 16px", background: "#fff", border: "1.5px solid #e7e5e4", borderRadius: 6, fontSize: 13, fontWeight: 600, cursor: "pointer", color: "#C75C5C" }}>
                   Masquer
                 </button>
               )}
@@ -219,7 +208,7 @@ export default function AdminSettingsPage() {
         </div>
 
         {/* ── Badge / notif hero ── */}
-        <div style={cardStyle}>
+        <div className="admin-content-card">
           <p style={{ fontSize: 12, fontWeight: 700, color: "#78716c", textTransform: "uppercase", letterSpacing: "0.05em", marginBottom: 14 }}>
             Notification hero (page d'accueil)
           </p>
@@ -233,13 +222,13 @@ export default function AdminSettingsPage() {
             style={{ display: "flex", flexDirection: "column", gap: 12 }}>
             <div>
               <label style={labelStyle}>Texte de la notification</label>
-              <input style={inputStyle} type="text" placeholder="Nouvel arrivage le 01/09/2026 à 19H" value={badgeText}
+              <input type="text" placeholder="Nouvel arrivage le 01/09/2026 à 19H" value={badgeText}
                 onChange={(e) => setBadgeText(e.target.value)} />
               <p style={{ fontSize: 11, color: "#a8a29e", marginTop: 5 }}>
                 Badge clochette affiché sur la page d'accueil. Laisser vide pour masquer.
               </p>
             </div>
-            {errors.badgeText && <p style={{ fontSize: 13, color: "#C95D5D" }}>{errors.badgeText}</p>}
+            {errors.badgeText && <p style={{ fontSize: 13, color: "#C75C5C" }}>{errors.badgeText}</p>}
             <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
               <button type="submit" className="ap-btn-add" style={{ alignSelf: "flex-start" }} disabled={saving === "badgeText"}>
                 {saving === "badgeText" ? "Sauvegarde…" : "Enregistrer"}
@@ -247,7 +236,7 @@ export default function AdminSettingsPage() {
               {badgeText && (
                 <button type="button" disabled={saving === "badgeText"}
                   onClick={() => { setBadgeText(""); patch("badgeText", "", "Notification hero"); }}
-                  style={{ padding: "10px 16px", background: "#fff", border: "1.5px solid #e7e5e4", borderRadius: 6, fontSize: 13, fontWeight: 600, cursor: "pointer", color: "#C95D5D" }}>
+                  style={{ padding: "10px 16px", background: "#fff", border: "1.5px solid #e7e5e4", borderRadius: 6, fontSize: 13, fontWeight: 600, cursor: "pointer", color: "#C75C5C" }}>
                   Masquer
                 </button>
               )}
@@ -256,7 +245,7 @@ export default function AdminSettingsPage() {
         </div>
 
         {/* ── Mode maintenance ── */}
-        <div style={cardStyle}>
+        <div className="admin-content-card">
           <p style={{ fontSize: 12, fontWeight: 700, color: "#78716c", textTransform: "uppercase", letterSpacing: "0.05em", marginBottom: 14 }}>
             Mode maintenance
           </p>
@@ -278,7 +267,7 @@ export default function AdminSettingsPage() {
             n&apos;est pas concerné : vous pouvez continuer à y accéder normalement pour
             travailler sur le site, tout comme depuis ce panneau d&apos;administration une fois connecté.
           </p>
-          {errors.maintenanceMode && <p style={{ fontSize: 13, color: "#C95D5D", marginTop: 8 }}>{errors.maintenanceMode}</p>}
+          {errors.maintenanceMode && <p style={{ fontSize: 13, color: "#C75C5C", marginTop: 8 }}>{errors.maintenanceMode}</p>}
         </div>
 
       </div>

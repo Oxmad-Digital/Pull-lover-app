@@ -239,7 +239,7 @@ export default function AdminOrderDetailPage() {
                   style={{
                     display: "inline-flex", alignItems: "center", gap: 6,
                     padding: "9px 18px", borderRadius: 8, fontSize: 13, fontWeight: 700,
-                    background: "#f1f5f9", color: "#0f172a", border: "1px solid #e2e8f0", textDecoration: "none",
+                    background: "#f1f5f9", color: "#252323", border: "1px solid #e2e8f0", textDecoration: "none",
                   }}
                 >
                   Télécharger l&apos;étiquette PDF
@@ -258,7 +258,7 @@ export default function AdminOrderDetailPage() {
               style={{
                 display: "inline-flex", alignItems: "center", gap: 8,
                 padding: "10px 22px", borderRadius: 8, fontSize: 14, fontWeight: 700,
-                background: generatingLabel ? "#94a3b8" : "#c0616a", color: "#fff",
+                background: generatingLabel ? "#94a3b8" : "#AD4646", color: "#fff",
                 border: "none", cursor: generatingLabel ? "not-allowed" : "pointer",
                 transition: "background 0.2s",
               }}
