@@ -36,6 +36,10 @@ export async function middleware(req) {
   const token = await getToken({
     req,
     secret: process.env.NEXTAUTH_SECRET,
+    // Déduit du protocole réel de la requête (et non de NEXTAUTH_URL) pour
+    // lire le bon cookie (__Secure-next-auth...) en production.
+    secureCookie:
+      (req.headers.get("x-forwarded-proto") || req.nextUrl.protocol.replace(":", "")) === "https",
   });
 
   // 🚧 ÉCRAN "SITE EN CONSTRUCTION"
