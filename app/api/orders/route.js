@@ -7,6 +7,8 @@ import { sendEmail } from "@/app/lib/mailer";
 import { getOrderConfirmationEmailTemplate, getAdminNewOrderEmailTemplate } from "@/app/lib/emailTemplates";
 import Customer from "@/app/models/Customer";
 import Promo from "@/app/models/Promo";
+import { getShippingOptions } from "@/app/lib/sendcloud";
+import { getCartWeight } from "@/app/lib/cartWeight";
 
 export async function POST(req) {
   console.log("🚀 API /api/order APPELÉE");
@@ -72,7 +74,25 @@ export async function POST(req) {
     /* ======================
        CRÉATION COMMANDE
     ====================== */
-    const deliveryMethod = delivery === "relais" ? "colissimo_relais" : "colissimo_domicile";
+    // delivery = { optionKey, countryCode, servicePoint? } — revalidé côté serveur auprès de SendCloud
+    const countryCode = String(delivery?.countryCode || "FR").toUpperCase();
+    let shippingMethod;
+    let weight;
+    try {
+      weight = await getCartWeight(cartItems);
+      const options = await getShippingOptions({ toCountry: countryCode, weight });
+      shippingMethod = options.find((o) => o.key === delivery?.optionKey);
+    } catch (err) {
+      console.error("SENDCLOUD METHODS ERROR:", err);
+      return NextResponse.json({ message: "Modes d'expédition indisponibles" }, { status: 502 });
+    }
+    if (!shippingMethod) {
+      return NextResponse.json({ message: "Mode d'expédition invalide" }, { status: 400 });
+    }
+    const servicePoint = shippingMethod.servicePoint ? delivery?.servicePoint : null;
+    if (shippingMethod.servicePoint && !servicePoint?.id) {
+      return NextResponse.json({ message: "Veuillez choisir un point relais" }, { status: 400 });
+    }
 
     const order = await Order.create({
       customer: {
@@ -80,6 +100,7 @@ export async function POST(req) {
         lastname,
         email,
         phone:      phone      || "",
+        company:    customer.company || "",
         address,
         postalCode: postalCode || "",
         city,
@@ -89,10 +110,25 @@ export async function POST(req) {
       total: Number(total),
       payment: payment || "cash",
       delivery: {
-        method:         deliveryMethod,
+        method:         `${shippingMethod.carrier}${shippingMethod.servicePoint ? "_relais" : "_domicile"}`,
+        methodId:       shippingMethod.methodId,
+        methodName:     shippingMethod.name,
+        weight,
+        carrier:        shippingMethod.carrier,
+        countryCode,
         trackingNumber: null,
+        trackingUrl:    null,
         labelUrl:       null,
-        relayId:        null,
+        relayId:        servicePoint ? String(servicePoint.id) : null,
+        servicePoint:   servicePoint
+          ? {
+              id:         String(servicePoint.id),
+              name:       String(servicePoint.name || ""),
+              street:     String(servicePoint.street || ""),
+              postalCode: String(servicePoint.postalCode || ""),
+              city:       String(servicePoint.city || ""),
+            }
+          : null,
         shippedAt:      null,
       },
       status: "pending",
@@ -159,15 +195,7 @@ if (existingCustomer) {
       bank_transfer: "🏦 Virement bancaire",
     };
 
-    const deliveryLabels = {
-      colissimo:          "📦 Colissimo — Livraison avec signature",
-      relais:             "📦 Colissimo — Point relais",
-      colissimo_domicile: "📦 Colissimo — Livraison avec signature",
-      colissimo_relais:   "📦 Colissimo — Point relais",
-      standard:           "🚚 Livraison standard",
-      express:            "⚡ Livraison express",
-      pickup:             "🏪 Retrait en magasin",
-    };
+    const deliveryLabel = `📦 ${shippingMethod.carrierLabel} — ${shippingMethod.name}`;
 
     // Liste des produits formatée
     const productListHtml = cartItems.map((item) => `
@@ -203,7 +231,7 @@ if (existingCustomer) {
       productListHtml,
       address,
       city,
-      deliveryLabel: deliveryLabels[delivery] || deliveryLabels[deliveryMethod] || delivery,
+      deliveryLabel,
       paymentLabel: paymentLabels[payment] || payment,
       total,
     });
@@ -215,7 +243,7 @@ if (existingCustomer) {
       productListHtml,
       address,
       city,
-      deliveryLabel: deliveryLabels[delivery] || deliveryLabels[deliveryMethod] || delivery,
+      deliveryLabel,
       paymentLabel: paymentLabels[payment] || payment,
       total,
     });

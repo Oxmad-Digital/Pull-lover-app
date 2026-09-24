@@ -38,7 +38,10 @@ export default function AdminSidebar() {
       <aside className="admin-sidebar">
         <div className="admin-sidebar-header">
           <Link href="/" className="admin-sidebar-brand" aria-label="Accueil Pull Lover">
-            <span className="admin-sidebar-wordmark">PULL—LOVER</span>
+            <span className="admin-sidebar-wordmark" aria-hidden="true">
+              <span className="admin-sidebar-wordmark-pull">Pull</span>
+              <span className="admin-sidebar-wordmark-lover">Lover</span>
+            </span>
             <span className="admin-sidebar-brand-origin">Maille de Madagascar</span>
           </Link>
           <div className="admin-sidebar-info">

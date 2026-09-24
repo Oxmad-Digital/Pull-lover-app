@@ -184,17 +184,24 @@ export default function AdminOrderDetailPage() {
 
       </div>
 
-      {/* ── Expédition Colissimo ── */}
+      {/* ── Expédition ── */}
       <div className="od-card" style={{ marginTop: 24 }}>
-        <h2 className="od-card-title">Expédition Colissimo</h2>
+        <h2 className="od-card-title">Expédition</h2>
 
         {order.delivery?.method && (
           <div className="od-summary-row" style={{ marginBottom: 12 }}>
             <span className="od-summary-label">Mode</span>
             <span className="od-summary-value">
-              {order.delivery.method === "colissimo_relais"
-                ? "Point relais Colissimo"
-                : "Colissimo domicile avec signature"}
+              {order.delivery.methodName || order.delivery.method}
+            </span>
+          </div>
+        )}
+
+        {order.delivery?.servicePoint && (
+          <div className="od-summary-row" style={{ marginBottom: 12 }}>
+            <span className="od-summary-label">Point relais</span>
+            <span className="od-summary-value">
+              {order.delivery.servicePoint.name} — {order.delivery.servicePoint.street}, {order.delivery.servicePoint.postalCode} {order.delivery.servicePoint.city}
             </span>
           </div>
         )}
@@ -219,7 +226,7 @@ export default function AdminOrderDetailPage() {
 
             <div style={{ display: "flex", gap: 12, flexWrap: "wrap", marginTop: 16 }}>
               <a
-                href={`https://www.laposte.fr/outils/suivre-vos-envois?code=${order.delivery.trackingNumber}`}
+                href={order.delivery.trackingUrl || `https://www.laposte.fr/outils/suivre-vos-envois?code=${order.delivery.trackingNumber}`}
                 target="_blank"
                 rel="noopener noreferrer"
                 style={{
@@ -228,7 +235,7 @@ export default function AdminOrderDetailPage() {
                   background: "#0ea5e9", color: "#fff", textDecoration: "none",
                 }}
               >
-                Suivre sur La Poste →
+                Suivre le colis →
               </a>
 
               {order.delivery.labelUrl && (
@@ -250,7 +257,7 @@ export default function AdminOrderDetailPage() {
         ) : (
           <div style={{ marginTop: 8 }}>
             <p style={{ fontSize: 13, color: "#888", marginBottom: 16 }}>
-              Aucune étiquette générée. Cliquez ci-dessous pour créer l&apos;étiquette Colissimo et passer la commande en <em>Expédiée</em>.
+              Aucune étiquette générée. Cliquez ci-dessous pour créer l&apos;étiquette via SendCloud et passer la commande en <em>Expédiée</em>.
             </p>
             <button
               onClick={generateLabel}
@@ -263,7 +270,7 @@ export default function AdminOrderDetailPage() {
                 transition: "background 0.2s",
               }}
             >
-              {generatingLabel ? "Génération en cours…" : "Générer l'étiquette Colissimo"}
+              {generatingLabel ? "Génération en cours…" : "Générer l'étiquette"}
             </button>
           </div>
         )}

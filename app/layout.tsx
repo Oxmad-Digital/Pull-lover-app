@@ -1,7 +1,7 @@
 import React from "react";
 import "./globals.css";
 import "./mantasoa-product.css";
-import { Montserrat, Pinyon_Script } from 'next/font/google';
+import { Montserrat } from 'next/font/google';
 import HeaderWrapper from "./components/HeaderWrapper";
 import FooterWrapper from "./components/FooterWrapper";
 import Providers from "./components/Providers";
@@ -13,12 +13,6 @@ const montserrat = Montserrat({
   display: 'swap',
 });
 
-const pinyonScript = Pinyon_Script({
-  subsets: ['latin'],
-  weight: '400',
-  variable: '--font-pinyon',
-  display: 'swap',
-});
 
 export const metadata = {
   title: { default: "Pull Lover", template: "%s | Pull Lover" },
@@ -41,7 +35,7 @@ export const viewport = {
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="fr" className={`${montserrat.variable} ${pinyonScript.variable}`}>
+    <html lang="fr" className={montserrat.variable}>
       <body className={montserrat.className}>
         <Providers>
           <HeaderWrapper />

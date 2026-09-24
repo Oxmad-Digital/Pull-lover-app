@@ -105,7 +105,10 @@ export default function ProductsManagement() {
       });
       const data = await res.json();
       if (!res.ok) throw new Error(data.message || "Erreur serveur");
-      setPage(1);
+      const saved = data.product || data;
+      setLocalProducts(prev => editingProduct
+        ? prev.map(p => p._id === saved._id ? { ...p, ...saved } : p)
+        : [saved, ...prev]);
       closeForm();
       showToast(editingProduct ? "Produit modifié" : "Produit ajouté");
     } catch (err) {
@@ -159,13 +162,16 @@ export default function ProductsManagement() {
 
       {/* Topbar */}
       <div className="ap-topbar">
-        <h1 className="ap-topbar-title">Produits &amp; Stock</h1>
+        <h1 className="ap-topbar-title">Produit &amp; Stock</h1>
         <button className="ac-btn-export" onClick={exportCSV} disabled={exporting}>
           {exporting ? "Export…" : "Export CSV"}
         </button>
-        <button className="ap-btn-add" onClick={() => { setEditingProduct(null); setShowForm(true); }}>
-          Ajouter un produit
-        </button>
+        {/* Mode mono-produit : on ne crée la fiche que si elle n'existe pas encore */}
+        {!loading && localProducts.length === 0 && !debouncedSearch && !categoryFilter && filter === "all" && (
+          <button className="ap-btn-add" onClick={() => { setEditingProduct(null); setShowForm(true); }}>
+            Créer la fiche Mantasoa
+          </button>
+        )}
       </div>
 
       <ProductsFilters
@@ -199,7 +205,7 @@ export default function ProductsManagement() {
           <div className="ap-modal">
             <div className="ap-modal-header">
               <h2 className="ap-modal-title">
-                {editingProduct ? "Modifier le produit" : "Ajouter un produit"}
+                {editingProduct ? "Modifier la fiche produit" : "Créer la fiche Mantasoa"}
               </h2>
               <button className="ap-modal-close" onClick={closeForm}>✕</button>
             </div>

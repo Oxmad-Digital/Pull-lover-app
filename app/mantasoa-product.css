@@ -257,13 +257,14 @@
 
 .mp-sizes {
   display: grid;
-  grid-template-columns: repeat(5, minmax(54px, 1fr));
-  gap: 8px;
+  grid-auto-flow: column;
+  grid-auto-columns: minmax(0, 1fr);
+  gap: 6px;
 }
 
 .mp-sizes button {
-  min-height: 55px;
-  padding: 8px 4px;
+  min-height: 44px;
+  padding: 6px 2px;
   color: var(--mp-ink);
   background: transparent;
   border: 1px solid #b8bbb8;
@@ -277,7 +278,7 @@
 .mp-sizes button:disabled { position: relative; color: #aaa; cursor: not-allowed; background: linear-gradient(to top right, transparent 49%, #c9c9c9 50%, transparent 51%); }
 .mp-sizes small { display: none; }
 .mp-size-skeleton {
-  min-height: 55px;
+  min-height: 44px;
   background: #e8e6e0;
   border: 1px solid transparent;
   animation: mp-pulse 1.4s infinite;
@@ -399,6 +400,8 @@
 
 .mp-size-dialog {
   width: min(680px, calc(100vw - 32px));
+  max-height: calc(100vh - 32px);
+  margin: auto;
   padding: 46px;
   color: var(--mp-ink);
   background: #fbfaf7;

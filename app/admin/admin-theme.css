@@ -38,11 +38,23 @@
 
 .admin-sidebar-brand { display: block; color: inherit; text-decoration: none; }
 .admin-sidebar-wordmark {
-  display: block;
+  display: flex;
+  align-items: baseline;
+  color: var(--pl-white);
   font-family: var(--pl-serif);
-  font-size: 22px;
-  letter-spacing: -.035em;
-  line-height: 1;
+  font-size: 31px;
+  font-weight: 400;
+  letter-spacing: -.055em;
+  line-height: .92;
+  white-space: nowrap;
+}
+.admin-sidebar-wordmark-pull,
+.admin-sidebar-wordmark-lover {
+  font: inherit;
+}
+.admin-sidebar-wordmark-lover {
+  margin-left: .08em;
+  font-style: italic;
 }
 .admin-sidebar-brand-origin {
   display: block;
@@ -122,6 +134,7 @@
   background: var(--admin-accent-dark);
   border-color: var(--admin-accent-dark);
 }
+.admin-layout .ap-btn-delete { border-radius: 0; }
 .admin-layout :is(.ap-back-btn, .ac-btn-export, .ap-page-btn, .ap-btn-view, .ap-btn-edit, .acd-back-btn, .acd-btn-ghost, .ac-page-btn, .ac-page-num) {
   border: 1px solid var(--admin-line);
   border-radius: 0;
@@ -154,6 +167,18 @@
   border: 1px solid var(--admin-line);
   border-radius: 0;
   font-size: 13px;
+}
+.admin-layout .content-grid :is(input, textarea, select):not([type="checkbox"], [type="radio"]),
+.admin-layout .promo-form-wrap :is(input, textarea, select):not([type="checkbox"], [type="radio"]) {
+  padding: 0 14px;
+}
+.admin-layout .content-grid textarea,
+.admin-layout .promo-form-wrap textarea {
+  padding: 10px 14px;
+}
+.admin-layout .promo-form-wrap input[type="checkbox"] {
+  width: auto;
+  min-height: 0;
 }
 .admin-layout :is(.ap-search-input, .ap-category-select, .ap-sort-trigger):focus,
 .admin-layout .content-grid :is(input, textarea, select):focus,
@@ -250,7 +275,8 @@
 @media (max-width: 1200px) and (min-width: 768px) {
   .admin-layout .admin-sidebar { width: 68px; }
   .admin-layout .admin-sidebar-header { padding: 24px 10px; text-align: center; }
-  .admin-layout .admin-sidebar-wordmark { font-size: 15px; overflow: hidden; }
+  .admin-layout .admin-sidebar-brand { width: 48px; overflow: hidden; }
+  .admin-layout .admin-sidebar-wordmark { transform: scale(.46); transform-origin: left center; }
   .admin-layout .admin-sidebar-brand-origin,
   .admin-layout .admin-sidebar-info { display: none; }
   .admin-layout .admin-nav-item { padding: 14px 0; margin: 0; border-left-width: 2px; }

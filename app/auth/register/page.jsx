@@ -187,6 +187,7 @@ export default function RegisterPage() {
           {loading ? "Création…" : "Créer mon compte"}
         </ButtonPrimary>
 
+        {/* Google désactivé temporairement (redirect_uri_mismatch), à remettre plus tard
         <div className="auth-divider" aria-hidden="true">
           <span /><p>Ou s’inscrire avec</p><span />
         </div>
@@ -194,6 +195,7 @@ export default function RegisterPage() {
         <button className="auth-google" type="button" onClick={() => signIn("google", { callbackUrl: "/dashboard" })}>
           Continuer avec Google
         </button>
+        */}
 
         <div className="auth-switch">
           <p>Vous avez déjà un compte ?</p>

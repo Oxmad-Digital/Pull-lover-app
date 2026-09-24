@@ -8,5 +8,5 @@ export default function HeaderWrapper() {
     const isHome = pathname === "/";
     if (pathname.startsWith("/admin") || pathname === "/maintenance") return null;
 
-    return <Header transparent={isHome} />;
+    return <Header transparent={isHome} dashboard={pathname.startsWith("/dashboard")} />;
 }

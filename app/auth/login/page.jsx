@@ -95,6 +95,7 @@ export default function LoginPage() {
           {loading ? "Connexion…" : "Se connecter"}
         </ButtonPrimary>
 
+        {/* Google désactivé temporairement (redirect_uri_mismatch), à remettre plus tard
         <div className="auth-divider" aria-hidden="true">
           <span /><p>Ou continuer avec</p><span />
         </div>
@@ -102,6 +103,7 @@ export default function LoginPage() {
         <button className="auth-google" type="button" onClick={() => signIn("google", { callbackUrl: "/dashboard" })}>
           Continuer avec Google
         </button>
+        */}
 
         <div className="auth-switch">
           <p>Pas encore de compte ?</p>

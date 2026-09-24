@@ -6,7 +6,7 @@ import { getServerSession }  from "next-auth";
 import { authOptions }       from "@/app/api/auth/[...nextauth]/route";
 import { connectDB, isValidId } from "@/app/lib/db";
 import Order                 from "@/app/models/Order";
-import { generateLabel, getTrackingUrl, COLISSIMO_CONFIGURED } from "@/app/lib/colissimo";
+import { createParcel, SENDCLOUD_CONFIGURED } from "@/app/lib/sendcloud";
 import { sendEmail }         from "@/app/lib/mailer";
 import { getOrderStatusUpdateEmailTemplate } from "@/app/lib/emailTemplates";
 import { uploadToR2 } from "@/app/lib/r2";
@@ -23,9 +23,9 @@ export async function POST(req, { params }) {
       return NextResponse.json({ message: "ID invalide" }, { status: 400 });
     }
 
-    if (!COLISSIMO_CONFIGURED) {
+    if (!SENDCLOUD_CONFIGURED) {
       return NextResponse.json(
-        { message: "API Colissimo non configurée. Renseignez COLISSIMO_LOGIN et COLISSIMO_PASSWORD dans .env" },
+        { message: "API SendCloud non configurée. Renseignez SENDCLOUD_PUBLIC_KEY et SENDCLOUD_SECRET_KEY dans .env" },
         { status: 503 }
       );
     }
@@ -43,28 +43,37 @@ export async function POST(req, { params }) {
       );
     }
 
-    const { trackingNumber, labelBase64 } = await generateLabel({
-      orderId: order._id.toString(),
-      method:  order.delivery?.method || "colissimo_domicile",
+    if (!order.delivery?.methodId) {
+      return NextResponse.json(
+        { message: "Cette commande n'a pas de mode d'expédition SendCloud (ancienne commande)" },
+        { status: 422 }
+      );
+    }
+
+    const { trackingNumber, trackingUrl: sendcloudTrackingUrl, labelBuffer } = await createParcel({
+      orderId:  order._id.toString(),
+      methodId: order.delivery.methodId,
+      weight:   Number(order.delivery.weight) || undefined,
       addressee: {
-        firstname:  order.customer.firstname,
-        lastname:   order.customer.lastname,
-        email:      order.customer.email,
-        phone:      order.customer.phone,
-        address:    order.customer.address,
-        city:       order.customer.city,
-        postalCode: order.customer.postalCode || "",
+        name:        `${order.customer.firstname} ${order.customer.lastname}`.trim(),
+        company:     order.customer.company,
+        email:       order.customer.email,
+        phone:       order.customer.phone,
+        address:     order.customer.address,
+        city:        order.customer.city,
+        postalCode:  order.customer.postalCode || "",
+        countryCode: order.delivery.countryCode || "FR",
       },
-      relayId: order.delivery?.relayId || undefined,
+      servicePointId: order.delivery.relayId || undefined,
     });
 
     // Stocker le PDF sur R2 pour le conserver durablement
     let labelUrl = null;
-    if (labelBase64) {
+    if (labelBuffer) {
       try {
         const upload = await uploadToR2({
-          key: "colissimo-labels/order_" + id + ".pdf",
-          body: Buffer.from(labelBase64, "base64"),
+          key: "shipping-labels/order_" + id + ".pdf",
+          body: labelBuffer,
           contentType: "application/pdf",
           cacheControl: "private, max-age=0, no-store",
         });
@@ -79,6 +88,7 @@ export async function POST(req, { params }) {
       {
         status: "shipped",
         "delivery.trackingNumber": trackingNumber,
+        "delivery.trackingUrl":    sendcloudTrackingUrl,
         "delivery.labelUrl":       labelUrl,
         "delivery.shippedAt":      new Date(),
       },
@@ -88,7 +98,7 @@ export async function POST(req, { params }) {
     // Email client avec numéro de suivi
     if (order.customer?.email) {
       const orderNumber = order._id.toString().slice(-8).toUpperCase();
-      const trackingUrl = getTrackingUrl(trackingNumber);
+      const trackingUrl = sendcloudTrackingUrl;
 
       const html = getOrderStatusUpdateEmailTemplate({
         firstname:     order.customer.firstname || "Client",
@@ -119,9 +129,9 @@ export async function POST(req, { params }) {
   } catch (error) {
     console.error("LABEL GENERATION ERROR:", error);
 
-    if (error.message === "COLISSIMO_NON_CONFIGURE") {
+    if (error.message === "SENDCLOUD_NON_CONFIGURE") {
       return NextResponse.json(
-        { message: "Clés API Colissimo manquantes dans .env" },
+        { message: "Clés API SendCloud manquantes dans .env" },
         { status: 503 }
       );
     }
