@@ -330,7 +330,7 @@ export function getOrderStatusUpdateEmailTemplate({
       ${trackingNumber ? `
       <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="margin-bottom:20px">
         <tr><td style="background:#f0fafe;border:1px solid #bae6fd;border-radius:8px;padding:16px 20px;text-align:center">
-          <p style="margin:0 0 4px;font-size:11px;font-weight:700;color:#0369a1;letter-spacing:1px;text-transform:uppercase">Numéro de suivi Colissimo</p>
+          <p style="margin:0 0 4px;font-size:11px;font-weight:700;color:#0369a1;letter-spacing:1px;text-transform:uppercase">Numéro de suivi</p>
           <p style="margin:0 0 12px;font-size:20px;font-weight:800;color:#0c4a6e;letter-spacing:1.5px">${trackingNumber}</p>
           ${trackingUrl ? `<a href="${trackingUrl}" style="display:inline-block;padding:8px 20px;background:#0ea5e9;color:#fff;text-decoration:none;font-weight:700;font-size:13px;border-radius:6px">Suivre mon colis →</a>` : ""}
         </td></tr>

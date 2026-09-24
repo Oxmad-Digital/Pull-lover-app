@@ -138,46 +138,36 @@ export default async function OrdersPage() {
                       {order.products?.map((item: any, idx: number) => (
                         <div key={idx} className="order-product-row">
                           <span>{item.product?.name || "Produit"}</span>
-                          <span style={{ color: "#888" }}>× {item.quantity}</span>
+                          <span>× {item.quantity}</span>
                         </div>
                       ))}
                       <div className="order-total-row">
                         <span>Total</span>
-                        <span style={{ color: "#c0616a" }}>
+                        <span className="order-total-value">
                           {Number(order.total).toLocaleString("fr-FR")} €
                         </span>
                       </div>
                     </div>
 
-                    {/* Suivi Colissimo */}
+                    {/* Suivi du colis */}
                     {(order.status === "shipped" || order.status === "delivered") && (order as any).delivery?.trackingNumber && (
-                      <div style={{
-                        marginTop: 16,
-                        padding: "14px 16px",
-                        background: "#f0fafe",
-                        border: "1px solid #bae6fd",
-                        borderRadius: 8,
-                      }}>
-                        <p style={{ margin: "0 0 6px", fontSize: 11, fontWeight: 700, color: "#0369a1", letterSpacing: "1px", textTransform: "uppercase" }}>
-                          Suivi Colissimo
+                      <div className="order-tracking">
+                        <p className="order-tracking-label">
+                          Suivi du colis
                         </p>
-                        <p style={{ margin: "0 0 10px", fontSize: 16, fontWeight: 800, color: "#0c4a6e", letterSpacing: "1.5px" }}>
+                        <p className="order-tracking-number">
                           {(order as any).delivery.trackingNumber}
                         </p>
                         {(order as any).delivery.shippedAt && (
-                          <p style={{ margin: "0 0 10px", fontSize: 12, color: "#475569" }}>
+                          <p className="order-tracking-date">
                             Expédiée le {new Date((order as any).delivery.shippedAt).toLocaleDateString("fr-FR", { day: "numeric", month: "long", year: "numeric" })}
                           </p>
                         )}
                         <a
-                          href={`https://www.laposte.fr/outils/suivre-vos-envois?code=${(order as any).delivery.trackingNumber}`}
+                          href={(order as any).delivery.trackingUrl || `https://www.laposte.fr/outils/suivre-vos-envois?code=${(order as any).delivery.trackingNumber}`}
                           target="_blank"
                           rel="noopener noreferrer"
-                          style={{
-                            display: "inline-flex", alignItems: "center",
-                            padding: "7px 16px", borderRadius: 6, fontSize: 12, fontWeight: 700,
-                            background: "#0ea5e9", color: "#fff", textDecoration: "none",
-                          }}
+                          className="order-tracking-link"
                         >
                           Suivre mon colis →
                         </a>
@@ -185,32 +175,23 @@ export default async function OrdersPage() {
                     )}
 
                     {/* Infos livraison */}
-                    <div style={{
-                      marginTop: 16,
-                      paddingTop: 14,
-                      borderTop: "1px solid #f0f0f0",
-                      display: "flex",
-                      gap: 32,
-                      flexWrap: "wrap",
-                      fontSize: 13,
-                      color: "#555",
-                    }}>
+                    <div className="order-meta">
                       {order.customer?.address && (
                         <span>
-                          <strong style={{ color: "#243B3B" }}>Adresse : </strong>
+                          <strong>Adresse : </strong>
                           {order.customer.address}, {order.customer.city}
                         </span>
                       )}
                       {order.payment && (
                         <span>
-                          <strong style={{ color: "#243B3B" }}>Paiement : </strong>
+                          <strong>Paiement : </strong>
                           {PAYMENT_LABELS[order.payment] || order.payment}
                         </span>
                       )}
                       {(order as any).delivery?.method && (
                         <span>
-                          <strong style={{ color: "#243B3B" }}>Livraison : </strong>
-                          {(order as any).delivery.method === "colissimo_relais" ? "Point relais Colissimo" : "Colissimo domicile"}
+                          <strong>Livraison : </strong>
+                          {(order as any).delivery.methodName || (order as any).delivery.method}
                         </span>
                       )}
                     </div>

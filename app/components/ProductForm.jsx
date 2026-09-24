@@ -8,22 +8,24 @@ export default function ProductForm({
   editingProduct,
   onCancel,
 }) {
-  const ALL_SIZES = ["XS", "S", "M", "L", "XL"];
+  const ALL_SIZES = ["XS", "S", "M", "L", "XL", "XXL"];
 
   const initStocksBySize = () => {
     const existing = editingProduct?.stocks || {};
     return Object.fromEntries(ALL_SIZES.map((s) => [s, existing[s] ?? 0]));
   };
 
-  const [name, setName] = useState(editingProduct?.name || "");
-  const [brand, setBrand] = useState(editingProduct?.brand || "");
+  const [name, setName] = useState(editingProduct?.name || "Le Mantasoa");
   const [stocksBySize, setStocksBySize] = useState(initStocksBySize);
   const [description, setDescription] = useState(editingProduct?.description || "");
   const [details, setDetails] = useState(editingProduct?.details || "");
   const [careInstructions, setCareInstructions] = useState(editingProduct?.careInstructions || "");
+  const [fitInfo, setFitInfo] = useState(editingProduct?.fitInfo || "");
+  const [shippingInfo, setShippingInfo] = useState(editingProduct?.shippingInfo || "");
+  const [color, setColor] = useState(editingProduct?.color || "");
   const [price, setPrice] = useState(editingProduct?.price || "");
+  const [weight, setWeight] = useState(editingProduct?.weight || "");
   const [promoPrice, setPromoPrice] = useState(editingProduct?.promoPrice || "");
-  const [category, setCategory] = useState(editingProduct?.category?._id || "");
 
   const [uploadedUrls, setUploadedUrls] = useState(
     editingProduct?.images || (editingProduct?.image ? [editingProduct.image] : [])
@@ -110,7 +112,7 @@ export default function ProductForm({
 
       const body = {
         name,
-        brand,
+        brand: editingProduct?.brand || "",
         sizes,
         size: sizes[0] || "",
         stocks,
@@ -118,9 +120,13 @@ export default function ProductForm({
         description,
         details,
         careInstructions,
+        fitInfo,
+        shippingInfo,
+        color,
         price: Number(price),
         promoPrice: promoPrice ? Number(promoPrice) : null,
-        category: category || null,
+        weight: weight ? Number(weight) : 0,
+        category: editingProduct?.category?._id || null,
         images: uploadedUrls,
         image: uploadedUrls[0] || "",
         imageKeys: uploadedKeys,
@@ -144,20 +150,12 @@ export default function ProductForm({
       <div className="form-field">
         <label className="form-label">Nom du produit <span className="form-required">*</span></label>
         <input
-          placeholder="Ex : Pull oversize camel"
+          placeholder="Le Mantasoa"
           value={name}
           onChange={(e) => setName(e.target.value)}
           required
         />
-      </div>
-
-      <div className="form-field">
-        <label className="form-label">Marque</label>
-        <input
-          placeholder="Ex : Pull & Bear"
-          value={brand}
-          onChange={(e) => setBrand(e.target.value)}
-        />
+        <small className="form-hint">Le nom doit contenir « Mantasoa » pour être relié à la fiche produit.</small>
       </div>
 
       <div className="stocks-field">
@@ -219,12 +217,41 @@ export default function ProductForm({
         />
       </div>
 
+      <div className="form-field">
+        <label className="form-label">Coupe et taille</label>
+        <textarea
+          placeholder="Coupe droite, prenez votre taille habituelle…"
+          value={fitInfo}
+          onChange={(e) => setFitInfo(e.target.value)}
+          rows={3}
+        />
+      </div>
+
+      <div className="form-field">
+        <label className="form-label">Livraison et retours</label>
+        <textarea
+          placeholder="Confection après commande, retours sous 14 jours…"
+          value={shippingInfo}
+          onChange={(e) => setShippingInfo(e.target.value)}
+          rows={3}
+        />
+      </div>
+
+      <div className="form-field">
+        <label className="form-label">Couleur</label>
+        <input
+          placeholder="Écru naturel"
+          value={color}
+          onChange={(e) => setColor(e.target.value)}
+        />
+      </div>
+
       <div className="form-row">
         <div className="form-field">
           <label className="form-label">Prix <span className="form-required">*</span></label>
           <input
             type="number"
-            placeholder="Ex : 45000"
+            placeholder="Ex : 120"
             value={price}
             onChange={(e) => setPrice(e.target.value)}
             required
@@ -242,15 +269,15 @@ export default function ProductForm({
       </div>
 
       <div className="form-field">
-        <label className="form-label">Catégorie</label>
-        <select value={category} onChange={(e) => setCategory(e.target.value)}>
-          <option value="">-- Choisir --</option>
-          {categories.map((c) => (
-            <option key={c._id} value={c._id}>
-              {c.name}
-            </option>
-          ))}
-        </select>
+        <label className="form-label">Poids d&apos;expédition (kg)</label>
+        <input
+          type="number"
+          step="0.01"
+          min="0"
+          placeholder="Ex : 0.45 — emballage inclus"
+          value={weight}
+          onChange={(e) => setWeight(e.target.value)}
+        />
       </div>
 
       {/* Upload images */}

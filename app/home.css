@@ -12,10 +12,10 @@
 .pl-home .pl-eyebrow { margin-bottom: 24px; font-size: 12px; letter-spacing: .15em; line-height: 1.5; text-transform: uppercase; }
 .pl-hero { position: relative; display: flex; align-items: flex-end; min-height: max(700px, calc(100svh - 34px)); color: white; background: var(--pl-lake); isolation: isolate; }
 .pl-hero-image { object-fit: cover; object-position: center; z-index: -2; }
-.pl-hero::after { content: ''; position: absolute; inset: 0; z-index: -1; background: linear-gradient(rgba(0,0,0,.25), rgba(0,0,0,.25)), linear-gradient(90deg, rgba(12,17,19,.52), rgba(12,17,19,.16) 55%, rgba(12,17,19,.06)), linear-gradient(0deg, rgba(10,13,15,.23), transparent 50%); }
+.pl-hero::after { content: ''; position: absolute; inset: 0; z-index: -1; background: linear-gradient(rgba(0,0,0,.12), rgba(0,0,0,.12)), linear-gradient(90deg, rgba(12,17,19,.4), rgba(12,17,19,.1) 55%, rgba(12,17,19,.03)), linear-gradient(0deg, rgba(10,13,15,.18), transparent 50%); }
 .pl-hero-copy { width: min(820px, 85%); margin: 180px 0 clamp(54px, 8vh, 104px) clamp(24px, 5.8vw, 140px); }
-.pl-hero h1 { font-size: clamp(68px, 6.1vw, 140px); line-height: .92; letter-spacing: -.055em; }
-.pl-hero h1 em { display: block; font-weight: 400; }
+.pl-hero h1 { font-size: clamp(68px, 6.1vw, 140px); line-height: .92; white-space: nowrap; letter-spacing: -.055em; }
+.pl-hero h1 em { font-weight: 400; }
 .pl-hero-foot { display: flex; align-items: center; gap: 28px; margin-top: 40px; }
 .pl-hero-foot p { max-width: 360px; font-size: 16px; line-height: 1.55; color: rgba(255,255,255,.9); }
 .pl-home .pl-button { min-height: 56px; display: inline-flex; align-items: center; justify-content: center; gap: 22px; padding: 16px 26px; border: 1px solid var(--pl-ink); border-radius: 0; background: var(--pl-ink); color: white; font-family: var(--pl-sans); font-size: 12px; letter-spacing: .085em; line-height: 1.4; text-transform: uppercase; text-decoration: none; cursor: pointer; transition: background .25s, color .25s; }
@@ -31,6 +31,19 @@
 .pl-manifesto > p span { color: var(--color-secondary); }
 .pl-origin { display: flex; align-items: center; gap: 16px; max-width: 1100px; margin: 46px auto 0; font-size: 11px; letter-spacing: .1em; text-transform: uppercase; }
 .pl-origin::before { content: ''; flex: 0 0 36px; height: 1px; background: currentColor; }
+.pl-collection-concept { padding: clamp(96px, 9vw, 180px) clamp(24px, 6vw, 140px); background: var(--pl-mist); }
+.pl-collection-concept-head { display: grid; grid-template-columns: minmax(180px, 1fr) 2fr; gap: 40px; padding-bottom: clamp(64px, 7vw, 120px); border-bottom: 1px solid var(--pl-line); }
+.pl-collection-concept .pl-eyebrow { color: var(--color-secondary-hover); }
+.pl-collection-concept h2 { max-width: 900px; font-size: clamp(48px, 5vw, 100px); line-height: .98; letter-spacing: -.05em; }
+.pl-collection-concept h2 em { color: var(--pl-muted); }
+.pl-collection-concept-body { display: grid; grid-template-columns: minmax(240px, 1fr) 2fr; gap: 40px; padding-top: clamp(48px, 5vw, 82px); }
+.pl-collection-concept-intro { max-width: 450px; font-size: 16px; line-height: 1.8; color: var(--pl-muted); }
+.pl-collection-current { display: grid; grid-template-columns: minmax(100px, .55fr) 1.45fr; gap: 32px; }
+.pl-collection-number { font-family: var(--pl-serif); font-size: clamp(84px, 9vw, 180px); line-height: .72; letter-spacing: -.07em; color: var(--color-secondary); }
+.pl-collection-story { max-width: 560px; }
+.pl-collection-label { margin-bottom: 18px; font-size: 11px; letter-spacing: .14em; text-transform: uppercase; }
+.pl-collection-story h3 { margin-bottom: 24px; font-size: clamp(44px, 4.3vw, 82px); line-height: .95; letter-spacing: -.05em; }
+.pl-collection-story > p:last-child { font-size: 16px; line-height: 1.8; color: var(--pl-muted); }
 .pl-product { display: grid; grid-template-columns: minmax(0, 1.35fr) minmax(440px, .65fr); background: white; }
 .pl-product-visual { position: relative; overflow: hidden; min-height: 920px; background: var(--pl-mist); }
 .pl-product-visual img { object-fit: cover; object-position: 76% center; transition: transform .8s; }
@@ -83,6 +96,10 @@
   .pl-hero-copy { margin-left: 28px; width: min(720px, 88%); }
   .pl-hero h1 { font-size: clamp(68px, 9.5vw, 90px); }
   .pl-manifesto { padding: 100px 40px; }
+  .pl-collection-concept-head, .pl-collection-concept-body { grid-template-columns: 1fr; }
+  .pl-collection-concept-head { gap: 24px; }
+  .pl-collection-concept-body { gap: 56px; }
+  .pl-collection-concept-intro { max-width: 680px; }
   .pl-product, .pl-workshop { grid-template-columns: 1fr; }
   .pl-product-visual { min-height: 78svh; }
   .pl-product-info { padding: 72px max(32px, 8vw); }
@@ -100,7 +117,7 @@
   .pl-home .pl-eyebrow { font-size: 11px; margin-bottom: 20px; }
   .pl-hero { min-height: max(740px, calc(100svh - 50px)); }
   .pl-hero-image { object-position: 68% center; }
-  .pl-hero::after { background: linear-gradient(rgba(0,0,0,.2), rgba(0,0,0,.2)), linear-gradient(0deg, rgba(10,14,15,.82), rgba(10,14,15,.04) 85%); }
+  .pl-hero::after { background: linear-gradient(rgba(0,0,0,.1), rgba(0,0,0,.1)), linear-gradient(0deg, rgba(10,14,15,.7), rgba(10,14,15,.04) 85%); }
   .pl-hero-copy { width: auto; margin: 220px 24px 44px; }
   .pl-hero h1 { font-size: clamp(54px, 13.5vw, 80px); }
   .pl-hero-foot { flex-direction: column; align-items: flex-start; gap: 22px; margin-top: 30px; }
@@ -110,6 +127,13 @@
   .pl-manifesto > p { font-size: clamp(36px, 9.8vw, 54px); }
   .pl-origin { align-items: flex-start; font-size: 10px; margin-top: 34px; gap: 12px; }
   .pl-origin::before { margin-top: 8px; flex-basis: 26px; }
+  .pl-collection-concept { padding: 88px 24px; }
+  .pl-collection-concept h2 { font-size: clamp(44px, 12vw, 62px); }
+  .pl-collection-concept-head { padding-bottom: 56px; }
+  .pl-collection-concept-body { gap: 48px; padding-top: 48px; }
+  .pl-collection-current { grid-template-columns: 1fr; gap: 34px; }
+  .pl-collection-number { font-size: 100px; }
+  .pl-collection-story h3 { font-size: 52px; }
   .pl-product-visual { min-height: 68svh; }
   .pl-image-tag { top: 20px; left: 20px; font-size: 10px; }
   .pl-product-info { padding: 60px 24px 72px; }

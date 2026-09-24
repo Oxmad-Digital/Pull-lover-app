@@ -95,7 +95,7 @@ export default function MantasoaProductPage() {
         _id: product._id, name: product.name, price: product.price,
         promoPrice: product.promoPrice || null,
         image: product.image || images[0].src,
-        quantity: 1, size: selectedSize, color: "Écru naturel", stock: product.stock,
+        quantity: 1, size: selectedSize, color: product.color || "Écru naturel", stock: product.stock,
       });
     }
     setConfirmation(true);
@@ -147,7 +147,7 @@ export default function MantasoaProductPage() {
           </div>
           <p className="mp-lead">{product?.description || "Une maille essentielle à la coupe droite et généreuse, pensée pour vous accompagner longtemps. Tricotée et finie avec soin dans notre atelier familial à Antananarivo."}</p>
 
-          <div className="mp-color"><div><strong>Couleur</strong><span>Écru naturel</span></div><span className="mp-swatch" aria-label="Couleur écru naturel" /></div>
+          <div className="mp-color"><div><strong>Couleur</strong><span>{product?.color || "Écru naturel"}</span></div><span className="mp-swatch" aria-label={`Couleur ${product?.color || "écru naturel"}`} /></div>
 
           <fieldset className={`mp-size-picker${sizeError ? " has-error" : ""}`} id="mantasoa-sizes">
             <legend><strong>Choisir la taille</strong><button type="button" onClick={() => document.getElementById("size-guide")?.showModal()}>Guide des tailles</button></legend>
@@ -189,9 +189,9 @@ export default function MantasoaProductPage() {
 
           <div className="mp-accordions">
             <details open><summary>Détails & composition <span>+</span></summary><p>{product?.details || "Maille douce en fibres naturelles, col rond, manches longues et finitions côtelées. Coupe droite légèrement ample. Chaque pièce est tricotée, assemblée et contrôlée à Antananarivo."}</p></details>
-            <details><summary>Coupe & taille <span>+</span></summary><p>Coupe droite et confortable. Prenez votre taille habituelle pour un porté naturel, ou une taille au-dessus pour un volume plus généreux. Le mannequin porte une taille S.</p></details>
+            <details><summary>Coupe & taille <span>+</span></summary><p>{product?.fitInfo || "Coupe droite et confortable. Prenez votre taille habituelle pour un porté naturel, ou une taille au-dessus pour un volume plus généreux. Le mannequin porte une taille S."}</p></details>
             <details><summary>Entretien <span>+</span></summary><p>{product?.careInstructions || "Lavage délicat à froid ou à la main. Essorage doux, séchage à plat et repassage à basse température. Ne pas utiliser de sèche-linge."}</p></details>
-            <details><summary>Livraison & retours <span>+</span></summary><p>La confection démarre après votre commande. Vous recevez un suivi dès l’expédition. Les retours sont acceptés sous 14 jours sur les pièces non portées, dans leur état d’origine.</p></details>
+            <details><summary>Livraison & retours <span>+</span></summary><p>{product?.shippingInfo || "La confection démarre après votre commande. Vous recevez un suivi dès l’expédition. Les retours sont acceptés sous 14 jours sur les pièces non portées, dans leur état d’origine."}</p></details>
           </div>
         </div>
       </section>

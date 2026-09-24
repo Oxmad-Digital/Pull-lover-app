@@ -101,8 +101,26 @@ export default function AdminSettingsPage() {
         .content-grid {
           display: grid;
           grid-template-columns: 1fr 1fr;
-          gap: 16px;
+          gap: 24px;
           align-items: start;
+        }
+        .content-grid .admin-content-card {
+          background: #fff;
+          border: 1px solid #e7e5e4;
+          border-radius: 8px;
+          padding: 28px 32px;
+          min-width: 0;
+        }
+        .content-grid .admin-content-card input[type="text"],
+        .content-grid .admin-content-card input[type="datetime-local"] {
+          width: 100%;
+          box-sizing: border-box;
+          padding: 11px 14px;
+        }
+        .content-grid .admin-content-card form { gap: 18px !important; }
+        .content-grid .admin-content-card .ap-btn-add { padding: 11px 22px; }
+        @media (max-width: 560px) {
+          .content-grid .admin-content-card { padding: 20px; }
         }
         @media (max-width: 860px) {
           .content-grid {
@@ -139,7 +157,7 @@ export default function AdminSettingsPage() {
         <h1 className="ap-topbar-title">Gestion du contenu</h1>
       </div>
 
-      <div className="content-grid">
+      <div className="content-grid" style={{ marginTop: 32 }}>
 
         {/* ── Compteur drop ── */}
         <div className="admin-content-card">

@@ -3,6 +3,51 @@
 import { useState, useEffect } from "react";
 import { useSession } from "next-auth/react";
 
+// Formate un numéro en +33 X XX XX XX XX (France) au fil de la saisie.
+function formatPhone(raw) {
+  let d = String(raw || "").replace(/\D/g, "");
+  if (!d) return "";
+  if (d.startsWith("0033")) d = d.slice(4);
+  else if (d.startsWith("33")) d = d.slice(2);
+  else if (d.startsWith("0")) d = d.slice(1);
+  d = d.slice(0, 9);
+  const parts = [d.slice(0, 1), ...(d.slice(1).match(/.{1,2}/g) || [])];
+  return "+33 " + parts.join(" ");
+}
+
+function PasswordInput({ value, onChange, ...props }) {
+  const [visible, setVisible] = useState(false);
+  return (
+    <div className="db-pw-wrap">
+      <input
+        className="db-form-input db-pw-input"
+        type={visible ? "text" : "password"}
+        value={value}
+        onChange={onChange}
+        {...props}
+      />
+      <button
+        type="button"
+        className="db-pw-toggle"
+        onClick={() => setVisible(v => !v)}
+        aria-label={visible ? "Masquer le mot de passe" : "Afficher le mot de passe"}
+      >
+        {visible ? (
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+            <path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24" />
+            <line x1="1" y1="1" x2="23" y2="23" />
+          </svg>
+        ) : (
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+            <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" />
+            <circle cx="12" cy="12" r="3" />
+          </svg>
+        )}
+      </button>
+    </div>
+  );
+}
+
 export default function ProfilePage() {
   const { data: session, update } = useSession();
 
@@ -26,7 +71,9 @@ export default function ProfilePage() {
   useEffect(() => {
     fetch("/api/user/me")
       .then(r => r.json())
-      .then(data => { if (data.avatar) setAvatar(data.avatar); })
+      .then(data => { if (data.avatar) setAvatar(data.avatar);
+        if (data.phone) setForm(f => ({ ...f, phone: formatPhone(data.phone) }));
+      })
       .catch(() => {});
   }, []);
 
@@ -206,7 +253,7 @@ export default function ProfilePage() {
                 type="tel"
                 placeholder="ex : +33 6 12 34 56 78"
                 value={form.phone}
-                onChange={e => setForm(f => ({ ...f, phone: e.target.value }))}
+                onChange={e => setForm(f => ({ ...f, phone: formatPhone(e.target.value) }))}
               />
             </div>
 
@@ -229,9 +276,7 @@ export default function ProfilePage() {
 
             <div className="db-form-row">
               <label className="db-form-label">Mot de passe actuel</label>
-              <input
-                className="db-form-input"
-                type="password"
+              <PasswordInput
                 value={pwForm.currentPassword}
                 onChange={e => setPwForm(f => ({ ...f, currentPassword: e.target.value }))}
                 required
@@ -240,9 +285,7 @@ export default function ProfilePage() {
 
             <div className="db-form-row">
               <label className="db-form-label">Nouveau mot de passe</label>
-              <input
-                className="db-form-input"
-                type="password"
+              <PasswordInput
                 value={pwForm.newPassword}
                 onChange={e => setPwForm(f => ({ ...f, newPassword: e.target.value }))}
                 required
@@ -252,9 +295,7 @@ export default function ProfilePage() {
 
             <div className="db-form-row">
               <label className="db-form-label">Confirmer le mot de passe</label>
-              <input
-                className="db-form-input"
-                type="password"
+              <PasswordInput
                 value={pwForm.confirmPassword}
                 onChange={e => setPwForm(f => ({ ...f, confirmPassword: e.target.value }))}
                 required

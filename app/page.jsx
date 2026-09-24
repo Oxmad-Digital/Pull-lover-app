@@ -27,10 +27,10 @@ export default function HomePage() {
         <Image src="/pull-lover-hero.webp" alt="Le pull Mantasoa porté au bord du lac, dans les hauts plateaux de Madagascar" fill sizes="100vw" preload className="pl-hero-image" />
         <div className="pl-hero-copy">
           <p className="pl-eyebrow">Maille de Madagascar · Le Mantasoa</p>
-          <h1 id="home-title">Le pull qui prend <em>son temps.</em></h1>
+          <h1 id="home-title">Pull <em>Lover</em></h1>
           <div className="pl-hero-foot">
-            <a className="pl-button pl-button-light" href="#piece">Découvrir la pièce <span aria-hidden="true">→</span></a>
-            <p>Une seule pièce, fabriquée à la demande dans notre atelier familial à Antananarivo.</p>
+            <a className="pl-button pl-button-light" href="#piece">Découvrir la pièce</a>
+            <p>Un cardigan d’exception, fabriqué à la demande dans notre atelier familial à Madagascar.</p>
           </div>
         </div>
         <a className="pl-scroll-cue" href="#manifeste">Explorer</a>
@@ -42,6 +42,24 @@ export default function HomePage() {
       </section>
 
       <MantasoaProduct />
+
+      <section className="pl-collection-concept" id="collections" aria-labelledby="collection-concept-title">
+        <div className="pl-collection-concept-head">
+          <p className="pl-eyebrow">Notre concept</p>
+          <h2 id="collection-concept-title">UNE COLLECTION, UN UNIVERS</h2>
+        </div>
+        <div className="pl-collection-concept-body">
+          <p className="pl-collection-concept-intro">Chaque nouvelle collection commence par un vêtement et l’univers que nous imaginons autour de lui. Le thème du site, le lieu du shooting et les images évoluent avec chaque pièce. Une nouvelle collection nous emmènera dans un nouvel endroit, toujours à Madagascar.</p>
+          <article className="pl-collection-current" aria-label="Première collection : Le Mantasoa">
+            <span className="pl-collection-number" aria-hidden="true">01</span>
+            <div className="pl-collection-story">
+              <p className="pl-collection-label">Première collection</p>
+              <h3>Le Mantasoa</h3>
+              <p>Pour ce premier cardigan, nous avons choisi le lac de Mantasoa. C’est là que nous avons réalisé le shooting et trouvé l’atmosphère de cette première collection : ses eaux calmes, sa lumière et ses hauts plateaux.</p>
+            </div>
+          </article>
+        </div>
+      </section>
 
       <section className="pl-workshop" id="atelier" aria-labelledby="workshop-title">
         <div className="pl-workshop-image">
@@ -75,7 +93,7 @@ export default function HomePage() {
         <div className="pl-final-copy">
           <p className="pl-eyebrow">Le Mantasoa · Fabriqué à la demande</p>
           <h2 id="final-title">Un pull.<br />Longtemps.</h2>
-          <p>Une maille essentielle. Le temps de bien faire.<br />Et le plaisir de la porter, saison après saison.</p>
+          <p>Une maille essentielle. Le temps de bien faire.<br />Et le plaisir de la porter, année après année.</p>
           <a href="#piece" className="pl-button pl-button-light">Choisir ma taille</a>
         </div>
       </section>

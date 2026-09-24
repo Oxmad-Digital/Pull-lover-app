@@ -326,3 +326,10 @@
     height: 76px;
   }
 }
+
+.form-hint {
+  display: block;
+  margin-top: 4px;
+  font-size: 12px;
+  color: #78716c;
+}

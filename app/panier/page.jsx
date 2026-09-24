@@ -67,22 +67,30 @@ export default function CartPage() {
   return (
     <div className="cart-page">
 
-      {/* Fond orbes animés */}
-      <div className="cart-bg">
-        <span /><span /><span /><span />
-      </div>
+      <header className="cart-page-header">
+        <p className="cart-eyebrow">Votre sélection</p>
+        <h1>Mon panier<span>.</span></h1>
+        <p className="cart-page-intro">
+          Chaque Mantasoa est fabriqué à la demande dans notre atelier familial à Antananarivo.
+        </p>
+      </header>
 
       {cartItems.length === 0 ? (
         <div className="cart-empty">
-          <p>Votre panier est vide.</p>
-          <Link href="/#piece">Découvrir le Mantasoa</Link>
+          <p className="cart-empty-kicker">Votre sélection est vide</p>
+          <h2>Le Mantasoa vous attend.</h2>
+          <p>Une maille essentielle, tricotée uniquement quand vous la choisissez.</p>
+          <Link href="/#piece">Découvrir la pièce <span aria-hidden="true">→</span></Link>
         </div>
       ) : (
         <div className="cart-wrapper">
 
           {/* COLONNE GAUCHE */}
           <div className="cart-left">
-            <h2 className="cart-title">Mon panier</h2>
+            <div className="cart-list-heading">
+              <h2 className="cart-title">Votre sélection</h2>
+              <span>{totalQty} article{totalQty > 1 ? "s" : ""}</span>
+            </div>
 
             <ul className="cart-list">
               {cartItems.map((item) => (
@@ -90,7 +98,7 @@ export default function CartPage() {
 
                   {/* IMAGE */}
                   <div className="cart-item-image">
-                    {item.image && <img src={item.image} alt={item.name} />}
+                    {item.image ? <img src={item.image} alt={item.name} /> : <span aria-hidden="true">PL</span>}
                   </div>
 
                   {/* NOM + TAILLE + COULEUR + QTY */}
@@ -206,13 +214,14 @@ export default function CartPage() {
                 <span>{total} €</span>
               </div>
               {hasZeroQty && (
-                <p style={{ fontSize: 12, color: "#C75C5C", textAlign: "center", marginBottom: 8 }}>
+                <p className="cart-quantity-warning">
                   Un article a une quantité de 0. Supprimez-le ou augmentez la quantité.
                 </p>
               )}
-              <ButtonPrimary full onClick={() => router.push("/checkout")} disabled={hasZeroQty}>
-                Procéder au paiement
+              <ButtonPrimary className="cart-checkout-button" full onClick={() => router.push("/checkout")} disabled={hasZeroQty}>
+                Procéder au paiement <span aria-hidden="true">→</span>
               </ButtonPrimary>
+              <p className="cart-made-to-order">Fabriqué à la demande · Paiement sécurisé</p>
             </div>
           </div>
 
