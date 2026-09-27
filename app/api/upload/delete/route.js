@@ -1,18 +1,12 @@
 // app/api/upload/delete/route.js
 import { NextResponse } from "next/server";
-import { getServerSession } from "next-auth";
-import { authOptions } from "@/app/api/auth/[...nextauth]/route";
+import { requireAdmin } from "@/app/lib/auth";
 import { deleteFromR2 } from "@/app/lib/r2";
 
 export async function DELETE(req) {
   try {
-    const session = await getServerSession(authOptions);
-    if (!session || session.user.role !== "admin") {
-      return NextResponse.json(
-        { message: "Non autorisé" },
-        { status: 401 }
-      );
-    }
+    const denied = await requireAdmin();
+    if (denied) return denied;
 
     const { key } = await req.json();
 

@@ -3,7 +3,7 @@
 
 import { getServerSession } from "next-auth";
 import { NextResponse } from "next/server";
-import { authOptions } from "@/app/api/auth/[...nextauth]/route";
+import { authOptions } from "@/app/lib/authOptions";
 
 /** Session si l'utilisateur est administrateur, sinon null. */
 export async function getAdminSession() {
@@ -14,5 +14,6 @@ export async function getAdminSession() {
 /** null si admin, sinon la réponse 401 à renvoyer telle quelle. */
 export async function requireAdmin() {
   if (await getAdminSession()) return null;
-  return NextResponse.json({ message: "Accès refusé" }, { status: 401 });
+  // Les écrans admin lisent `message` ou `error` selon l'API : on fournit les deux.
+  return NextResponse.json({ message: "Accès refusé", error: "Accès refusé" }, { status: 401 });
 }
