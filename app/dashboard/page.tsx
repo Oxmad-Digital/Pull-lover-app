@@ -79,7 +79,7 @@ export default async function DashboardOverview() {
             <div className="db-summary-empty">
               <p>Aucune commande pour le moment.</p>
               <Link href="/#piece" className="db-add-address" style={{ marginTop: 12 }}>
-                Découvrir le Mantasoa
+                Découvrir le cardigan
               </Link>
             </div>
           ) : (

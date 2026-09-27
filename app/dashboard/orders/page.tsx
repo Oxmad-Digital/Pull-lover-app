@@ -48,7 +48,7 @@ export default async function OrdersPage() {
               Vous n&apos;avez pas encore de commandes.
             </p>
             <Link href="/#piece" className="db-add-address" style={{ display: "inline-flex" }}>
-              Découvrir le Mantasoa
+              Découvrir le cardigan
             </Link>
           </div>
         ) : (

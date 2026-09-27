@@ -15,7 +15,7 @@ export default function ProductForm({
     return Object.fromEntries(ALL_SIZES.map((s) => [s, existing[s] ?? 0]));
   };
 
-  const [name, setName] = useState(editingProduct?.name || "Le Mantasoa");
+  const [name, setName] = useState(editingProduct?.name || "Cardigan en maille");
   const [stocksBySize, setStocksBySize] = useState(initStocksBySize);
   const [description, setDescription] = useState(editingProduct?.description || "");
   const [details, setDetails] = useState(editingProduct?.details || "");
@@ -156,12 +156,12 @@ export default function ProductForm({
       <div className="form-field">
         <label className="form-label">Nom du produit <span className="form-required">*</span></label>
         <input
-          placeholder="Le Mantasoa"
+          placeholder="Cardigan en maille"
           value={name}
           onChange={(e) => setName(e.target.value)}
           required
         />
-        <small className="form-hint">Le nom doit contenir « Mantasoa » pour être relié à la fiche produit.</small>
+        <small className="form-hint">Un seul produit peut être actif à la fois ; ce nom s'affiche partout sur le site.</small>
       </div>
 
       <div className="stocks-field">

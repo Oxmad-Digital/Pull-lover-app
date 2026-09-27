@@ -169,7 +169,7 @@ export default function ProductsManagement() {
         {/* Mode mono-produit : on ne crée la fiche que si elle n'existe pas encore */}
         {!loading && localProducts.length === 0 && !debouncedSearch && !categoryFilter && filter === "all" && (
           <button className="ap-btn-add" onClick={() => { setEditingProduct(null); setShowForm(true); }}>
-            Créer la fiche Mantasoa
+            Créer la fiche produit
           </button>
         )}
       </div>
@@ -205,7 +205,7 @@ export default function ProductsManagement() {
           <div className="ap-modal">
             <div className="ap-modal-header">
               <h2 className="ap-modal-title">
-                {editingProduct ? "Modifier la fiche produit" : "Créer la fiche Mantasoa"}
+                {editingProduct ? "Modifier la fiche produit" : "Créer la fiche produit"}
               </h2>
               <button className="ap-modal-close" onClick={closeForm}>✕</button>
             </div>

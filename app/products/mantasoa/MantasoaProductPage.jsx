@@ -5,14 +5,14 @@ import Link from "next/link";
 import { useEffect, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 import { useCart } from "@/app/components/CartContext";
-import { productSizes, remainingStock, selectMantasoa } from "@/app/lib/featured-product.mjs";
+import { productSizes, remainingStock, selectFeaturedProduct } from "@/app/lib/featured-product.mjs";
 
-const MAIN_IMAGE = { src: "/api/media/pull-lover-manequin-cardigan-3.webp", alt: "Le cardigan Mantasoa porté" };
+const MAIN_IMAGE = { src: "/api/media/pull-lover-manequin-cardigan-3.webp", alt: "Le cardigan porté" };
 
 const FALLBACK_IMAGES = [
-  { src: "/api/media/site/mantasoa-hero.webp", alt: "Le Mantasoa écru porté au bord du lac" },
-  { src: "/api/media/site/mantasoa-studio.png", alt: "Le pull Mantasoa écru vu de face" },
-  { src: "/api/media/site/mantasoa-detail.png", alt: "Détail de la maille et du col du Mantasoa" },
+  { src: "/api/media/site/mantasoa-hero.webp", alt: "Le cardigan écru porté au bord du lac" },
+  { src: "/api/media/site/mantasoa-studio.png", alt: "Le cardigan écru vu de face" },
+  { src: "/api/media/site/mantasoa-detail.png", alt: "Détail de la maille et du col" },
 ];
 
 const SIZE_ORDER = ["XS", "S", "M", "L", "XL", "XXL"];
@@ -28,7 +28,7 @@ function normalizeImages(product) {
   const seen = new Set();
   return [
     MAIN_IMAGE,
-    ...remoteImages.map((src, index) => ({ src, alt: `${product?.name || "Le Mantasoa"} — vue ${index + 1}` })),
+    ...remoteImages.map((src, index) => ({ src, alt: `${product?.name || "Cardigan en maille"} — vue ${index + 1}` })),
     ...FALLBACK_IMAGES,
   ].filter((image) => {
     if (seen.has(image.src)) return false;
@@ -51,11 +51,11 @@ export default function MantasoaProductPage() {
   useEffect(() => {
     const controller = new AbortController();
     const timeout = setTimeout(() => controller.abort(), 15000);
-    fetch("/api/products?search=Mantasoa&limit=20", { signal: controller.signal })
+    fetch("/api/products?limit=20", { signal: controller.signal })
       .then(async (response) => {
         if (!response.ok) throw new Error("Produit indisponible");
         const data = await response.json();
-        const match = selectMantasoa(data.products || []);
+        const match = selectFeaturedProduct(data.products || []);
         setProduct(match);
         setStatus(match ? "ready" : "empty");
       })
@@ -113,7 +113,7 @@ export default function MantasoaProductPage() {
   return (
     <article className="mp-page">
       <nav className="mp-breadcrumb" aria-label="Fil d’Ariane" data-reveal>
-        <Link href="/">Accueil</Link><span>/</span><span>Le Mantasoa</span>
+        <Link href="/">Accueil</Link><span>/</span><span>Cardigan en maille</span>
       </nav>
 
       <section className="mp-buy" aria-labelledby="mantasoa-title">
@@ -139,7 +139,7 @@ export default function MantasoaProductPage() {
         <div className="mp-panel" data-reveal-stagger>
           <p className="mp-kicker">Maille de Madagascar · Pièce n° 01</p>
           <div className="mp-heading-row">
-            <h1 id="mantasoa-title">{product?.name || "Le Mantasoa"}</h1>
+            <h1 id="mantasoa-title">{product?.name || "Cardigan en maille"}</h1>
             <span className="mp-made"><i aria-hidden="true" />Fabriqué à la demande</span>
           </div>
           <div className="mp-price-row">
@@ -180,7 +180,7 @@ export default function MantasoaProductPage() {
             </button>
           </div>
           <button type="button" className="mp-buy-now" disabled={!purchasable} onClick={buyNow}>Commander maintenant</button>
-          {confirmation && <p className="mp-confirmation" role="status">Le Mantasoa a été ajouté à votre panier. <Link href="/panier">Voir le panier</Link></p>}
+          {confirmation && <p className="mp-confirmation" role="status">Le cardigan a été ajouté à votre panier. <Link href="/panier">Voir le panier</Link></p>}
           {status === "error" && <p className="mp-load-note">Les informations de stock sont momentanément indisponibles. Réessayez dans quelques instants.</p>}
           {status === "empty" && <p className="mp-load-note">Cette pièce n’est pas encore ouverte à la commande.</p>}
 
@@ -201,20 +201,20 @@ export default function MantasoaProductPage() {
 
       <section className="mp-facts" aria-labelledby="mp-facts-title">
         <div className="mp-facts-heading" data-reveal-stagger>
-          <p className="mp-kicker">Une pièce, longtemps</p>
+          <p className="mp-kicker">La passion de la maille</p>
           <h2 id="mp-facts-title">Le temps de bien faire.</h2>
         </div>
         <div className="mp-facts-grid" data-reveal-stagger>
           <article><span>01</span><h3>Origine</h3><p>Imaginé et confectionné à Antananarivo, Madagascar.</p></article>
           <article><span>02</span><h3>Fabrication</h3><p>Tricotage, assemblage et finitions réalisés avec soin dans l’atelier familial.</p></article>
-          <article><span>03</span><h3>Production</h3><p>Chaque Mantasoa commence à prendre forme après votre commande.</p></article>
+          <article><span>03</span><h3>Production</h3><p>Chaque pièce commence à prendre forme après votre commande.</p></article>
         </div>
       </section>
 
       <dialog className="mp-size-dialog" id="size-guide">
         <form method="dialog"><button className="mp-dialog-close" aria-label="Fermer le guide">×</button></form>
         <p className="mp-kicker">Bien choisir</p><h2>Guide des tailles</h2>
-        <p>Le Mantasoa présente une coupe droite légèrement ample. Choisissez selon le tombé recherché :</p>
+        <p>Le cardigan présente une coupe droite légèrement ample. Choisissez selon le tombé recherché :</p>
         <div className="mp-fit-guide">
           <div><strong>Votre taille habituelle</strong><span>Un tombé naturel et confortable</span></div>
           <div><strong>Une taille au-dessus</strong><span>Un porté plus ample et enveloppant</span></div>

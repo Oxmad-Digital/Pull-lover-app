@@ -71,14 +71,14 @@ export default function CartPage() {
         <p className="cart-eyebrow">Votre sélection</p>
         <h1>Mon panier<span>.</span></h1>
         <p className="cart-page-intro">
-          Chaque Mantasoa est fabriqué à la demande dans notre atelier familial à Antananarivo.
+          Chaque cardigan est fabriqué à la demande dans notre atelier familial à Antananarivo.
         </p>
       </header>
 
       {cartItems.length === 0 ? (
         <div className="cart-empty" data-reveal-stagger>
           <p className="cart-empty-kicker">Votre sélection est vide</p>
-          <h2>Le Mantasoa vous attend.</h2>
+          <h2>Le cardigan vous attend.</h2>
           <p>Une maille essentielle, tricotée uniquement quand vous la choisissez.</p>
           <Link href="/#piece">Découvrir la pièce <span aria-hidden="true">→</span></Link>
         </div>

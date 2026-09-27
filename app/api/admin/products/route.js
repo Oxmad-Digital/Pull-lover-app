@@ -28,10 +28,10 @@ export async function GET(request) {
       ? 5000
       : Math.min(50, Math.max(1, parseInt(searchParams.get("limit") || "20")));
 
-    // Mode mono-produit : la fiche Mantasoa existe toujours, même à stock 0
+    // Mode mono-produit : la fiche produit existe toujours, même à stock 0
     if ((await Product.countDocuments()) === 0) {
       await Product.create({
-        name: "Le Mantasoa",
+        name: "Cardigan en maille",
         price: 0,
         stock: 0,
         stocks: {},
