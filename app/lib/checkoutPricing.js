@@ -7,9 +7,9 @@ import Promo from "@/app/models/Promo";
 import { isValidId } from "@/app/lib/db";
 import { getShippingOptions } from "@/app/lib/sendcloud";
 import { getCartWeight } from "@/app/lib/cartWeight";
+import { computeTotals, round2, TVA_RATE } from "@/app/lib/pricing.mjs";
 
-export const TVA_RATE = 0.2;
-export const round2 = (n) => Math.round(n * 100) / 100;
+export { round2, TVA_RATE };
 
 export class CheckoutError extends Error {
   constructor(message, status = 400) {
@@ -19,32 +19,50 @@ export class CheckoutError extends Error {
 }
 
 /**
- * @param {{ cartItems: Array<{_id: string, quantity?: number, size?: string, color?: string}>, promoCode?: string|null }} params
+ * @param {{ cartItems: Array<{_id: string, quantity?: number, size?: string, color?: string}>, promoCode?: string|null,
+ *   allowStockShortage?: boolean }} params  allowStockShortage : commande déjà payée, la rupture est
+ *   signalée dans `shortages` au lieu de bloquer l'enregistrement
  * @returns {Promise<{ lines: Array, subtotal: number, discount: number, tva: number, shipping: number, total: number, promoCode: string|null }>}
  */
-export async function computeOrderTotals({ cartItems, promoCode, delivery }) {
+export async function computeOrderTotals({ cartItems, promoCode, delivery, allowStockShortage = false }) {
   if (!Array.isArray(cartItems) || cartItems.length === 0) {
     throw new CheckoutError("Panier vide");
   }
 
   const lines = [];
   let subtotal = 0;
+  // Quantités cumulées par produit / par taille : un même produit peut apparaître
+  // sur plusieurs lignes (couleurs différentes) et ne doit pas dépasser le stock au total.
+  const qtyByProduct = new Map();
+  const qtyBySize = new Map();
+  const shortages = [];
+  const shortage = (message) => {
+    if (!allowStockShortage) throw new CheckoutError(message);
+    shortages.push(message);
+  };
   for (const item of cartItems) {
     if (!isValidId(item?._id)) throw new CheckoutError("ID produit invalide");
     const quantity = Math.floor(Number(item.quantity));
     if (!(quantity >= 1 && quantity <= 99)) throw new CheckoutError("Quantité invalide");
 
-    const product = await Product.findById(item._id);
-    if (!product || product.isAvailable === false) {
-      throw new CheckoutError(`Produit indisponible : ${item.name || item._id}`);
-    }
+    const size = typeof item.size === "string" ? item.size : "";
+    const color = typeof item.color === "string" ? item.color : "";
 
-    const sizeStock = item.size ? product.stocks?.[item.size] : undefined;
-    if (sizeStock !== undefined && Number(sizeStock) < quantity) {
-      throw new CheckoutError(`Stock insuffisant : ${product.name} (${item.size})`);
-    }
-    if (Number(product.stock) < quantity) {
-      throw new CheckoutError(`Stock insuffisant : ${product.name}`);
+    const product = await Product.findById(item._id);
+    if (!product) throw new CheckoutError(`Produit indisponible : ${item._id}`);
+    if (product.isAvailable === false) shortage(`Produit indisponible : ${product.name}`);
+
+    const productQty = (qtyByProduct.get(item._id) || 0) + quantity;
+    qtyByProduct.set(item._id, productQty);
+    const sizeKey = `${item._id}:${size}`;
+    const sizeQty = (qtyBySize.get(sizeKey) || 0) + quantity;
+    qtyBySize.set(sizeKey, sizeQty);
+
+    const sizeStock = size ? product.stocks?.[size] : undefined;
+    if (sizeStock !== undefined && Number(sizeStock) < sizeQty) {
+      shortage(`Stock insuffisant : ${product.name} (${size})`);
+    } else if (Number(product.stock) < productQty) {
+      shortage(`Stock insuffisant : ${product.name}`);
     }
 
     const unitPrice = Number(product.promoPrice ?? product.price);
@@ -55,27 +73,24 @@ export async function computeOrderTotals({ cartItems, promoCode, delivery }) {
       product: String(product._id),
       name: product.name,
       image: product.image || "",
-      size: item.size || "",
-      color: item.color || "",
+      size,
+      color,
       quantity,
       unitPrice,
     });
   }
 
-  let discount = 0;
+  subtotal = round2(subtotal);
+  let promo = null;
   let appliedCode = null;
   if (promoCode) {
-    const promo = await Promo.findOne({ code: String(promoCode).toUpperCase().trim() });
+    promo = await Promo.findOne({ code: String(promoCode).toUpperCase().trim() });
     if (!promo || !promo.isActive) throw new CheckoutError("Code promo invalide ou inactif");
     if (promo.expiresAt && new Date() > promo.expiresAt) throw new CheckoutError("Code promo expiré");
     if (promo.maxUses !== null && promo.usedCount >= promo.maxUses) throw new CheckoutError("Code promo épuisé");
     if (promo.minOrderAmount > 0 && subtotal < promo.minOrderAmount) {
       throw new CheckoutError(`Montant minimum requis : ${promo.minOrderAmount} €`);
     }
-    discount =
-      promo.type === "percentage"
-        ? Math.round((subtotal * promo.value) / 100)
-        : Math.min(promo.value, subtotal);
     appliedCode = promo.code;
   }
 
@@ -100,9 +115,7 @@ export async function computeOrderTotals({ cartItems, promoCode, delivery }) {
   }
   const shipping = round2(shippingMethod.price);
 
-  const discounted = Math.max(0, subtotal - discount);
-  const tva = Math.round(discounted * TVA_RATE);
-  const total = round2(discounted + tva + shipping);
+  const { discount, tva, total } = computeTotals({ subtotal, promo, shipping });
 
-  return { lines, subtotal, discount, tva, shipping, total, promoCode: appliedCode, shippingMethod, weight, countryCode };
+  return { lines, subtotal, discount, tva, shipping, total, promoCode: appliedCode, shippingMethod, weight, countryCode, shortages };
 }

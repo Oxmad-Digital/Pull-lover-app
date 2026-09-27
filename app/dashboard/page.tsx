@@ -6,6 +6,7 @@ import { connectDB } from "@/app/lib/db";
 import Order from "@/app/models/Order";
 import User from "@/app/models/User";
 import Link from "next/link";
+import { orderEmailFilter } from "@/app/lib/text";
 
 const STATUS_CONFIG: Record<string, { label: string; badgeClass: string }> = {
   pending:    { label: "En attente",     badgeClass: "db-badge db-badge-pending"    },
@@ -23,7 +24,7 @@ export default async function DashboardOverview() {
 
   await connectDB();
 
-  const allOrders = await Order.find({ "customer.email": session.user.email })
+  const allOrders = await Order.find(orderEmailFilter(session.user.email))
     .sort({ createdAt: -1 })
     .lean()
     .exec() as any[];

@@ -6,6 +6,7 @@ import crypto from "crypto";
 import { NextResponse } from "next/server";
 import { sendEmail } from "@/app/lib/mailer";
 import { getVerificationEmailTemplate } from "@/app/lib/emailTemplates";
+import { validatePassword } from "@/app/lib/password";
 
 // Rate limiting
 const registrationAttempts = new Map();
@@ -54,24 +55,6 @@ function isValidEmail(email) {
   return !disposableDomains.includes(domain);
 }
 
-// Validation mot de passe
-function validatePassword(password) {
-  const errors = [];
-  const commonPasswords = ["password", "123456", "12345678", "qwerty"];
-
-  if (password.length < 8) errors.push("Min 8 caractères");
-  if (!/[A-Z]/.test(password)) errors.push("Min 1 majuscule");
-  if (!/[a-z]/.test(password)) errors.push("Min 1 minuscule");
-  if (!/[0-9]/.test(password)) errors.push("Min 1 chiffre");
-  if (!/[!@#$%^&*]/.test(password)) errors.push("Min 1 caractère spécial (!@#$%^&*)");
-
-  if (commonPasswords.some(common => password.toLowerCase().includes(common))) {
-    errors.push("Mot de passe trop commun");
-  }
-
-  return { isValid: errors.length === 0, errors };
-}
-
 export async function POST(req) {
   try {
     await connectDB();
@@ -96,7 +79,7 @@ export async function POST(req) {
     email = sanitizeInput(email)?.toLowerCase();
 
     // Validations de base
-    if (!name || !email || !password) {
+    if (typeof name !== "string" || typeof email !== "string" || typeof password !== "string" || !name || !email || !password) {
       return NextResponse.json(
         { message: "Tous les champs sont obligatoires" },
         { status: 400 }
@@ -176,7 +159,7 @@ export async function POST(req) {
     const verificationTokenExpiry = new Date(Date.now() + 24 * 60 * 60 * 1000);
 
     // Créer utilisateur
-    const user = await User.create({
+    await User.create({
       name,
       email,
       password: hashedPassword,

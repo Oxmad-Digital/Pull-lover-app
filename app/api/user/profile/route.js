@@ -5,6 +5,7 @@ import { connectDB } from "@/app/lib/db";
 import User from "@/app/models/User";
 import bcrypt from "bcryptjs";
 import { deleteFromR2 } from "@/app/lib/r2";
+import { validatePassword } from "@/app/lib/password";
 
 export async function PATCH(request) {
   try {
@@ -18,8 +19,8 @@ export async function PATCH(request) {
     const user = await User.findOne({ email: session.user.email });
     if (!user) return NextResponse.json({ message: "Utilisateur introuvable" }, { status: 404 });
 
-    if (name?.trim()) user.name = name.trim();
-    if (phone !== undefined) user.phone = phone.trim() || null;
+    if (typeof name === "string" && name.trim()) user.name = name.trim();
+    if (typeof phone === "string") user.phone = phone.trim() || null;
 
     let previousAvatarKey = null;
     if (avatar !== undefined && session.user.role === "admin") {
@@ -29,15 +30,19 @@ export async function PATCH(request) {
     }
 
     if (newPassword) {
-      if (!currentPassword) {
+      if (typeof currentPassword !== "string" || !currentPassword) {
         return NextResponse.json({ message: "Mot de passe actuel requis" }, { status: 400 });
+      }
+      if (!user.password) {
+        return NextResponse.json({ message: "Ce compte utilise la connexion Google : aucun mot de passe à modifier" }, { status: 400 });
       }
       const valid = await bcrypt.compare(currentPassword, user.password);
       if (!valid) {
         return NextResponse.json({ message: "Mot de passe actuel incorrect" }, { status: 400 });
       }
-      if (newPassword.length < 6) {
-        return NextResponse.json({ message: "Le nouveau mot de passe doit faire au moins 6 caractères" }, { status: 400 });
+      const passwordCheck = validatePassword(newPassword);
+      if (!passwordCheck.isValid) {
+        return NextResponse.json({ message: "Mot de passe invalide : " + passwordCheck.errors.join(", ") }, { status: 400 });
       }
       user.password = await bcrypt.hash(newPassword, 12);
     }

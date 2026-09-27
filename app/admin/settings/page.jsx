@@ -50,9 +50,9 @@ export default function AdminSettingsPage() {
   const [loading, setLoading]         = useState(true);
   const [saving, setSaving]           = useState(null);
   const [errors, setErrors]           = useState({});
+  // Fin du compteur prévisualisée, recalculée à chaque saisie (pas de Date.now() pendant le rendu)
+  const [durPreviewEnd, setDurPreviewEnd] = useState(null);
   const { toast, showToast }          = useToast();
-
-  useEffect(() => { load(); }, []);
 
   async function load() {
     setLoading(true);
@@ -65,6 +65,8 @@ export default function AdminSettingsPage() {
     setBadgeText(data.badgeText ?? "");
     setLoading(false);
   }
+
+  useEffect(() => { load(); }, []); // eslint-disable-line react-hooks/set-state-in-effect
 
   function toggleMaintenance() {
     patch("maintenanceMode", !current?.maintenanceMode, "Mode maintenance");
@@ -244,14 +246,19 @@ export default function AdminSettingsPage() {
                   {[["days", "Jours"], ["hours", "Heures"], ["minutes", "Minutes"]].map(([k, l]) => (
                     <div key={k} style={{ flex: 1 }}>
                       <input type="number" min="0" placeholder="0" value={dur[k]}
-                        onChange={(e) => setDur((d) => ({ ...d, [k]: e.target.value }))}
+                        onChange={(e) => {
+                          const next = { ...dur, [k]: e.target.value };
+                          const ms = ((+next.days || 0) * 86400 + (+next.hours || 0) * 3600 + (+next.minutes || 0) * 60) * 1000;
+                          setDur(next);
+                          setDurPreviewEnd(ms > 0 ? new Date(Date.now() + ms) : null);
+                        }}
                         style={{ width: "100%", boxSizing: "border-box", padding: "11px 14px" }} />
                       <span style={{ fontSize: 11, color: "#a8a29e" }}>{l}</span>
                     </div>
                   ))}
                 </div>
                 <p style={{ fontSize: 11, color: "#a8a29e", marginTop: 5 }}>
-                  {durMs > 0 ? `Fin du compteur : ${formatDate(new Date(Date.now() + durMs))}` : "Le compteur démarre à l'enregistrement."}
+                  {durPreviewEnd ? `Fin du compteur : ${formatDate(durPreviewEnd)}` : "Le compteur démarre à l'enregistrement."}
                 </p>
               </div>
             )}

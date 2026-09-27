@@ -6,6 +6,7 @@ import Product from "@/app/models/Product";
 import "@/app/models/Category";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/app/api/auth/[...nextauth]/route";
+import { escapeRegex } from "@/app/lib/text";
 
 export async function GET(request) {
   try {
@@ -44,7 +45,7 @@ export async function GET(request) {
 
     if (filter === "out") query.stock = 0;
     if (filter === "low") query.stock = { $gt: 0, $lt: 5 };
-    if (search)           query.name = { $regex: search, $options: "i" };
+    if (search)           query.name = { $regex: escapeRegex(search), $options: "i" };
     if (category)         query.category = category;
 
     const sortOptions = { [sort]: order === "asc" ? 1 : -1 };

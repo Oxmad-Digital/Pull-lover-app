@@ -22,7 +22,8 @@ export default function LoginPage() {
     setLoading(true);
     const res = await signIn("credentials", { email, password, redirect: false });
     setLoading(false);
-    if (res?.error) return setError("Email ou mot de passe incorrect");
+    // Le serveur renvoie un message explicite (compte verrouillé, email non vérifié…)
+    if (res?.error) return setError(res.error === "CredentialsSignin" ? "Email ou mot de passe incorrect" : res.error);
     const session = await getSession();
     router.push(session?.user?.role === "admin" ? "/admin" : "/dashboard");
   }

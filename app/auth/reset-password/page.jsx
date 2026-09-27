@@ -4,6 +4,7 @@ import { useState, useEffect, Suspense } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
 import { ButtonPrimary } from "../../components/ui/Button";
+import { PASSWORD_HINT, validatePassword } from "@/app/lib/password";
 import "../login/login.css";
 
 function ResetPasswordForm() {
@@ -35,9 +36,9 @@ function ResetPasswordForm() {
       return;
     }
 
-    if (password.length < 6) {
+    if (!validatePassword(password).isValid) {
       setStatus("error");
-      setMessage("Le mot de passe doit contenir au moins 6 caractères.");
+      setMessage(`Mot de passe trop faible : ${PASSWORD_HINT}.`);
       return;
     }
 
@@ -122,7 +123,7 @@ function ResetPasswordForm() {
                     value={password}
                     onChange={e => setPassword(e.target.value)}
                     required
-                    minLength={6}
+                    minLength={8}
                   />
                   <button type="button" aria-label={showPwd ? "Masquer" : "Afficher"} onClick={() => setShowPwd(!showPwd)}>
                     <EyeIcon open={showPwd} />
@@ -145,7 +146,7 @@ function ResetPasswordForm() {
                     value={confirm}
                     onChange={e => setConfirm(e.target.value)}
                     required
-                    minLength={6}
+                    minLength={8}
                   />
                   <button type="button" aria-label={showConfirm ? "Masquer" : "Afficher"} onClick={() => setShowConfirm(!showConfirm)}>
                     <EyeIcon open={showConfirm} />

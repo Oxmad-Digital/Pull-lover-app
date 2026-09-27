@@ -7,14 +7,37 @@ import { sendEmail } from "@/app/lib/mailer";
 import { getOrderConfirmationEmailTemplate, getAdminNewOrderEmailTemplate } from "@/app/lib/emailTemplates";
 import Customer from "@/app/models/Customer";
 import Settings from "@/app/models/Settings";
-import Product from "@/app/models/Product";
 import { computeOrderTotals, CheckoutError } from "@/app/lib/checkoutPricing";
-import { getServerSession } from "next-auth";
-import { authOptions } from "@/app/api/auth/[...nextauth]/route";
+import { escapeHtml } from "@/app/lib/text";
+import { requireAdmin } from "@/app/lib/auth";
 import Stripe from "stripe";
 
-const escapeHtml = (v) =>
-  String(v ?? "").replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
+const cleanText = (value) => (typeof value === "string" ? value.trim() : "");
+
+const orderSummary = (order) => ({
+  _id: order._id,
+  orderNumber: order._id.toString().slice(-8).toUpperCase(),
+  total: order.total,
+  status: order.status,
+});
+
+/** Décrément atomique du stock (global et par taille) : pas de perte de mise à jour entre commandes simultanées. */
+async function decrementStock(sql, { product, size, quantity }) {
+  await sql`
+    UPDATE products SET
+      data = data
+        || jsonb_build_object(
+             'stock', GREATEST(0, COALESCE((data->>'stock')::numeric, 0) - ${quantity}::int),
+             'isAvailable', GREATEST(0, COALESCE((data->>'stock')::numeric, 0) - ${quantity}::int) > 0
+           )
+        || CASE WHEN ${size}::text <> '' AND jsonb_typeof(data->'stocks') = 'object' AND (data->'stocks') ? ${size}::text
+             THEN jsonb_build_object('stocks', (data->'stocks') || jsonb_build_object(
+               ${size}::text, GREATEST(0, COALESCE((data->'stocks'->>${size}::text)::numeric, 0) - ${quantity}::int)))
+             ELSE '{}'::jsonb END,
+      updated_at = now()
+    WHERE id = ${product}::uuid
+  `;
+}
 
 export async function POST(req) {
   console.log("🚀 API /api/order APPELÉE");
@@ -35,7 +58,16 @@ export async function POST(req) {
       );
     }
 
-    const { firstname, lastname, email, city, address, phone, postalCode, country } = customer;
+    // Champs forcés en chaînes : un objet JSON ne doit jamais atteindre la base ni les emails
+    const firstname = cleanText(customer.firstname);
+    const lastname = cleanText(customer.lastname);
+    const email = cleanText(customer.email).toLowerCase();
+    const city = cleanText(customer.city);
+    const address = cleanText(customer.address);
+    const phone = cleanText(customer.phone);
+    const postalCode = cleanText(customer.postalCode);
+    const country = cleanText(customer.country);
+    const company = cleanText(customer.company);
 
     if (!firstname || !lastname || !email || !city || !address || !postalCode || !phone) {
       return NextResponse.json(
@@ -74,18 +106,16 @@ export async function POST(req) {
     const already = await Order.findOne({ stripePaymentId });
     if (already) {
       return NextResponse.json(
-        {
-          success: true,
-          message: "Commande déjà enregistrée",
-          order: { _id: already._id, orderNumber: already._id.toString().slice(-8).toUpperCase(), total: already.total, status: already.status },
-        },
+        { success: true, message: "Commande déjà enregistrée", order: orderSummary(already) },
         { status: 200 }
       );
     }
 
     let totals;
     try {
-      totals = await computeOrderTotals({ cartItems, promoCode, delivery });
+      // Le client a déjà payé : une rupture de stock survenue entre-temps est signalée à l'admin
+      // au lieu de bloquer l'enregistrement (le montant reste vérifié contre Stripe ci-dessous).
+      totals = await computeOrderTotals({ cartItems, promoCode, delivery, allowStockShortage: true });
     } catch (err) {
       if (err instanceof CheckoutError) {
         return NextResponse.json({ message: err.message }, { status: err.status });
@@ -119,13 +149,15 @@ export async function POST(req) {
     const releaseDate = settings?.shippingReleaseDate ? new Date(settings.shippingReleaseDate) : null;
     const releaseAt = releaseDate && releaseDate > new Date() ? releaseDate : null;
 
-    const order = await Order.create({
+    let order;
+    try {
+    order = await Order.create({
       customer: {
         firstname,
         lastname,
         email,
         phone:      phone      || "",
-        company:    customer.company || "",
+        company,
         address,
         postalCode: postalCode || "",
         city,
@@ -161,14 +193,27 @@ export async function POST(req) {
         releaseAt,
         shippedAt:      null,
       },
+      stockShortages: totals.shortages,
       status: "paid",
     });
+    } catch (err) {
+      // Index unique sur stripePaymentId : une requête simultanée a déjà créé la commande
+      if (err.code === 11000) {
+        const existing = await Order.findOne({ stripePaymentId });
+        if (existing) {
+          return NextResponse.json(
+            { success: true, message: "Commande déjà enregistrée", order: orderSummary(existing) },
+            { status: 200 }
+          );
+        }
+      }
+      throw err;
+    }
 
     console.log("✅ Commande créée:", order._id);
 
     // Incrément atomique du compteur d'utilisation du code promo
     if (totals.promoCode) {
-      const sql = await connectDB();
       await sql`
         UPDATE promos
         SET data = jsonb_set(data, '{usedCount}', to_jsonb(COALESCE((data->>'usedCount')::int, 0) + 1))
@@ -177,16 +222,10 @@ export async function POST(req) {
     }
 
     // Décrément du stock (par taille si renseignée)
+    const sql = await connectDB();
     for (const l of lines) {
       try {
-        const product = await Product.findById(l.product);
-        if (!product) continue;
-        const stocks = { ...(product.stocks || {}) };
-        if (l.size && Number.isFinite(Number(stocks[l.size]))) {
-          stocks[l.size] = Math.max(0, Number(stocks[l.size]) - l.quantity);
-        }
-        const stock = Math.max(0, (Number(product.stock) || 0) - l.quantity);
-        await Product.findByIdAndUpdate(l.product, { stock, stocks, isAvailable: stock > 0 });
+        await decrementStock(sql, l);
       } catch (err) {
         console.error("❌ Décrément stock:", l.product, err.message);
       }
@@ -195,7 +234,7 @@ export async function POST(req) {
     /* ======================
    👤 SYNC CUSTOMER (IMPORTANT)
 ====================== */
-const normalizedEmail = email.toLowerCase();
+const normalizedEmail = email;
 
 let existingCustomer = await Customer.findOne({ email: normalizedEmail });
 
@@ -246,6 +285,9 @@ if (existingCustomer) {
     };
 
     const deliveryLabel = `📦 ${shippingMethod.carrierLabel} — ${shippingMethod.name}`;
+    const shortageHtml = totals.shortages.length
+      ? `<p style="margin:16px 0;padding:12px;background:#fef2f2;color:#991b1b;border-radius:8px;font-size:14px"><strong>⚠️ Rupture de stock au moment de l'enregistrement :</strong><br>${totals.shortages.map(escapeHtml).join("<br>")}</p>`
+      : "";
 
     // Liste des produits formatée
     const productListHtml = lines.map((item) => `
@@ -311,7 +353,7 @@ if (existingCustomer) {
       await sendEmail({
         to: adminEmail,
         subject: `🛒 Nouvelle commande #${orderNumber} - ${firstname} ${lastname}`,
-        html: adminEmailHtml,
+        html: shortageHtml ? adminEmailHtml.replace(/<body[^>]*>/, (tag) => tag + shortageHtml) : adminEmailHtml,
       });
 
       console.log("✅ Email ADMIN envoyé avec succès");
@@ -372,10 +414,7 @@ if (existingCustomer) {
     }
 
     return NextResponse.json(
-      {
-        success: false,
-        message: error.message || "Erreur serveur",
-      },
+      { success: false, message: "Erreur serveur lors de l'enregistrement de la commande" },
       { status: 500 }
     );
   }
@@ -386,10 +425,8 @@ if (existingCustomer) {
 ====================== */
 export async function GET(req) {
   try {
-    const session = await getServerSession(authOptions);
-    if (!session || session.user.role !== "admin") {
-      return NextResponse.json({ message: "Accès refusé" }, { status: 401 });
-    }
+    const denied = await requireAdmin();
+    if (denied) return denied;
     await connectDB();
 
     const { searchParams } = new URL(req.url);

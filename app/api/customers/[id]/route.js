@@ -2,9 +2,14 @@ import { NextResponse } from "next/server";
 import { connectDB } from "@/app/lib/db";
 import Customer from "@/app/models/Customer";
 import Order from "@/app/models/Order";
+import { orderEmailFilter } from "@/app/lib/text";
+import { requireAdmin } from "@/app/lib/auth";
 
 // GET - Détails d'un client
 export async function GET(req, { params }) {
+  const denied = await requireAdmin();
+  if (denied) return denied;
+
   try {
     await connectDB();
 
@@ -25,7 +30,7 @@ export async function GET(req, { params }) {
     }
 
     // Récupérer les commandes du client par son email
-    const orders = await Order.find({ "customer.email": customer.email })
+    const orders = await Order.find(orderEmailFilter(customer.email))
       .sort({ createdAt: -1 })
       .populate("products.product");
 
@@ -48,15 +53,24 @@ export async function GET(req, { params }) {
 
 // PUT - Modifier un client
 export async function PUT(req, { params }) {
+  const denied = await requireAdmin();
+  if (denied) return denied;
+
   try {
     await connectDB();
 
     const { id } = await params; // ✅ Correction ici aussi
     const body = await req.json();
 
+    // Seuls les champs éditables depuis l'admin sont acceptés
+    const EDITABLE = ["firstname", "lastname", "email", "phone", "city", "address", "notes", "status"];
+    const updates = Object.fromEntries(
+      Object.entries(body || {}).filter(([key, value]) => EDITABLE.includes(key) && (value === null || typeof value === "string"))
+    );
+
     const customer = await Customer.findByIdAndUpdate(
       id,
-      { $set: body },
+      { $set: updates },
       { new: true, runValidators: true }
     );
 
@@ -84,6 +98,9 @@ export async function PUT(req, { params }) {
 
 // DELETE - Supprimer ou Anonymiser un client
 export async function DELETE(req, { params }) {
+  const denied = await requireAdmin();
+  if (denied) return denied;
+
   try {
     await connectDB();
 
@@ -101,9 +118,7 @@ export async function DELETE(req, { params }) {
       );
     }
 
-    const ordersCount = await Order.countDocuments({
-      "customer.email": customer.email,
-    });
+    const ordersCount = await Order.countDocuments(orderEmailFilter(customer.email));
 
     if (ordersCount === 0) {
       await Customer.findByIdAndDelete(id);
@@ -131,7 +146,7 @@ export async function DELETE(req, { params }) {
       await Customer.findByIdAndUpdate(id, { $set: anonymizedData });
 
       await Order.updateMany(
-        { "customer.email": customer.email },
+        orderEmailFilter(customer.email),
         { 
           $set: { 
             "customer.firstname": anonymizedData.firstname,

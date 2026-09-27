@@ -5,7 +5,7 @@ import { getServerSession } from "next-auth/next";
 import { authOptions } from "@/app/api/auth/[...nextauth]/route";
 import { connectDB } from "@/app/lib/db";
 import Order from "@/app/models/Order";
-import Product from "@/app/models/Product";
+import { escapeRegex } from "@/app/lib/text";
 
 export async function GET(request) {
   try {
@@ -29,11 +29,11 @@ export async function GET(request) {
     if (status) filter.status = status;
     if (search) {
       filter.$or = [
-        { "customer.firstname": { $regex: search, $options: "i" } },
-        { "customer.lastname":  { $regex: search, $options: "i" } },
-        { "customer.email":     { $regex: search, $options: "i" } },
-        { "customer.city":      { $regex: search, $options: "i" } },
-        { "customer.phone":     { $regex: search, $options: "i" } },
+        { "customer.firstname": { $regex: escapeRegex(search), $options: "i" } },
+        { "customer.lastname":  { $regex: escapeRegex(search), $options: "i" } },
+        { "customer.email":     { $regex: escapeRegex(search), $options: "i" } },
+        { "customer.city":      { $regex: escapeRegex(search), $options: "i" } },
+        { "customer.phone":     { $regex: escapeRegex(search), $options: "i" } },
       ];
     }
 

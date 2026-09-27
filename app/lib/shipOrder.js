@@ -4,6 +4,7 @@
 // ⚠️ Action irréversible côté transporteur — ne l'appeler qu'à la fin de la période de drop.
 
 import Order from "@/app/models/Order";
+import { connectDB } from "@/app/lib/db";
 import { createParcel } from "@/app/lib/sendcloud";
 import { sendEmail } from "@/app/lib/mailer";
 import { getOrderStatusUpdateEmailTemplate } from "@/app/lib/emailTemplates";
@@ -15,6 +16,38 @@ export class ShipError extends Error {
     this.status = status;
     Object.assign(this, extra);
   }
+}
+
+// Durée au-delà de laquelle un verrou d'expédition abandonné (crash en cours de route) est ignoré
+const SHIP_LOCK_MINUTES = 5;
+
+/**
+ * Réserve atomiquement la commande pour l'expédition : empêche deux créations de colis
+ * simultanées (double clic, cron + action manuelle). Retourne false si déjà réservée.
+ */
+async function claimShipment(id) {
+  const sql = await connectDB();
+  const rows = await sql`
+    UPDATE orders
+    SET data = jsonb_set(data, '{delivery,shipLockAt}', to_jsonb(now()::text)), updated_at = now()
+    WHERE id = ${id}::uuid
+      AND jsonb_typeof(data->'delivery') = 'object'
+      AND COALESCE(data->'delivery'->>'trackingNumber', '') = ''
+      AND (
+        data->'delivery'->>'shipLockAt' IS NULL
+        OR (data->'delivery'->>'shipLockAt')::timestamptz < now() - make_interval(mins => ${SHIP_LOCK_MINUTES}::int)
+      )
+    RETURNING id
+  `;
+  return rows.length > 0;
+}
+
+async function releaseShipment(id) {
+  const sql = await connectDB();
+  await sql`
+    UPDATE orders SET data = data #- '{delivery,shipLockAt}'
+    WHERE id = ${id}::uuid AND jsonb_typeof(data->'delivery') = 'object'
+  `;
 }
 
 /** Date avant laquelle la commande ne doit pas partir chez le transporteur (ou null). */
@@ -50,22 +83,34 @@ export async function shipOrder(order, { force = false } = {}) {
     );
   }
 
-  const { trackingNumber, trackingUrl, labelBuffer } = await createParcel({
-    orderId: id,
-    methodId: order.delivery.methodId,
-    weight: Number(order.delivery.weight) || undefined,
-    addressee: {
-      name: `${order.customer.firstname} ${order.customer.lastname}`.trim(),
-      company: order.customer.company,
-      email: order.customer.email,
-      phone: order.customer.phone,
-      address: order.customer.address,
-      city: order.customer.city,
-      postalCode: order.customer.postalCode || "",
-      countryCode: order.delivery.countryCode || "FR",
-    },
-    servicePointId: order.delivery.relayId || undefined,
-  });
+  if (!(await claimShipment(id))) {
+    throw new ShipError("Une expédition est déjà en cours ou terminée pour cette commande", 409);
+  }
+
+  let parcel;
+  try {
+    parcel = await createParcel({
+      orderId: id,
+      methodId: order.delivery.methodId,
+      weight: Number(order.delivery.weight) || undefined,
+      addressee: {
+        name: `${order.customer.firstname} ${order.customer.lastname}`.trim(),
+        company: order.customer.company,
+        email: order.customer.email,
+        phone: order.customer.phone,
+        address: order.customer.address,
+        city: order.customer.city,
+        postalCode: order.customer.postalCode || "",
+        countryCode: order.delivery.countryCode || "FR",
+      },
+      servicePointId: order.delivery.relayId || undefined,
+    });
+  } catch (err) {
+    // Colis non créé : la commande redevient expédiable
+    await releaseShipment(id).catch(() => {});
+    throw err;
+  }
+  const { trackingNumber, trackingUrl, labelBuffer } = parcel;
 
   let labelUrl = null;
   if (labelBuffer) {
@@ -90,6 +135,7 @@ export async function shipOrder(order, { force = false } = {}) {
       "delivery.trackingUrl": trackingUrl,
       "delivery.labelUrl": labelUrl,
       "delivery.shippedAt": new Date(),
+      "delivery.shipLockAt": null,
     },
     { new: true }
   );

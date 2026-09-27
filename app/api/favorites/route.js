@@ -3,7 +3,7 @@ export const runtime = "nodejs";
 import { NextResponse } from "next/server";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/app/api/auth/[...nextauth]/route";
-import { connectDB } from "@/app/lib/db";
+import { connectDB, isValidId } from "@/app/lib/db";
 import User from "@/app/models/User";
 import "@/app/models/Product";
 
@@ -32,7 +32,7 @@ export async function POST(request) {
     if (!session) return NextResponse.json({ message: "Non autorisé" }, { status: 401 });
 
     const { productId } = await request.json();
-    if (!productId) return NextResponse.json({ message: "productId manquant" }, { status: 400 });
+    if (!isValidId(productId)) return NextResponse.json({ message: "productId invalide" }, { status: 400 });
 
     await connectDB();
     const user = await User.findOne({ email: session.user.email });
@@ -56,7 +56,7 @@ export async function DELETE(request) {
     if (!session) return NextResponse.json({ message: "Non autorisé" }, { status: 401 });
 
     const { productId } = await request.json();
-    if (!productId) return NextResponse.json({ message: "productId manquant" }, { status: 400 });
+    if (!isValidId(productId)) return NextResponse.json({ message: "productId invalide" }, { status: 400 });
 
     await connectDB();
     const user = await User.findOne({ email: session.user.email });

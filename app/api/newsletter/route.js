@@ -2,12 +2,13 @@ import { NextResponse } from "next/server";
 import { connectDB } from "@/app/lib/db";
 import NewsletterSubscriber from "@/app/models/NewsletterSubscriber";
 import { sendEmail } from "@/app/lib/mailer";
+import { escapeHtml } from "@/app/lib/text";
 
 export async function POST(req) {
   try {
     const { email } = await req.json();
 
-    if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+    if (typeof email !== "string" || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
       return NextResponse.json({ error: "Email invalide" }, { status: 400 });
     }
 
@@ -22,12 +23,12 @@ export async function POST(req) {
 
     // Notification admin
     await sendEmail({
-      to: process.env.ADMIN_EMAIL,
+      to: process.env.ADMIN_EMAIL || process.env.EMAIL_USER,
       subject: "Nouvel abonné newsletter — Pull-Lover",
       html: `
         <div style="font-family: Montserrat, sans-serif; padding: 24px; max-width: 480px;">
           <h2 style="color: #C95D5D;">Nouveau abonné newsletter</h2>
-          <p><strong>Email :</strong> ${email}</p>
+          <p><strong>Email :</strong> ${escapeHtml(email)}</p>
           <p style="color: #888; font-size: 13px;">Inscrit le ${new Date().toLocaleDateString("fr-FR", { dateStyle: "long" })}</p>
         </div>
       `,

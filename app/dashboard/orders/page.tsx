@@ -5,8 +5,20 @@ import { redirect } from "next/navigation";
 import { connectDB } from "@/app/lib/db";
 import Order from "@/app/models/Order";
 import Link from "next/link";
+import { orderEmailFilter } from "@/app/lib/text";
 
-const STATUS_STEPS = ["pending", "confirmed", "processing", "shipped", "delivered"] as const;
+// Étapes affichées au client. Les commandes Stripe sont créées directement au statut "paid".
+const STATUS_STEPS = ["paid", "processing", "shipped", "delivered"] as const;
+
+// Position de chaque statut dans la timeline ("pending" = pas encore payée : aucune étape atteinte)
+const STEP_INDEX: Record<string, number> = {
+  pending: -1,
+  confirmed: 0,
+  paid: 0,
+  processing: 1,
+  shipped: 2,
+  delivered: 3,
+};
 
 const STATUS_CONFIG: Record<string, { label: string; badgeClass: string; color: string }> = {
   pending:    { label: "En attente",      badgeClass: "db-badge db-badge-pending",    color: "#f59e0b" },
@@ -31,7 +43,7 @@ export default async function OrdersPage() {
 
   await connectDB();
 
-  const orders = await Order.find({ "customer.email": session.user.email })
+  const orders = await Order.find(orderEmailFilter(session.user.email))
     .populate("products.product", "name price")
     .sort({ createdAt: -1 })
     .lean()
@@ -55,9 +67,7 @@ export default async function OrdersPage() {
           <div className="orders-list">
             {orders.map((order: any) => {
               const status = STATUS_CONFIG[order.status] || STATUS_CONFIG.pending;
-              const currentStep = order.status === "cancelled"
-                ? -1
-                : STATUS_STEPS.indexOf(order.status as any);
+              const currentStep = STEP_INDEX[order.status] ?? -1;
 
               return (
                 <div key={order._id} className="order-card">

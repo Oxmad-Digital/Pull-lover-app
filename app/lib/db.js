@@ -63,6 +63,12 @@ function getClient() {
   return globalThis.__pullLoverPostgres;
 }
 
+// Index uniques ajoutés après coup : leur création ne doit pas bloquer le site si
+// des doublons existent déjà en base (ils sont alors signalés dans les logs).
+const OPTIONAL_UNIQUE_INDEXES = [
+  ["orders", "stripePaymentId"],
+];
+
 async function initializeSchema(sql) {
   for (const table of TABLES) {
     await sql`
@@ -83,6 +89,19 @@ async function initializeSchema(sql) {
       WHERE data ? ${sql.literal(field)}
     `;
   }
+
+  for (const [table, field] of OPTIONAL_UNIQUE_INDEXES) {
+    const indexName = `${table}_${field}_unique_idx`;
+    try {
+      await sql`
+        CREATE UNIQUE INDEX IF NOT EXISTS ${sql(indexName)}
+        ON ${sql(table)} ((data->>${sql.literal(field)}))
+        WHERE data->>${sql.literal(field)} IS NOT NULL
+      `;
+    } catch (error) {
+      console.error(`⚠️ Index unique ${indexName} non créé (doublons existants ?) :`, error.message);
+    }
+  }
 }
 
 export async function connectDB() {
@@ -100,5 +119,5 @@ export async function connectDB() {
 }
 
 export function isValidId(value) {
-  return typeof value === "string" && /^[0-9a-f]{8}-[0-9a-f-]{27}$/i.test(value);
+  return typeof value === "string" && /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(value);
 }

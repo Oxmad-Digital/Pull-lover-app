@@ -10,7 +10,7 @@ export async function GET(req) {
     const { searchParams } = new URL(req.url);
     const token = searchParams.get("token");
 
-    if (!token) {
+    if (!token || !/^[a-f0-9]{64}$/.test(token)) {
       return NextResponse.json(
         { message: "Token manquant" },
         { status: 400 }

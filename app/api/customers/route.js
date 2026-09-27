@@ -2,11 +2,16 @@ import { NextResponse } from "next/server";
 import { connectDB } from "@/app/lib/db";
 import Customer from "@/app/models/Customer";
 import Order from "@/app/models/Order";
+import { requireAdmin } from "@/app/lib/auth";
+import { escapeRegex } from "@/app/lib/text";
 
 /* =========================
    GET - Liste des clients
 ========================= */
 export async function GET(req) {
+  const denied = await requireAdmin();
+  if (denied) return denied;
+
   try {
     await connectDB();
 
@@ -23,10 +28,10 @@ export async function GET(req) {
 
     if (search) {
       query.$or = [
-        { firstname: { $regex: search, $options: "i" } },
-        { lastname: { $regex: search, $options: "i" } },
-        { email: { $regex: search, $options: "i" } },
-        { phone: { $regex: search, $options: "i" } },
+        { firstname: { $regex: escapeRegex(search), $options: "i" } },
+        { lastname: { $regex: escapeRegex(search), $options: "i" } },
+        { email: { $regex: escapeRegex(search), $options: "i" } },
+        { phone: { $regex: escapeRegex(search), $options: "i" } },
       ];
     }
 
@@ -68,6 +73,9 @@ export async function GET(req) {
    POST - Create / Sync
 ========================= */
 export async function POST(req) {
+  const denied = await requireAdmin();
+  if (denied) return denied;
+
   try {
     await connectDB();
     const body = await req.json();
@@ -77,6 +85,9 @@ export async function POST(req) {
     }
 
     const { firstname, lastname, email, phone, city, address } = body;
+    if (typeof email !== "string" || !email.trim()) {
+      return NextResponse.json({ success: false, message: "Email requis" }, { status: 400 });
+    }
 
     const exists = await Customer.findOne({ email: email.toLowerCase() });
     if (exists) {
