@@ -51,7 +51,7 @@ async function releaseShipment(id) {
 }
 
 /** Date avant laquelle la commande ne doit pas partir chez le transporteur (ou null). */
-export function holdUntil(order) {
+function holdUntil(order) {
   const releaseAt = order.delivery?.releaseAt ? new Date(order.delivery.releaseAt) : null;
   return releaseAt && releaseAt > new Date() ? releaseAt : null;
 }

@@ -62,8 +62,8 @@ export async function middleware(req) {
     }
   }
 
-  // 🔒 PROTÉGER LES PAGES D'ADMINISTRATION (dont la gestion des produits)
-  if (pathname.startsWith("/admin/") || pathname.startsWith("/products/add")) {
+  // 🔒 PROTÉGER LES PAGES D'ADMINISTRATION
+  if (pathname.startsWith("/admin/")) {
     if (!token) {
       return NextResponse.redirect(new URL("/auth/login", req.url));
     }

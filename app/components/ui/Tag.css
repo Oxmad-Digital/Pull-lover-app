@@ -1,19 +1,4 @@
-﻿/* ── Chip — étiquette matière non-cliquable ── */
-.chip {
-  display: inline-block;
-  font-family: var(--font-montserrat, 'Montserrat', sans-serif);
-  font-size: 0.7rem;
-  font-weight: 500;
-  color: #6b7280;
-  background: #f9fafb;
-  border: 1px solid #e5e7eb;
-  padding: 5px 14px;
-  border-radius: var(--radius-lg);
-  letter-spacing: 0.03em;
-  white-space: nowrap;
-}
-
-/* ── Eyebrow — label de section en capitales (font-size défini dans globals.css) ── */
+﻿/* ── Eyebrow — label de section en capitales (font-size défini dans globals.css) ── */
 .eyebrow {
   display: block;
   font-family: var(--font-montserrat, 'Montserrat', sans-serif);

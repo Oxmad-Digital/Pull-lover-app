@@ -20,10 +20,6 @@ const nextConfig: NextConfig = {
         ],
       },
       {
-        source: "/icons/(.*)",
-        headers: [{ key: "Cache-Control", value: "public, max-age=31536000, immutable" }],
-      },
-      {
         source: "/api/products(.*)",
         headers: [{ key: "Cache-Control", value: "public, s-maxage=60, stale-while-revalidate=300" }],
       },

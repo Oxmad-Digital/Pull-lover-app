@@ -1,7 +1,6 @@
 ﻿"use client";
 
 import { useState, useEffect } from "react";
-import Link from "next/link";
 import { useToast } from "@/app/hooks/useToast";
 import { Toast } from "@/app/components/ui/Toast";
 import "../customers/customers.css";

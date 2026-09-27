@@ -120,22 +120,3 @@ export async function sendEmail({ to, subject, html, replyTo }) {
     throw error;
   }
 }
-
-/**
- * ✅ Fonction utilitaire pour tester l'envoi
- */
-export async function testEmail(testAddress) {
-  console.log("🧪 Test d'envoi email à:", testAddress);
-  
-  return sendEmail({
-    to: testAddress,
-    subject: "🧪 Test Email - " + new Date().toISOString(),
-    html: `
-      <div style="font-family: Arial; padding: 20px;">
-        <h1>✅ Test Réussi !</h1>
-        <p>Cet email a été envoyé le ${new Date().toLocaleString("fr-FR")}</p>
-        <p>Si vous recevez cet email, la configuration fonctionne correctement.</p>
-      </div>
-    `,
-  });
-}
