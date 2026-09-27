@@ -1,15 +1,15 @@
 import MantasoaProductPage from "./MantasoaProductPage";
 
 export const metadata = {
-  title: "Le Mantasoa — Pull en maille fabriqué à Madagascar",
+  title: "Cardigan en maille — Pull-Lover",
   description:
-    "Découvrez le Mantasoa, choisissez votre taille et commandez cette maille essentielle fabriquée à la demande dans notre atelier familial à Antananarivo.",
+    "Découvrez notre cardigan en maille de Madagascar, choisissez votre taille et commandez cette pièce essentielle fabriquée à la demande dans notre atelier familial à Antananarivo.",
   alternates: { canonical: "/products/mantasoa" },
   openGraph: {
-    title: "Le Mantasoa — Pull-Lover",
+    title: "Cardigan en maille — Pull-Lover",
     description: "Une maille essentielle, imaginée et fabriquée à Madagascar.",
     images: [
-      { url: "/api/media/site/mantasoa-hero.webp", alt: "Le Mantasoa porté au bord du lac" },
+      { url: "/api/media/site/mantasoa-hero.webp", alt: "Cardigan en maille porté au bord du lac" },
     ],
   },
 };

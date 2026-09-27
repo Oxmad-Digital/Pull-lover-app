@@ -18,7 +18,7 @@ export default function Footer() {
         </Link>
         <nav className="pl-footer-column" aria-label="Découvrir Pull-Lover">
           <h2>Découvrir</h2>
-          <Link href="/#piece">Le Mantasoa</Link>
+          <Link href="/#piece">Cardigan en maille</Link>
           <Link href="/#atelier">Notre atelier</Link>
           <Link href="/#precommande-info">La précommande</Link>
         </nav>

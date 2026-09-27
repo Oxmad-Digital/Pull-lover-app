@@ -186,7 +186,7 @@ export default function ProductDetailPage() {
         <div className="product-detail-page">
           <div className="product-error">
             <h2>{error}</h2>
-            <Link href="/#piece" className="back-link">← Découvrir le Mantasoa</Link>
+            <Link href="/#piece" className="back-link">← Découvrir le cardigan</Link>
           </div>
         </div>
       </div>

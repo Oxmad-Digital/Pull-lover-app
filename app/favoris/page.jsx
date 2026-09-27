@@ -69,7 +69,7 @@ export default function FavorisPage() {
             <h2>Votre liste de favoris est vide</h2>
             <p>Retrouvez ici les pièces que vous avez enregistrées.</p>
             <ButtonPrimary href="/#piece">
-              Découvrir le Mantasoa
+              Découvrir le cardigan
             </ButtonPrimary>
           </div>
         ) : (

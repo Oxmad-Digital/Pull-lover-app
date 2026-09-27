@@ -21,8 +21,10 @@ export async function GET(req, { params }) {
       );
     }
 
+    // Mode mono-produit : "mantasoa" est une URL marketing fixe qui pointe
+    // toujours vers l'unique produit, quel que soit son nom en base.
     const productQuery = id.toLowerCase() === "mantasoa"
-      ? Product.findOne({ name: { $regex: /^(le\s+)?mantasoa$/i } })
+      ? Product.findOne({})
       : isValidId(id)
         ? Product.findById(id)
         : Product.findOne({ slug: id });

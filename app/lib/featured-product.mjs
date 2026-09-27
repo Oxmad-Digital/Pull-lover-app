@@ -1,9 +1,6 @@
-// Resolve only the campaign product, never an unrelated catalogue item.
-export function selectMantasoa(products = []) {
-  const matches = products.filter((product) => /\bmantasoa\b/i.test(product.name || ""));
-  const exact = matches.filter((product) => /^(le\s+)?mantasoa$/i.test(product.name.trim()));
-  if (exact.length === 1) return exact[0];
-  return matches.length === 1 ? matches[0] : null;
+// Mode mono-produit : une seule fiche produit existe, quel que soit son nom.
+export function selectFeaturedProduct(products = []) {
+  return products.length === 1 ? products[0] : null;
 }
 
 export function productSizes(product) {

@@ -34,7 +34,7 @@ export default function LoginPage() {
       title="Heureux de vous revoir."
       description="Retrouvez vos commandes, vos adresses et les pièces que vous avez choisies."
       image="/api/media/pull-lover-manequin-cardigan-2.webp"
-      imageAlt="Le pull Mantasoa porté au bord du lac"
+      imageAlt="Le cardigan porté au bord du lac"
       visualTitle="Des pièces qui traversent le temps."
       visualText="Pensées à Madagascar, tricotées à la demande et faites pour vous accompagner saison après saison."
     >

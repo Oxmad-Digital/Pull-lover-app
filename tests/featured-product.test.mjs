@@ -1,14 +1,13 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { productSizes, remainingStock, selectMantasoa } from '../app/lib/featured-product.mjs';
+import { productSizes, remainingStock, selectFeaturedProduct } from '../app/lib/featured-product.mjs';
 
-const product = { _id: 'mantasoa', name: 'Le Mantasoa', stock: 6, stocks: { S: 2, M: 4, L: 0 }, sizes: ['S', 'M'], isAvailable: true };
+const product = { _id: 'mantasoa', name: 'Cardigan en maille de Madagascar', stock: 6, stocks: { S: 2, M: 4, L: 0 }, sizes: ['S', 'M'], isAvailable: true };
 
-test('the home selects Mantasoa without falling back to another product', () => {
-  assert.equal(selectMantasoa([{ name: 'Autre pull' }, product]), product);
-  assert.equal(selectMantasoa([{ name: 'Autre pull' }]), null);
-  assert.equal(selectMantasoa([]), null);
-  assert.equal(selectMantasoa([{ name: 'Mantasoa bleu' }, { name: 'Mantasoa rouge' }]), null);
+test('the home selects the single product without falling back to ambiguous matches', () => {
+  assert.equal(selectFeaturedProduct([product]), product);
+  assert.equal(selectFeaturedProduct([]), null);
+  assert.equal(selectFeaturedProduct([{ name: 'Autre pull' }, product]), null);
 });
 
 test('sizes include sold-out variants without inventing sizes', () => {
