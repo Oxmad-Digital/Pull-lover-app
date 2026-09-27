@@ -9,7 +9,7 @@ export const metadata = {
 
 export default function MaintenancePage() {
   return (
-    <main className={styles.page}>
+    <main className={styles.page} data-reveal-stagger>
       <Image
         src="/pull-lover_logo_coeur_rouge-transparent.webp"
         alt="Pull-Lover"

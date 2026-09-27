@@ -1,6 +1,5 @@
 "use client";
 
-import { useScrollReveal } from "../hooks/useScrollReveal";
 import { ButtonPrimary } from "./ui/Button";
 import { Eyebrow } from "./ui/Tag";
 import "./NotreMarque.css";
@@ -14,26 +13,20 @@ const STATS = [
 
 
 export default function NotreMarque() {
-    const introRef = useScrollReveal();
-    const statsRef = useScrollReveal();
-    const videoHeaderRef = useScrollReveal();
-    const videoWrapRef = useScrollReveal();
-    const ctaRef = useScrollReveal();
-
     return (
         <div className="nm">
 
             {/* —— Intro —— */}
             <section className="nm-intro">
                 <div className="nm-container">
-                    <div className="nm-intro__inner reveal" ref={introRef}>
-                        <div className="nm-intro__left">
+                    <div className="nm-intro__inner">
+                        <div className="nm-intro__left" data-reveal-stagger>
                             <Eyebrow className="nm-eyebrow">Notre marque</Eyebrow>
                             <h2 className="nm-intro__heading">
                                 Pull Lover, une marque, une histoire
                             </h2>
                         </div>
-                        <div className="nm-intro__right">
+                        <div className="nm-intro__right" data-reveal-stagger>
                             <p>
                                 Pull Lover est née d'une conviction simple : la mode peut être belle sans
                                 sacrifier l'humain ni la planète. Fondée à Antananarivo, notre maison s'est
@@ -64,7 +57,7 @@ export default function NotreMarque() {
             {/* —— Stats —— */}
             <section className="nm-stats">
                 <div className="nm-container">
-                    <div className="nm-stats__grid reveal" ref={statsRef}>
+                    <div className="nm-stats__grid" data-reveal-stagger>
                         {STATS.map((s) => (
                             <div key={s.label} className="nm-stat">
                                 <span className="nm-stat__value">{s.value}</span>
@@ -78,7 +71,7 @@ export default function NotreMarque() {
             {/* —— Vidéo —— */}
             <section className="nm-video-section">
                 <div className="nm-container">
-                    <div className="nm-video-section__header reveal" ref={videoHeaderRef}>
+                    <div className="nm-video-section__header" data-reveal-stagger>
                         <Eyebrow className="nm-eyebrow">Notre atelier</Eyebrow>
                         <h2 className="nm-video-section__heading">
                             Voir comment chaque pièce prend vie
@@ -100,7 +93,7 @@ export default function NotreMarque() {
                             à chaque étape de fabrication.
                         </p>
                     </div>
-                    <div className="nm-video__wrapper reveal" ref={videoWrapRef}>
+                    <div className="nm-video__wrapper" data-reveal>
                         <video
                             className="nm-video__el"
                             controls
@@ -141,7 +134,7 @@ export default function NotreMarque() {
             {/* —— CTA final —— */}
             <section className="nm-cta">
                 <div className="nm-container">
-                    <div className="nm-cta__inner reveal" ref={ctaRef}>
+                    <div className="nm-cta__inner" data-reveal-stagger>
                         <h3 className="nm-cta__heading">
                             Prêt à trouver votre prochain coup de cœur ?
                         </h3>

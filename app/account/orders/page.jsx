@@ -70,17 +70,17 @@ export default function UserOrdersPage() {
 
   return (
     <div style={styles.container}>
-      <h1 style={styles.title}>📦 Mes Commandes</h1>
+      <h1 style={styles.title} data-reveal>📦 Mes Commandes</h1>
 
       {orders.length === 0 ? (
-        <div style={styles.empty}>
+        <div style={styles.empty} data-reveal>
           <p>Vous n'avez pas encore de commandes</p>
           <a href="/products" style={styles.shopBtn}>
             🛍️ Commencer vos achats
           </a>
         </div>
       ) : (
-        <div style={styles.ordersList}>
+        <div style={styles.ordersList} data-reveal-stagger>
           {orders.map((order) => {
             const statusInfo = getStatusInfo(order.status);
             const currentStep = getStepIndex(order.status);

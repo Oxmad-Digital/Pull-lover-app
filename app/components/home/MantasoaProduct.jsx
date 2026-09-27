@@ -35,7 +35,7 @@ export default function MantasoaProduct() {
   return (
     <section className="pl-product" id="piece" aria-labelledby="product-title">
       <Link className="pl-product-visual" href="/products/mantasoa" aria-label="Voir la fiche produit du Mantasoa">
-        <Image src="/api/media/site/mantasoa-hero.webp" alt="Vue portée du Mantasoa, un pull écru à la maille généreuse" fill sizes="(max-width: 939px) 100vw, 65vw" />
+        <Image src="/api/media/pull-lover-manequin-cardigan-3.webp" alt="Vue portée du Mantasoa, un pull écru à la maille généreuse" fill sizes="(max-width: 939px) 100vw, 65vw" />
         <span className="pl-image-tag">Le Mantasoa · Vue portée</span>
       </Link>
       <div className="pl-product-info" aria-busy={status === "loading"}>

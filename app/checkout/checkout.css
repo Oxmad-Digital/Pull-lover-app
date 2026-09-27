@@ -460,3 +460,40 @@
 @media (prefers-reduced-motion: reduce) {
   .checkout-skeleton { animation: none; }
 }
+
+.checkout-relay-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  width: 100%;
+  min-height: 58px;
+  padding: 14px 16px;
+  box-sizing: border-box;
+  color: var(--pl-paper);
+  background: var(--pl-ink);
+  border: 1px solid var(--pl-ink);
+  font: inherit;
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: .08em;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition: background .2s ease, color .2s ease;
+}
+
+.checkout-relay-btn:hover { color: var(--pl-ink); background: transparent; }
+
+.checkout-shipping-group { grid-column: 1 / -1; margin-bottom: 20px; }
+
+.checkout-shipping-group-title {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 0 0 10px;
+  color: var(--color-secondary-hover);
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: .15em;
+  text-transform: uppercase;
+}

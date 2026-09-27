@@ -79,12 +79,12 @@ export default function RegisterPage() {
       eyebrow="Rejoindre Pull-Lover"
       title="Créer votre espace."
       description="Suivez vos commandes et gardez vos informations à portée de main."
-      image="/api/media/site/atelier-maille.webp"
+      image="/api/media/pull-lover-manequin-cardigan-2.webp"
       imageAlt="Les mains d’une artisane pendant les finitions d’un pull"
       visualTitle="Votre histoire avec la maille commence ici."
       visualText="Une fabrication à la demande, portée par les gestes de notre atelier familial à Antananarivo."
     >
-      <form className="auth-form" onSubmit={handleSubmit}>
+      <form className="auth-form" onSubmit={handleSubmit} data-reveal-stagger>
         <div className="auth-fields">
           <div className="auth-field">
             <label htmlFor="register-name">Nom complet</label>

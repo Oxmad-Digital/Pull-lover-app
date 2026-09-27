@@ -43,10 +43,10 @@ export default async function DashboardOverview() {
 
   return (
     <div>
-      <h1 className="db-page-title">Vue d&apos;ensemble</h1>
+      <h1 className="db-page-title" data-reveal>Vue d&apos;ensemble</h1>
 
       {/* ── KPIs ── */}
-      <div className="db-kpis">
+      <div className="db-kpis" data-reveal-stagger>
         <div className="db-kpi-card">
           <span className="db-kpi-label">Commandes</span>
           <span className="db-kpi-value">{totalOrders}</span>
@@ -64,7 +64,7 @@ export default async function DashboardOverview() {
         </div>
       </div>
 
-      <div className="db-wrapper">
+      <div className="db-wrapper" data-reveal-stagger>
 
         {/* ── Résumé commandes ── */}
         <div className="db-card db-summary-card">

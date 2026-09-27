@@ -22,6 +22,10 @@ const CARRIER_LABELS = {
 // Variantes écartées du checkout (livraison le samedi, codes QR, boîte aux lettres)
 const EXCLUDED_NAME = /saturday|\bQR\b|\bBAL\b/i;
 
+// Services proposés au checkout : points relais Chronopost, Chronopost express (Chrono 13)
+// et Colissimo à domicile (toujours contre signature)
+const ALLOWED_SERVICE_NAME = /shop2shop|chrono relais|chrono 13|colissimo home signature/i;
+
 export const carrierLabel = (carrier) => CARRIER_LABELS[carrier] || carrier || "Transporteur";
 
 function authHeader() {
@@ -77,6 +81,7 @@ export async function getShippingOptions({ toCountry = "FR", weight = DEFAULT_IT
   const options = new Map();
   for (const m of shipping_methods) {
     if (!ALLOWED_CARRIERS.includes(m.carrier) || EXCLUDED_NAME.test(m.name)) continue;
+    if (!ALLOWED_SERVICE_NAME.test(m.name)) continue;
     if (!(Number(m.min_weight) <= weight && weight <= Number(m.max_weight))) continue;
 
     const country = (m.countries || []).find((c) => c.iso_2 === toCountry);

@@ -99,6 +99,12 @@ export default function ProductForm({
       return;
     }
 
+    // Le poids sert au calcul du tarif Sendcloud facturé au client
+    if (!(Number(weight) > 0)) {
+      setMsg("⚠️ Renseignez le poids d'expédition (kg, emballage inclus)");
+      return;
+    }
+
     setLoading(true);
     setMsg("");
 
@@ -269,11 +275,12 @@ export default function ProductForm({
       </div>
 
       <div className="form-field">
-        <label className="form-label">Poids d&apos;expédition (kg)</label>
+        <label className="form-label">Poids d&apos;expédition (kg) *</label>
         <input
           type="number"
           step="0.01"
-          min="0"
+          min="0.01"
+          required
           placeholder="Ex : 0.45 — emballage inclus"
           value={weight}
           onChange={(e) => setWeight(e.target.value)}

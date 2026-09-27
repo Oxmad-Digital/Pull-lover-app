@@ -7,6 +7,8 @@ import { useRouter } from "next/navigation";
 import { useCart } from "@/app/components/CartContext";
 import { productSizes, remainingStock, selectMantasoa } from "@/app/lib/featured-product.mjs";
 
+const MAIN_IMAGE = { src: "/api/media/pull-lover-manequin-cardigan-3.webp", alt: "Le cardigan Mantasoa porté" };
+
 const FALLBACK_IMAGES = [
   { src: "/api/media/site/mantasoa-hero.webp", alt: "Le Mantasoa écru porté au bord du lac" },
   { src: "/api/media/site/mantasoa-studio.png", alt: "Le pull Mantasoa écru vu de face" },
@@ -25,6 +27,7 @@ function normalizeImages(product) {
   const remoteImages = [product?.image, ...(product?.images || [])].filter(Boolean);
   const seen = new Set();
   return [
+    MAIN_IMAGE,
     ...remoteImages.map((src, index) => ({ src, alt: `${product?.name || "Le Mantasoa"} — vue ${index + 1}` })),
     ...FALLBACK_IMAGES,
   ].filter((image) => {
@@ -109,12 +112,12 @@ export default function MantasoaProductPage() {
 
   return (
     <article className="mp-page">
-      <nav className="mp-breadcrumb" aria-label="Fil d’Ariane">
+      <nav className="mp-breadcrumb" aria-label="Fil d’Ariane" data-reveal>
         <Link href="/">Accueil</Link><span>/</span><span>Le Mantasoa</span>
       </nav>
 
       <section className="mp-buy" aria-labelledby="mantasoa-title">
-        <div className="mp-gallery">
+        <div className="mp-gallery" data-reveal>
           <div className="mp-thumbnails" aria-label="Vues du produit">
             {images.map((image, index) => (
               <button type="button" key={image.src} className={activeImage === index ? "is-active" : ""}
@@ -133,7 +136,7 @@ export default function MantasoaProductPage() {
           </div>
         </div>
 
-        <div className="mp-panel">
+        <div className="mp-panel" data-reveal-stagger>
           <p className="mp-kicker">Maille de Madagascar · Pièce n° 01</p>
           <div className="mp-heading-row">
             <h1 id="mantasoa-title">{product?.name || "Le Mantasoa"}</h1>
@@ -197,11 +200,11 @@ export default function MantasoaProductPage() {
       </section>
 
       <section className="mp-facts" aria-labelledby="mp-facts-title">
-        <div className="mp-facts-heading">
+        <div className="mp-facts-heading" data-reveal-stagger>
           <p className="mp-kicker">Une pièce, longtemps</p>
           <h2 id="mp-facts-title">Le temps de bien faire.</h2>
         </div>
-        <div className="mp-facts-grid">
+        <div className="mp-facts-grid" data-reveal-stagger>
           <article><span>01</span><h3>Origine</h3><p>Imaginé et confectionné à Antananarivo, Madagascar.</p></article>
           <article><span>02</span><h3>Fabrication</h3><p>Tricotage, assemblage et finitions réalisés avec soin dans l’atelier familial.</p></article>
           <article><span>03</span><h3>Production</h3><p>Chaque Mantasoa commence à prendre forme après votre commande.</p></article>

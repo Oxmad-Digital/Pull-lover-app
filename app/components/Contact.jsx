@@ -1,7 +1,6 @@
 "use client";
 
 import { useState } from "react";
-import { useScrollReveal } from "../hooks/useScrollReveal";
 import { ButtonPrimary } from "./ui/Button";
 import { Eyebrow } from "./ui/Tag";
 import "./Contact.css";
@@ -22,9 +21,6 @@ const INFOS = [
 export default function Contact() {
     const [formData, setFormData] = useState({ nom: "", mail: "", message: "" });
     const [status, setStatus] = useState(null); // null | "loading" | "success" | "error"
-
-    const formRef = useScrollReveal();
-    const imageRef = useScrollReveal();
 
     const handleChange = (e) => {
         setFormData((prev) => ({ ...prev, [e.target.name]: e.target.value }));
@@ -55,9 +51,9 @@ export default function Contact() {
             <div className="contact__container">
 
                 {/* ── Formulaire ── */}
-                <div className="contact__form-side reveal" ref={formRef}>
+                <div className="contact__form-side">
 
-                    <div className="contact__header">
+                    <div className="contact__header" data-reveal-stagger>
                         <Eyebrow className="contact-eyebrow">Contactez-nous</Eyebrow>
                         <h1 className="contact__heading">
                             Une question ?<br />On vous répond.
@@ -68,7 +64,7 @@ export default function Contact() {
                         </p>
                     </div>
 
-                    <div className="contact__infos">
+                    <div className="contact__infos" data-reveal-stagger>
                         {INFOS.map((info) => (
                             <div key={info.label} className="contact__info-item">
                                 <span className="contact__info-icon">{info.icon}</span>
@@ -80,7 +76,7 @@ export default function Contact() {
                         ))}
                     </div>
 
-                    <form className="contact__form" onSubmit={handleSubmit} noValidate>
+                    <form className="contact__form" onSubmit={handleSubmit} noValidate data-reveal-stagger>
                         <div className="contact__field">
                             <label htmlFor="nom" className="contact__label">Nom complet</label>
                             <input
@@ -145,7 +141,7 @@ export default function Contact() {
                 </div>
 
                 {/* ── Image ── */}
-                <div className="contact__image-side reveal" ref={imageRef}>
+                <div className="contact__image-side" data-reveal>
                     <img
                         className="contact__image"
                         src="/api/media/site/contact-pull-vert-olive.jpg"

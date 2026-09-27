@@ -4,13 +4,13 @@ export function LegalPage({ eyebrow = "Informations légales", title, children }
   return (
     <article className="pl-legal">
       <header className="pl-legal-hero">
-        <div className="pl-legal-hero-inner">
+        <div className="pl-legal-hero-inner" data-reveal-stagger>
           <p className="pl-legal-eyebrow">{eyebrow}</p>
           <h1>{title}</h1>
         </div>
       </header>
 
-      <div className="pl-legal-content">{children}</div>
+      <div className="pl-legal-content" data-reveal-stagger>{children}</div>
     </article>
   );
 }

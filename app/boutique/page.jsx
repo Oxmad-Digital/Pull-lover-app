@@ -124,7 +124,7 @@ function BoutiqueContent() {
     <div className="boutique-container">
 
       {/* BARRE FILTRES */}
-      <div className="filters-bar">
+      <div className="filters-bar" data-reveal>
         <div className="search-wrapper">
           <svg className="search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
             <circle cx="11" cy="11" r="8" /><path d="m21 21-4.35-4.35" />
@@ -177,7 +177,7 @@ function BoutiqueContent() {
       {error && <div className="error-state">❌ {error}</div>}
 
       {!loading && sortedProducts.length === 0 && (
-        <div className="empty-state">
+        <div className="empty-state" data-reveal>
           <p>Aucun produit trouvé</p>
           <button className="reset-btn" onClick={resetFilters}>Réinitialiser</button>
         </div>
@@ -185,7 +185,7 @@ function BoutiqueContent() {
 
       {/* GRILLE PRODUITS */}
       {!loading && currentProducts.length > 0 && (
-        <div className="products-grid">
+        <div className="products-grid" data-reveal-stagger>
           {currentProducts.map((product) => {
             // Compte le nombre de couleurs disponibles si le champ existe
             const colorCount = product.colors?.length ?? null;
@@ -285,7 +285,7 @@ function BoutiqueContent() {
 
       {/* VOIR PLUS / PAGINATION */}
       {!loading && totalPages > 1 && (
-        <div className="pagination">
+        <div className="pagination" data-reveal>
           {currentPage < totalPages && (
             <ButtonGhost
               onClick={() => setCurrentPage(currentPage + 1)}

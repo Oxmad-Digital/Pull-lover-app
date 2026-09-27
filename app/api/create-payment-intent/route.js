@@ -1,25 +1,31 @@
 import { NextResponse } from "next/server";
 import Stripe from "stripe";
+import { connectDB } from "@/app/lib/db";
+import { computeOrderTotals, CheckoutError } from "@/app/lib/checkoutPricing";
 
+// Le montant est recalculé côté serveur à partir du panier : le client n'envoie jamais de prix.
 export async function POST(req) {
   const stripe = new Stripe(process.env.STRIPE_SECRET_KEY);
   try {
-    const { amount, customerEmail } = await req.json();
+    const { cartItems, promoCode, customerEmail, delivery } = await req.json();
 
-    if (!amount || amount <= 0) {
-      return NextResponse.json({ message: "Montant invalide" }, { status: 400 });
-    }
+    await connectDB();
+    const { total } = await computeOrderTotals({ cartItems, promoCode, delivery });
 
     const paymentIntent = await stripe.paymentIntents.create({
-      amount: Math.round(amount * 100), // en centimes
+      amount: Math.round(total * 100), // en centimes
       currency: "eur",
-      receipt_email: customerEmail,
+      receipt_email: customerEmail || undefined,
       automatic_payment_methods: { enabled: true },
+      metadata: { source: "pull-lover-checkout", promoCode: promoCode || "" },
     });
 
-    return NextResponse.json({ clientSecret: paymentIntent.client_secret });
+    return NextResponse.json({ clientSecret: paymentIntent.client_secret, total });
   } catch (error) {
+    if (error instanceof CheckoutError) {
+      return NextResponse.json({ message: error.message }, { status: error.status });
+    }
     console.error("❌ PaymentIntent error:", error);
-    return NextResponse.json({ message: error.message }, { status: 500 });
+    return NextResponse.json({ message: "Erreur lors de la création du paiement" }, { status: 500 });
   }
 }

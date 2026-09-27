@@ -39,6 +39,11 @@ function StatusBadge({ active, activeLabel, inactiveLabel }) {
 
 export default function AdminSettingsPage() {
   const [dropDate, setDropDate]       = useState("");
+  const [dropMode, setDropMode]     = useState("date");
+  const [dur, setDur]                 = useState({ days: "", hours: "", minutes: "" });
+  const [releaseDate, setReleaseDate] = useState("");
+  const [due, setDue]                 = useState(null);
+  const [releasing, setReleasing]     = useState(false);
   const [bandeauText, setBandeauText] = useState("");
   const [badgeText, setBadgeText]     = useState("");
   const [current, setCurrent]         = useState(null);
@@ -55,6 +60,7 @@ export default function AdminSettingsPage() {
     const data = await res.json();
     setCurrent(data);
     setDropDate(toLocalDatetimeValue(data.dropDate));
+    setReleaseDate(toLocalDatetimeValue(data.shippingReleaseDate));
     setBandeauText(data.bandeauText ?? "");
     setBadgeText(data.badgeText ?? "");
     setLoading(false);
@@ -82,7 +88,47 @@ export default function AdminSettingsPage() {
     }
   }
 
-  const dropExpired = current?.dropDate && new Date(current.dropDate) < new Date();
+  const durMs = ((+dur.days || 0) * 86400 + (+dur.hours || 0) * 3600 + (+dur.minutes || 0) * 60) * 1000;
+
+  function submitDrop(e) {
+    e.preventDefault();
+    let iso = null;
+    if (dropMode === "duration") {
+      if (durMs <= 0) {
+        setErrors((er) => ({ ...er, dropDate: "Renseignez une durée supérieure à 0" }));
+        return;
+      }
+      iso = new Date(Date.now() + durMs).toISOString();
+    } else if (dropDate) {
+      iso = new Date(dropDate).toISOString();
+    }
+    patch("dropDate", iso, "Date du drop");
+  }
+
+  async function checkDue() {
+    const res = await fetch("/api/admin/orders/release");
+    const data = await res.json();
+    if (res.ok) setDue(data); else showToast(data.message || "Erreur", "error");
+  }
+
+  async function releaseNow() {
+    if (!window.confirm(`Envoyer ${due.count} commande(s) au transporteur ? Action irréversible.`)) return;
+    setReleasing(true);
+    const res = await fetch("/api/admin/orders/release", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ confirm: true }),
+    });
+    const data = await res.json();
+    setReleasing(false);
+    if (!res.ok) { showToast(data.message || "Erreur", "error"); return; }
+    const ok = data.results.filter((r) => r.ok).length;
+    showToast(`${ok}/${data.results.length} commande(s) expédiée(s)`, ok === data.results.length ? undefined : "error");
+    setDue(null);
+  }
+
+  const dropNow = new Date();
+  const dropExpired = current?.dropDate && new Date(current.dropDate) < dropNow;
 
   if (loading) {
     return (
@@ -172,20 +218,89 @@ export default function AdminSettingsPage() {
               inactiveLabel={current?.dropDate ? "Expiré — compteur caché" : "Non défini"}
             />
           </div>
-          <form onSubmit={(e) => { e.preventDefault(); patch("dropDate", dropDate ? new Date(dropDate).toISOString() : null, "Date du drop"); }}
-            style={{ display: "flex", flexDirection: "column", gap: 12 }}>
-            <div>
-              <label style={labelStyle}>Date & heure *</label>
-              <input type="datetime-local" value={dropDate} onChange={(e) => setDropDate(e.target.value)} />
-              <p style={{ fontSize: 11, color: "#a8a29e", marginTop: 5 }}>
-                Le compteur est affiché sur la page d'accueil jusqu'à cette date, puis se cache automatiquement.
-              </p>
+          <form onSubmit={submitDrop} style={{ display: "flex", flexDirection: "column", gap: 12 }}>
+            <div style={{ display: "flex", gap: 8 }}>
+              {[["date", "Date précise"], ["duration", "Durée"]].map(([m, l]) => (
+                <button key={m} type="button" onClick={() => setDropMode(m)}
+                  style={{ padding: "7px 14px", borderRadius: 6, fontSize: 12, fontWeight: 600, cursor: "pointer",
+                    border: "1.5px solid " + (dropMode === m ? "#C75C5C" : "#e7e5e4"),
+                    background: dropMode === m ? "#C75C5C" : "#fff", color: dropMode === m ? "#fff" : "#57534e" }}>
+                  {l}
+                </button>
+              ))}
             </div>
+            {dropMode === "date" ? (
+              <div>
+                <label style={labelStyle}>Date & heure *</label>
+                <input type="datetime-local" value={dropDate} onChange={(e) => setDropDate(e.target.value)} />
+                <p style={{ fontSize: 11, color: "#a8a29e", marginTop: 5 }}>
+                  Le compteur est affiché sur la page d'accueil jusqu'à cette date, puis se cache automatiquement.
+                </p>
+              </div>
+            ) : (
+              <div>
+                <label style={labelStyle}>Durée à partir de maintenant *</label>
+                <div style={{ display: "flex", gap: 10 }}>
+                  {[["days", "Jours"], ["hours", "Heures"], ["minutes", "Minutes"]].map(([k, l]) => (
+                    <div key={k} style={{ flex: 1 }}>
+                      <input type="number" min="0" placeholder="0" value={dur[k]}
+                        onChange={(e) => setDur((d) => ({ ...d, [k]: e.target.value }))}
+                        style={{ width: "100%", boxSizing: "border-box", padding: "11px 14px" }} />
+                      <span style={{ fontSize: 11, color: "#a8a29e" }}>{l}</span>
+                    </div>
+                  ))}
+                </div>
+                <p style={{ fontSize: 11, color: "#a8a29e", marginTop: 5 }}>
+                  {durMs > 0 ? `Fin du compteur : ${formatDate(new Date(Date.now() + durMs))}` : "Le compteur démarre à l'enregistrement."}
+                </p>
+              </div>
+            )}
             {errors.dropDate && <p style={{ fontSize: 13, color: "#C75C5C" }}>{errors.dropDate}</p>}
             <button type="submit" className="ap-btn-add" style={{ alignSelf: "flex-start" }} disabled={saving === "dropDate"}>
               {saving === "dropDate" ? "Sauvegarde…" : "Enregistrer"}
             </button>
           </form>
+        </div>
+
+        {/* ── Expédition : fin de la période de drop ── */}
+        <div className="admin-content-card">
+          <p style={{ fontSize: 12, fontWeight: 700, color: "#78716c", textTransform: "uppercase", letterSpacing: "0.05em", marginBottom: 14 }}>
+            Expédition — fin de la période de drop
+          </p>
+          <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 16, flexWrap: "wrap" }}>
+            <span style={{ fontSize: 14, fontWeight: 600, color: "#252323" }}>{formatDate(current?.shippingReleaseDate)}</span>
+            <StatusBadge
+              active={!!(current?.shippingReleaseDate && new Date(current.shippingReleaseDate) > dropNow)}
+              activeLabel="Envois en attente"
+              inactiveLabel={current?.shippingReleaseDate ? "Terminée" : "Non définie"}
+            />
+          </div>
+          <form onSubmit={(e) => { e.preventDefault(); patch("shippingReleaseDate", releaseDate ? new Date(releaseDate).toISOString() : null, "Date d'expédition"); }}
+            style={{ display: "flex", flexDirection: "column", gap: 12 }}>
+            <div>
+              <label style={labelStyle}>Date d&apos;envoi aux transporteurs</label>
+              <input type="datetime-local" value={releaseDate} onChange={(e) => setReleaseDate(e.target.value)} />
+              <p style={{ fontSize: 11, color: "#a8a29e", marginTop: 5 }}>
+                Les commandes passées avant cette date sont enregistrées mais ne sont PAS envoyées au transporteur. S&apos;applique aux nouvelles commandes.
+              </p>
+            </div>
+            <button type="submit" className="ap-btn-add" style={{ alignSelf: "flex-start" }} disabled={saving === "shippingReleaseDate"}>
+              {saving === "shippingReleaseDate" ? "Sauvegarde…" : "Enregistrer"}
+            </button>
+          </form>
+          <div style={{ borderTop: "1px solid #e7e5e4", marginTop: 18, paddingTop: 16 }}>
+            <button type="button" className="ap-btn-add" onClick={checkDue}>Voir les commandes à expédier</button>
+            {due && (
+              <p style={{ fontSize: 13, color: "#57534e", marginTop: 10 }}>
+                {due.count} commande(s) payée(s) dont la période de drop est terminée.
+                {due.count > 0 && (
+                  <button type="button" className="ap-btn-add" style={{ marginLeft: 10 }} onClick={releaseNow} disabled={releasing}>
+                    {releasing ? "Envoi…" : "Envoyer au transporteur"}
+                  </button>
+                )}
+              </p>
+            )}
+          </div>
         </div>
 
         {/* ── Bandeau header ── */}

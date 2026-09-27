@@ -37,7 +37,7 @@ const COUNTRIES = [
   { code: "GB", name: "Royaume-Uni" },
 ];
 
-const SERVICE_POINT_SCRIPT = "https://embed.sendcloud.sc/spp/1.0.0/api/v1/service-point-picker.min.js";
+const SERVICE_POINT_SCRIPT = "https://embed.sendcloud.sc/spp/1.0.0/api.min.js";
 
 function loadServicePointScript() {
   return new Promise((resolve, reject) => {
@@ -53,6 +53,23 @@ function loadServicePointScript() {
   });
 }
 
+function PinIcon({ size = 16 }) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+      <path d="M12 21s-7-6.2-7-11.5A7 7 0 0 1 19 9.5C19 14.8 12 21 12 21z" />
+      <circle cx="12" cy="9.5" r="2.5" />
+    </svg>
+  );
+}
+
+// Libellés lisibles pour le client (les noms Sendcloud type "Chrono 13" ne lui parlent pas)
+function shippingLabel(m) {
+  if (m.servicePoint) return `${m.carrierLabel} — ${m.name.replace(new RegExp(`^${m.carrierLabel}\\s*`, "i"), "")}`;
+  return m.carrier === "colissimo"
+    ? "Colissimo — Livraison à domicile contre signature"
+    : `${m.carrierLabel} — Livraison express à domicile`;
+}
+
 function CheckoutInner() {
   const router = useRouter();
   const { cartItems, cartTotal, clearCart } = useCart();
@@ -63,6 +80,7 @@ function CheckoutInner() {
   const [lastname, setLastname] = useState("");
   const [email, setEmail] = useState("");
   const [company, setCompany] = useState("");
+  const [phone, setPhone] = useState("");
   const [address, setAddress] = useState("");
   const [postalCode, setPostalCode] = useState("");
   const [city, setCity] = useState("");
@@ -152,7 +170,11 @@ function CheckoutInner() {
             postalCode: sp.postal_code,
             city: sp.city,
           }),
-        (errors) => console.error("SERVICE POINT ERROR:", errors)
+        (errors) => {
+          // "Closed" = le client a simplement fermé le widget, ce n'est pas une erreur
+          if (Array.isArray(errors) && errors.every((e) => e === "Closed")) return;
+          console.error("SERVICE POINT ERROR:", errors);
+        }
       );
     } catch (err) {
       setErrorMsg(err.message);
@@ -163,15 +185,16 @@ function CheckoutInner() {
   const promoDiscount = appliedPromo?.discount ?? 0;
   const discountedSubtotal = Math.max(0, cartTotal - promoDiscount);
   const tva = Math.round(discountedSubtotal * TVA_RATE);
-  const livraison = 25;
-  const total = discountedSubtotal + tva + livraison;
+  const livraison = selectedMethod?.price ?? null; // tarif réel Sendcloud, recalculé côté serveur au paiement
+  const total = Math.round((discountedSubtotal + tva + (livraison ?? 0)) * 100) / 100;
+  const fmt = (n) => n.toLocaleString("fr-FR", { minimumFractionDigits: Number.isInteger(n) ? 0 : 2, maximumFractionDigits: 2 });
   const totalQty = cartItems.reduce((acc, i) => acc + i.quantity, 0);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     setErrorMsg("");
 
-    if (!firstname || !lastname || !email || !city || !address) {
+    if (!firstname || !lastname || !email || !city || !address || !postalCode || !phone) {
       setErrorMsg("Veuillez remplir tous les champs obligatoires.");
       return;
     }
@@ -187,6 +210,10 @@ function CheckoutInner() {
       setErrorMsg("Veuillez choisir un point relais.");
       return;
     }
+    if (selectedMethod.price == null) {
+      setErrorMsg("Tarif d'expédition indisponible pour ce mode de livraison.");
+      return;
+    }
     if (!stripe || !elements) {
       setErrorMsg("Stripe n'est pas encore chargé. Réessayez.");
       return;
@@ -199,7 +226,16 @@ function CheckoutInner() {
       const piRes = await fetch("/api/create-payment-intent", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ amount: total, customerEmail: email }),
+        body: JSON.stringify({
+          cartItems: cartItems.map((i) => ({ _id: i._id, quantity: i.quantity, size: i.size, color: i.color })),
+          promoCode: appliedPromo?.code || null,
+          customerEmail: email,
+          delivery: {
+            optionKey: selectedMethod.key,
+            countryCode,
+            servicePoint: selectedMethod.servicePoint ? servicePoint : null,
+          },
+        }),
       });
       const piData = await piRes.json();
       if (!piRes.ok) {
@@ -234,10 +270,8 @@ function CheckoutInner() {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          customer: { firstname, lastname, email, company, city, address, postalCode, country },
-          cartItems,
-          total,
-          payment: "card",
+          customer: { firstname, lastname, email, phone, company, city, address, postalCode, country },
+          cartItems: cartItems.map((i) => ({ _id: i._id, quantity: i.quantity, size: i.size, color: i.color })),
           delivery: {
             optionKey: selectedMethod.key,
             countryCode,
@@ -245,7 +279,6 @@ function CheckoutInner() {
           },
           stripePaymentId: paymentIntent.id,
           promoCode: appliedPromo?.code || null,
-          discountAmount: promoDiscount || 0,
         }),
       });
       const orderData = await orderRes.json();
@@ -270,7 +303,7 @@ function CheckoutInner() {
     <div className="checkout-page">
       <div className="checkout-inner">
 
-        <header className="checkout-header">
+        <header className="checkout-header" data-reveal-stagger>
           <button className="checkout-back" type="button" onClick={() => router.back()}>
             <span aria-hidden="true">←</span> Retour au panier
           </button>
@@ -284,7 +317,7 @@ function CheckoutInner() {
         <div className="checkout-wrapper">
 
           {/* COLONNE GAUCHE */}
-          <form className="checkout-left" onSubmit={handleSubmit}>
+          <form className="checkout-left" onSubmit={handleSubmit} data-reveal-stagger>
 
             {/* CONTACT */}
             <div className="checkout-section">
@@ -354,10 +387,12 @@ function CheckoutInner() {
                 className="checkout-input"
                 required
               />
+              <label className="checkout-label" htmlFor="checkout-phone">Téléphone</label>
+              <input id="checkout-phone" type="tel" placeholder="Téléphone (pour le transporteur)" aria-label="Téléphone" value={phone} onChange={(e) => setPhone(e.target.value)} className="checkout-input" required />
               <div className="checkout-row">
                 <div className="checkout-field">
                   <label className="checkout-label" htmlFor="checkout-postal-code">Code postal</label>
-                  <input id="checkout-postal-code" type="text" placeholder="Code postal" value={postalCode} onChange={(e) => setPostalCode(e.target.value)} className="checkout-input" />
+                  <input id="checkout-postal-code" type="text" placeholder="Code postal" value={postalCode} onChange={(e) => setPostalCode(e.target.value)} className="checkout-input" required />
                 </div>
                 <div className="checkout-field">
                   <label className="checkout-label" htmlFor="checkout-city">Ville</label>
@@ -374,33 +409,46 @@ function CheckoutInner() {
               </div>
               {shippingLoading && <p className="checkout-stripe-notice">Chargement des modes d&apos;expédition…</p>}
               {shippingError && <p className="checkout-error">{shippingError}</p>}
-              {shippingMethods.map((m) => (
-                <div key={m.key}>
-                  <label className="checkout-radio">
-                    <input
-                      type="radio"
-                      name="shipping"
-                      value={m.key}
-                      checked={shippingId === m.key}
-                      onChange={() => { setShippingId(m.key); setServicePoint(null); }}
-                    />
-                    <span>
-                      {m.name.startsWith(m.carrierLabel) ? m.name : `${m.carrierLabel} — ${m.name}`}
-                      {m.leadTimeDays ? ` (~${m.leadTimeDays} j)` : ""}
-                    </span>
-                  </label>
-                  {shippingId === m.key && m.servicePoint && (
-                    <div style={{ margin: "8px 0 4px 28px" }}>
-                      <button type="button" className="checkout-back" onClick={openServicePointPicker}>
-                        {servicePoint ? "Changer de point relais" : "Choisir un point relais"}
-                      </button>
-                      {servicePoint && (
-                        <p className="checkout-stripe-notice">
-                          {servicePoint.name} — {servicePoint.street}, {servicePoint.postalCode} {servicePoint.city}
-                        </p>
+              {[
+                { mode: "home", title: "Livraison à domicile", methods: shippingMethods.filter((m) => !m.servicePoint) },
+                { mode: "relay", title: "Point relais", methods: shippingMethods.filter((m) => m.servicePoint) },
+              ].filter((g) => g.methods.length > 0).map((g) => (
+                <div key={g.mode} className="checkout-shipping-group">
+                  <p className="checkout-shipping-group-title">
+                    {g.mode === "relay" && <PinIcon />}
+                    {g.title}
+                  </p>
+                  {g.methods.map((m) => (
+                    <div key={m.key}>
+                      <label className="checkout-radio">
+                        <input
+                          type="radio"
+                          name="shipping"
+                          value={m.key}
+                          checked={shippingId === m.key}
+                          onChange={() => { setShippingId(m.key); setServicePoint(null); }}
+                        />
+                        <span>
+                          {shippingLabel(m)}
+                          {m.leadTimeDays ? ` (~${m.leadTimeDays} j)` : ""}
+                          {m.price != null ? ` — ${fmt(m.price)} €` : ""}
+                        </span>
+                      </label>
+                      {shippingId === m.key && m.servicePoint && (
+                        <div style={{ margin: "8px 0 4px" }}>
+                          <button type="button" className="checkout-relay-btn" onClick={openServicePointPicker}>
+                            <PinIcon />
+                            {servicePoint ? "Changer de point relais" : "Choisir un point relais"}
+                          </button>
+                          {servicePoint && (
+                            <p className="checkout-stripe-notice">
+                              {servicePoint.name} — {servicePoint.street}, {servicePoint.postalCode} {servicePoint.city}
+                            </p>
+                          )}
+                        </div>
                       )}
                     </div>
-                  )}
+                  ))}
                 </div>
               ))}
             </div>
@@ -428,13 +476,13 @@ function CheckoutInner() {
               disabled={loading || !stripe}
               className="checkout-pay-button"
             >
-              {loading ? "Traitement en cours…" : <>Payer {total} € <span aria-hidden="true">→</span></>}
+              {loading ? "Traitement en cours…" : <>Payer {fmt(total)} € <span aria-hidden="true">→</span></>}
             </ButtonPrimary>
 
           </form>
 
           {/* COLONNE DROITE — Résumé */}
-          <div className="checkout-right">
+          <div className="checkout-right" data-reveal-stagger>
 
             <div className="checkout-order-heading">
               <p className="checkout-eyebrow">Votre sélection</p>
@@ -483,12 +531,12 @@ function CheckoutInner() {
               </div>
               <div className="checkout-summary-row">
                 <span>Livraison</span>
-                <span>{livraison} €</span>
+                <span>{livraison == null ? "—" : `${fmt(livraison)} €`}</span>
               </div>
               <div className="checkout-summary-divider" />
               <div className="checkout-summary-row checkout-summary-total">
                 <span>Total</span>
-                <span>{total} €</span>
+                <span>{fmt(total)} €</span>
               </div>
             </div>
 

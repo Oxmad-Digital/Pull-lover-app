@@ -67,7 +67,7 @@ export default function CartPage() {
   return (
     <div className="cart-page">
 
-      <header className="cart-page-header">
+      <header className="cart-page-header" data-reveal-stagger>
         <p className="cart-eyebrow">Votre sélection</p>
         <h1>Mon panier<span>.</span></h1>
         <p className="cart-page-intro">
@@ -76,7 +76,7 @@ export default function CartPage() {
       </header>
 
       {cartItems.length === 0 ? (
-        <div className="cart-empty">
+        <div className="cart-empty" data-reveal-stagger>
           <p className="cart-empty-kicker">Votre sélection est vide</p>
           <h2>Le Mantasoa vous attend.</h2>
           <p>Une maille essentielle, tricotée uniquement quand vous la choisissez.</p>
@@ -87,12 +87,12 @@ export default function CartPage() {
 
           {/* COLONNE GAUCHE */}
           <div className="cart-left">
-            <div className="cart-list-heading">
+            <div className="cart-list-heading" data-reveal>
               <h2 className="cart-title">Votre sélection</h2>
               <span>{totalQty} article{totalQty > 1 ? "s" : ""}</span>
             </div>
 
-            <ul className="cart-list">
+            <ul className="cart-list" data-reveal-stagger>
               {cartItems.map((item) => (
                 <li key={item.cartKey} className="cart-item">
 
@@ -145,7 +145,7 @@ export default function CartPage() {
           </div>
 
           {/* COLONNE DROITE */}
-          <div className="cart-right">
+          <div className="cart-right" data-reveal-stagger>
             <div className="cart-promo">
               <h3 className="cart-section-title">Code promo</h3>
 

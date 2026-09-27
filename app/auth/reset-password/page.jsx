@@ -85,7 +85,7 @@ function ResetPasswordForm() {
         <span /><span /><span /><span />
       </div>
 
-      <div className="login-card">
+      <div className="login-card" data-reveal-stagger>
         <div style={{ marginBottom: 4 }}>
           <h1 style={{ margin: "0 0 8px", fontSize: 22, fontWeight: 800, color: "#111", fontFamily: "'Montserrat', sans-serif" }}>
             Nouveau mot de passe
