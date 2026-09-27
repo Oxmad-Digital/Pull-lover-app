@@ -3,16 +3,20 @@
 import nodemailer from "nodemailer";
 
 // ✅ Configuration du transporteur
+const EMAIL_PORT = Number(process.env.EMAIL_PORT) || 587;
+
 const transporter = nodemailer.createTransport({
   host: process.env.EMAIL_HOST,
-  port: Number(process.env.EMAIL_PORT),
-  secure: false, // STARTTLS pour port 587
+  port: EMAIL_PORT,
+  secure: EMAIL_PORT === 465, // TLS direct sur 465, STARTTLS sur 587
   auth: {
     user: process.env.EMAIL_USER,
     pass: process.env.EMAIL_PASS,
   },
   tls: {
-    rejectUnauthorized: false,
+    // Certificat du serveur SMTP vérifié ; EMAIL_TLS_INSECURE=true uniquement pour un
+    // serveur de test à certificat auto-signé.
+    rejectUnauthorized: process.env.EMAIL_TLS_INSECURE !== "true",
   },
   // ✅ Ajout de timeouts
   connectionTimeout: 10000, // 10 secondes
@@ -21,7 +25,7 @@ const transporter = nodemailer.createTransport({
 });
 
 // Vérification SMTP au démarrage
-transporter.verify((error, success) => {
+transporter.verify((error) => {
   if (error) {
     console.error("❌ SMTP ERROR:", error.message);
     console.error("   → Host:", process.env.EMAIL_HOST);

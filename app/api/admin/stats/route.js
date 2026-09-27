@@ -6,6 +6,7 @@ import { connectDB } from "@/app/lib/db";
 import Order    from "@/app/models/Order";
 import Customer from "@/app/models/Customer";
 import Product  from "@/app/models/Product";
+import { requireAdmin } from "@/app/lib/auth";
 
 const fetchStats = unstable_cache(
   async (period) => {
@@ -245,6 +246,9 @@ const fetchStats = unstable_cache(
 );
 
 export async function GET(request) {
+  const denied = await requireAdmin();
+  if (denied) return denied;
+
   const { searchParams } = new URL(request.url);
   const period = searchParams.get("period") || "7";
 

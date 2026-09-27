@@ -3,6 +3,7 @@ import { getServerSession } from "next-auth";
 import { authOptions } from "@/app/api/auth/[...nextauth]/route";
 import { connectDB } from "@/app/lib/db";
 import Promo from "@/app/models/Promo";
+import { escapeRegex } from "@/app/lib/text";
 
 async function requireAdmin() {
   const session = await getServerSession(authOptions);
@@ -19,7 +20,7 @@ export async function GET(req) {
   await connectDB();
   const { searchParams } = new URL(req.url);
   const search = searchParams.get("search") || "";
-  const query = search ? { code: { $regex: search, $options: "i" } } : {};
+  const query = search ? { code: { $regex: escapeRegex(search), $options: "i" } } : {};
   const promos = await Promo.find(query).sort({ createdAt: -1 }).lean();
   return NextResponse.json({ promos });
 }

@@ -2,6 +2,7 @@ import { connectDB } from "@/app/lib/db";
 import User from "@/app/models/User";
 import bcrypt from "bcryptjs";
 import { NextResponse } from "next/server";
+import { validatePassword } from "@/app/lib/password";
 
 export async function POST(req) {
   try {
@@ -9,13 +10,15 @@ export async function POST(req) {
 
     const { token, password } = await req.json();
 
-    if (!token || !password) {
-      return NextResponse.json({ message: "Données manquantes" }, { status: 400 });
+    // Types stricts : un objet ({"$ne": null}) serait interprété comme opérateur de filtre
+    if (typeof token !== "string" || !/^[a-f0-9]{64}$/.test(token) || typeof password !== "string") {
+      return NextResponse.json({ message: "Données manquantes ou invalides" }, { status: 400 });
     }
 
-    if (password.length < 6) {
+    const passwordCheck = validatePassword(password);
+    if (!passwordCheck.isValid) {
       return NextResponse.json(
-        { message: "Le mot de passe doit contenir au moins 6 caractères" },
+        { message: "Mot de passe invalide : " + passwordCheck.errors.join(", ") },
         { status: 400 }
       );
     }
@@ -37,6 +40,8 @@ export async function POST(req) {
     user.password = hashed;
     user.resetToken = null;
     user.resetTokenExpiry = null;
+    user.failedLoginAttempts = 0;
+    user.accountLockedUntil = null;
     await user.save();
 
     return NextResponse.json({ message: "Mot de passe réinitialisé avec succès." });

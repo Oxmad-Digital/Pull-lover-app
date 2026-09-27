@@ -3,6 +3,7 @@ import { connectDB } from "@/app/lib/db";
 import Order from "@/app/models/Order";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/app/api/auth/[...nextauth]/route";
+import { orderEmailFilter } from "@/app/lib/text";
 
 export async function GET() {
   try {
@@ -18,9 +19,7 @@ export async function GET() {
     await connectDB();
 
     // 📦 Récupérer les commandes par email de l'utilisateur connecté
-    const orders = await Order.find({ 
-      "customer.email": session.user.email 
-    })
+    const orders = await Order.find(orderEmailFilter(session.user.email))
     .sort({ createdAt: -1 })
     .populate("products.product", "name price image");
 

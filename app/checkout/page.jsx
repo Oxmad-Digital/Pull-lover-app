@@ -7,6 +7,7 @@ import { Elements, CardElement, useStripe, useElements } from "@stripe/react-str
 import Image from "next/image";
 import { useCart } from "@/app/components/CartContext";
 import { ButtonPrimary } from "@/app/components/ui/Button";
+import { applicablePromo, computeTotals, formatEuro, PROMO_STORAGE_KEY, readStoredPromo } from "@/app/lib/pricing.mjs";
 import "./checkout.css";
 
 const stripePromise = loadStripe(process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY);
@@ -95,20 +96,13 @@ function CheckoutInner() {
   const [loading, setLoading] = useState(false);
   const [errorMsg, setErrorMsg] = useState("");
   const [appliedPromo, setAppliedPromo] = useState(null);
+  // PaymentIntent déjà débité dont la commande n'a pas pu être enregistrée :
+  // une nouvelle tentative ne doit relancer que l'enregistrement, jamais un second paiement.
+  const [paidIntentId, setPaidIntentId] = useState(null);
 
   useEffect(() => {
-    try {
-      const stored = localStorage.getItem("pull-lover-promo");
-      if (stored) {
-        const parsed = JSON.parse(stored);
-        const expired = Date.now() - (parsed.savedAt || 0) > 24 * 60 * 60 * 1000;
-        if (expired) {
-          localStorage.removeItem("pull-lover-promo");
-        } else {
-          setAppliedPromo(parsed);
-        }
-      }
-    } catch {}
+    const stored = readStoredPromo();
+    if (stored) setAppliedPromo(stored);
   }, []);
 
   // Modes d'expédition SendCloud selon le pays
@@ -181,13 +175,11 @@ function CheckoutInner() {
     }
   };
 
-  const TVA_RATE = 0.20;
-  const promoDiscount = appliedPromo?.discount ?? 0;
-  const discountedSubtotal = Math.max(0, cartTotal - promoDiscount);
-  const tva = Math.round(discountedSubtotal * TVA_RATE);
   const livraison = selectedMethod?.price ?? null; // tarif réel Sendcloud, recalculé côté serveur au paiement
-  const total = Math.round((discountedSubtotal + tva + (livraison ?? 0)) * 100) / 100;
-  const fmt = (n) => n.toLocaleString("fr-FR", { minimumFractionDigits: Number.isInteger(n) ? 0 : 2, maximumFractionDigits: 2 });
+  // Même calcul que le serveur : le montant affiché est celui qui sera débité
+  const activePromo = applicablePromo(appliedPromo, cartTotal);
+  const { discount: promoDiscount, tva, total } = computeTotals({ subtotal: cartTotal, promo: activePromo, shipping: livraison ?? 0 });
+  const fmt = formatEuro;
   const totalQty = cartItems.reduce((acc, i) => acc + i.quantity, 0);
 
   const handleSubmit = async (e) => {
@@ -221,74 +213,93 @@ function CheckoutInner() {
 
     setLoading(true);
 
+    const orderPayload = () => ({
+      customer: { firstname, lastname, email, phone, company, city, address, postalCode, country },
+      cartItems: cartItems.map((i) => ({ _id: i._id, quantity: i.quantity, size: i.size, color: i.color })),
+      delivery: {
+        optionKey: selectedMethod.key,
+        countryCode,
+        servicePoint: selectedMethod.servicePoint ? servicePoint : null,
+      },
+      promoCode: activePromo?.code || null,
+    });
+
     try {
-      // 1. Créer le PaymentIntent côté serveur
-      const piRes = await fetch("/api/create-payment-intent", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          cartItems: cartItems.map((i) => ({ _id: i._id, quantity: i.quantity, size: i.size, color: i.color })),
-          promoCode: appliedPromo?.code || null,
-          customerEmail: email,
-          delivery: {
-            optionKey: selectedMethod.key,
-            countryCode,
-            servicePoint: selectedMethod.servicePoint ? servicePoint : null,
+      let paymentIntentId = paidIntentId;
+
+      if (!paymentIntentId) {
+        // 1. Créer le PaymentIntent côté serveur
+        const piRes = await fetch("/api/create-payment-intent", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            cartItems: cartItems.map((i) => ({ _id: i._id, quantity: i.quantity, size: i.size, color: i.color })),
+            promoCode: activePromo?.code || null,
+            customerEmail: email,
+            delivery: {
+              optionKey: selectedMethod.key,
+              countryCode,
+              servicePoint: selectedMethod.servicePoint ? servicePoint : null,
+            },
+          }),
+        });
+        const piData = await piRes.json();
+        if (!piRes.ok) {
+          setErrorMsg(piData.message || "Erreur lors de la création du paiement.");
+          return;
+        }
+        // Garde-fou : ne jamais débiter un montant différent de celui affiché
+        if (Math.abs(Number(piData.total) - total) > 0.005) {
+          setErrorMsg(`Le montant de votre commande a été mis à jour (${fmt(Number(piData.total))} €). Vérifiez le récapitulatif puis validez à nouveau.`);
+          return;
+        }
+
+        // 2. Confirmer le paiement avec la carte Stripe
+        const { error, paymentIntent } = await stripe.confirmCardPayment(piData.clientSecret, {
+          payment_method: {
+            card: elements.getElement(CardElement),
+            billing_details: {
+              name: `${firstname} ${lastname}`,
+              email,
+              address: { city, postal_code: postalCode, country: countryCode },
+            },
           },
-        }),
-      });
-      const piData = await piRes.json();
-      if (!piRes.ok) {
-        setErrorMsg(piData.message || "Erreur lors de la création du paiement.");
-        return;
+        });
+
+        if (error) {
+          setErrorMsg(error.message);
+          return;
+        }
+
+        if (paymentIntent.status !== "succeeded") {
+          setErrorMsg("Le paiement n'a pas abouti. Réessayez.");
+          return;
+        }
+        paymentIntentId = paymentIntent.id;
+        setPaidIntentId(paymentIntentId);
       }
 
-      // 2. Confirmer le paiement avec la carte Stripe
-      const { error, paymentIntent } = await stripe.confirmCardPayment(piData.clientSecret, {
-        payment_method: {
-          card: elements.getElement(CardElement),
-          billing_details: {
-            name: `${firstname} ${lastname}`,
-            email,
-            address: { city, postal_code: postalCode, country: countryCode },
-          },
-        },
-      });
-
-      if (error) {
-        setErrorMsg(error.message);
+      // 3. Créer la commande en base (idempotent côté serveur pour un même paiement)
+      let orderRes;
+      try {
+        orderRes = await fetch("/api/orders", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ ...orderPayload(), stripePaymentId: paymentIntentId }),
+        });
+      } catch {
+        setErrorMsg("Votre paiement a bien été reçu mais la commande n'a pas pu être enregistrée (connexion). Cliquez à nouveau pour finaliser : vous ne serez pas débité une seconde fois.");
         return;
       }
-
-      if (paymentIntent.status !== "succeeded") {
-        setErrorMsg("Le paiement n'a pas abouti. Réessayez.");
-        return;
-      }
-
-      // 3. Créer la commande en base
-      const orderRes = await fetch("/api/orders", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          customer: { firstname, lastname, email, phone, company, city, address, postalCode, country },
-          cartItems: cartItems.map((i) => ({ _id: i._id, quantity: i.quantity, size: i.size, color: i.color })),
-          delivery: {
-            optionKey: selectedMethod.key,
-            countryCode,
-            servicePoint: selectedMethod.servicePoint ? servicePoint : null,
-          },
-          stripePaymentId: paymentIntent.id,
-          promoCode: appliedPromo?.code || null,
-        }),
-      });
-      const orderData = await orderRes.json();
+      const orderData = await orderRes.json().catch(() => ({}));
       if (!orderRes.ok) {
-        setErrorMsg(orderData.message || "Commande non enregistrée, contactez le support.");
+        setErrorMsg(`Votre paiement a bien été reçu mais la commande n'a pas pu être enregistrée : ${orderData.message || "erreur serveur"}. Cliquez à nouveau pour réessayer (sans nouveau débit) ou contactez-nous avec la référence ${paymentIntentId}.`);
         return;
       }
 
+      setPaidIntentId(null);
       clearCart();
-      localStorage.removeItem("pull-lover-promo");
+      localStorage.removeItem(PROMO_STORAGE_KEY);
       router.push("/success");
 
     } catch (err) {
@@ -476,7 +487,11 @@ function CheckoutInner() {
               disabled={loading || !stripe}
               className="checkout-pay-button"
             >
-              {loading ? "Traitement en cours…" : <>Payer {fmt(total)} € <span aria-hidden="true">→</span></>}
+              {loading
+                ? "Traitement en cours…"
+                : paidIntentId
+                  ? <>Finaliser la commande (déjà payée) <span aria-hidden="true">→</span></>
+                  : <>Payer {fmt(total)} € <span aria-hidden="true">→</span></>}
             </ButtonPrimary>
 
           </form>
@@ -517,17 +532,17 @@ function CheckoutInner() {
               <h3 className="checkout-summary-title">Détail</h3>
               <div className="checkout-summary-row">
                 <span>Sous-total ({totalQty})</span>
-                <span>{cartTotal} €</span>
+                <span>{fmt(cartTotal)} €</span>
               </div>
-              {appliedPromo && (
+              {activePromo && (
                 <div className="checkout-summary-row checkout-summary-discount">
-                  <span>Remise ({appliedPromo.code})</span>
-                  <span>−{promoDiscount} €</span>
+                  <span>Remise ({activePromo.code})</span>
+                  <span>−{fmt(promoDiscount)} €</span>
                 </div>
               )}
               <div className="checkout-summary-row">
                 <span>TVA (20%)</span>
-                <span>{tva} €</span>
+                <span>{fmt(tva)} €</span>
               </div>
               <div className="checkout-summary-row">
                 <span>Livraison</span>

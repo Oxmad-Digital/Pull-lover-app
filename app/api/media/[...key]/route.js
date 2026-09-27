@@ -2,6 +2,10 @@ export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
 
 import { getFromR2, getSignedR2Url } from "@/app/lib/r2";
+import { getAdminSession } from "@/app/lib/auth";
+
+// Dossiers contenant des données personnelles (nom, adresse des clients)
+const PRIVATE_PREFIXES = ["shipping-labels/"];
 
 function objectKey(params) {
   return params.key.join("/");
@@ -11,6 +15,10 @@ export async function GET(request, { params }) {
   try {
     const resolvedParams = await params;
     const key = objectKey(resolvedParams);
+
+    if (PRIVATE_PREFIXES.some((prefix) => key.startsWith(prefix)) && !(await getAdminSession())) {
+      return new Response("Accès refusé", { status: 401 });
+    }
 
     if (/\.(?:mp4|webm|pdf)$/i.test(key)) {
       const signedUrl = await getSignedR2Url(key);

@@ -6,6 +6,10 @@ import { connectDB } from "@/app/lib/db";
 import User from "@/app/models/User";
 import bcrypt from "bcryptjs";
 
+// Verrouillage après plusieurs mots de passe erronés
+const MAX_FAILED_ATTEMPTS = 5;
+const LOCK_DURATION_MS = 15 * 60 * 1000;
+
 export const authOptions = {
   session: {
     strategy: "jwt",
@@ -19,29 +23,45 @@ export const authOptions = {
     }),
     CredentialsProvider({
       async authorize(credentials) {
+        const email = typeof credentials?.email === "string" ? credentials.email.toLowerCase().trim() : "";
+        const password = typeof credentials?.password === "string" ? credentials.password : "";
+        if (!email || !password) throw new Error("Email et mot de passe requis");
+
         await connectDB();
 
-        const user = await User.findOne({ email: credentials.email });
-        if (!user) throw new Error("Utilisateur introuvable");
+        const user = await User.findOne({ email });
+        if (!user) throw new Error("Email ou mot de passe incorrect");
 
-        const ok = await bcrypt.compare(credentials.password, user.password);
-        if (!ok) throw new Error("Mot de passe incorrect");
+        // 🔒 VÉRIFICATION COMPTE VERROUILLÉ (avant tout test du mot de passe)
+        if (user.accountLockedUntil && user.accountLockedUntil > new Date()) {
+          const minutes = Math.ceil((user.accountLockedUntil - new Date()) / 60000);
+          throw new Error(`Compte verrouillé. Réessayez dans ${minutes} min.`);
+        }
+
+        // Compte créé via Google : pas de mot de passe local
+        if (!user.password) throw new Error("Ce compte utilise la connexion Google.");
+
+        const ok = await bcrypt.compare(password, user.password);
+        if (!ok) {
+          user.failedLoginAttempts = (Number(user.failedLoginAttempts) || 0) + 1;
+          if (user.failedLoginAttempts >= MAX_FAILED_ATTEMPTS) {
+            user.accountLockedUntil = new Date(Date.now() + LOCK_DURATION_MS);
+            user.failedLoginAttempts = 0;
+          }
+          await user.save();
+          throw new Error("Email ou mot de passe incorrect");
+        }
 
         // 🔒 VÉRIFICATION EMAIL OBLIGATOIRE
         if (!user.emailVerified) {
           throw new Error("Email non vérifié. Consultez votre boîte mail.");
         }
 
-        // 🔒 VÉRIFICATION COMPTE VERROUILLÉ
-        if (user.accountLockedUntil && user.accountLockedUntil > new Date()) {
-          const minutes = Math.ceil((user.accountLockedUntil - new Date()) / 60000);
-          throw new Error(`Compte verrouillé. Réessayez dans ${minutes} min.`);
-        }
-
         // ✅ Réinitialiser tentatives échouées
         user.failedLoginAttempts = 0;
+        user.accountLockedUntil = null;
         user.lastLoginAt = new Date();
-        user.lastLoginIP = credentials.ip || "unknown";
+        user.lastLoginIP = typeof credentials.ip === "string" ? credentials.ip : "unknown";
         await user.save();
 
         return {
@@ -59,7 +79,7 @@ export const authOptions = {
     async signIn({ user, account }) {
       if (account?.provider === "google") {
         await connectDB();
-        const existing = await User.findOne({ email: user.email });
+        const existing = await User.findOne({ email: String(user.email || "").toLowerCase() });
         if (!existing) {
           await User.create({
             name: user.name,
@@ -85,7 +105,7 @@ export const authOptions = {
       // Charger l'id et le rôle réels depuis PostgreSQL pour les providers OAuth
       if (account?.provider && account.provider !== "credentials") {
         await connectDB();
-        const dbUser = await User.findOne({ email: token.email });
+        const dbUser = await User.findOne({ email: String(token.email || "").toLowerCase() });
         if (dbUser) {
           token.id = dbUser._id.toString();
           token.role = dbUser.role;

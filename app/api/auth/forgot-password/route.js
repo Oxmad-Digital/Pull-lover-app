@@ -11,7 +11,7 @@ export async function POST(req) {
 
     const { email } = await req.json();
 
-    if (!email) {
+    if (typeof email !== "string" || !email.trim()) {
       return NextResponse.json({ message: "Email requis" }, { status: 400 });
     }
 

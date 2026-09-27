@@ -1,6 +1,8 @@
 // app/lib/emailTemplates.js
 // Tous les templates email Pull-Lover — palette harmonisée avec le site
 
+import { escapeHtml } from "./text.js";
+
 const coral = "#C95D5D";
 const dark = "#0f172a";
 const gray100 = "#f8fafc";
@@ -74,6 +76,7 @@ function wrap(title, preheader, bodyRows) {
 // ── 1. Email de vérification ────────────────────────────────────────────────
 
 export function getVerificationEmailTemplate(name, verificationUrl) {
+  name = escapeHtml(name);
   const body = `
     <tr><td class="ep-body" style="padding:36px 40px">
       <h1 class="email-h1" style="margin:0 0 12px;font-size:22px;font-weight:800;color:${dark}">Bienvenue, ${name} !</h1>
@@ -110,6 +113,7 @@ export function getVerificationEmailTemplate(name, verificationUrl) {
 // ── 2. Réinitialisation de mot de passe ────────────────────────────────────
 
 export function getResetPasswordEmailTemplate(name, resetUrl) {
+  name = escapeHtml(name);
   const body = `
     <tr><td class="ep-body" style="padding:36px 40px">
       <h1 class="email-h1" style="margin:0 0 12px;font-size:22px;font-weight:800;color:${dark}">Réinitialisation de mot de passe</h1>
@@ -157,6 +161,8 @@ export function getOrderConfirmationEmailTemplate({
   total,
   orderUrl,
 }) {
+  // Données saisies par le client : échappées avant insertion dans le HTML
+  [firstname, address, city, deliveryLabel, paymentLabel] = [firstname, address, city, deliveryLabel, paymentLabel].map(escapeHtml);
   const body = `
     <tr><td class="ep-banner" style="background:${gray100};padding:28px 40px;text-align:center;border-bottom:1px solid ${gray200}">
       <p style="margin:0 0 4px;font-size:11px;font-weight:700;color:${gray400};letter-spacing:1.2px;text-transform:uppercase">Commande confirmée</p>
@@ -245,6 +251,9 @@ export function getAdminNewOrderEmailTemplate({
   paymentLabel,
   total,
 }) {
+  // Données saisies par le client : échappées avant insertion dans le HTML
+  [firstname, lastname, email, phone, address, city, deliveryLabel, paymentLabel] =
+    [firstname, lastname, email, phone, address, city, deliveryLabel, paymentLabel].map(escapeHtml);
   const body = `
     <tr><td class="ep-banner" style="background:${dark};padding:24px 40px;text-align:center">
       <p style="margin:0 0 4px;font-size:10px;font-weight:700;color:rgba(255,255,255,.5);letter-spacing:1.5px;text-transform:uppercase">Nouvelle commande reçue</p>
@@ -313,6 +322,10 @@ export function getOrderStatusUpdateEmailTemplate({
   trackingNumber,
   trackingUrl,
 }) {
+  // statusMessage contient du HTML volontaire (généré côté serveur) ; le reste est échappé
+  [firstname, address, city] = [firstname, address, city].map(escapeHtml);
+  trackingNumber = trackingNumber ? escapeHtml(trackingNumber) : trackingNumber;
+  trackingUrl = /^https?:\/\//i.test(trackingUrl || "") ? escapeHtml(trackingUrl) : null;
   const body = `
     <tr><td class="ep-body" style="padding:36px 40px 0;text-align:center">
       <p style="margin:0 0 8px;font-size:11px;font-weight:700;color:${gray400};letter-spacing:1.2px;text-transform:uppercase">Mise à jour de commande</p>

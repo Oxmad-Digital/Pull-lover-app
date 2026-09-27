@@ -1,5 +1,5 @@
 import { randomUUID } from "node:crypto";
-import { connectDB } from "./db";
+import { connectDB, isValidId } from "./db";
 
 const modelRegistry = new Map();
 
@@ -264,7 +264,12 @@ class Query {
   exec() { return this.execute(); }
 
   async execute() {
-    let rows = (await this.model._all()).filter((row) => matches(row, this.filter));
+    // Recherche par identifiant seul (findById) : une ligne lue au lieu de toute la table
+    const keys = Object.keys(this.filter);
+    const byId = keys.length === 1 && keys[0] === "_id" && typeof this.filter._id === "string";
+    let rows = byId
+      ? await this.model._byId(this.filter._id)
+      : (await this.model._all()).filter((row) => matches(row, this.filter));
     if (this.sortSpec) rows = await runPipeline(rows, [{ $sort: this.sortSpec }]);
     if (this.skipCount) rows = rows.slice(this.skipCount);
     if (this.limitCount != null) rows = rows.slice(0, this.limitCount);
@@ -304,6 +309,18 @@ export function createPostgresModel({ table, defaults = {}, normalize, reference
     static async _all() {
       const sql = await connectDB();
       const rows = await sql`SELECT id, data, created_at, updated_at FROM ${sql(table)}`;
+      return rows.map((row) => new Document({
+        ...row.data,
+        _id: row.id,
+        createdAt: row.created_at,
+        updatedAt: row.updated_at,
+      }));
+    }
+
+    static async _byId(id) {
+      if (!isValidId(id)) return [];
+      const sql = await connectDB();
+      const rows = await sql`SELECT id, data, created_at, updated_at FROM ${sql(table)} WHERE id = ${id}::uuid`;
       return rows.map((row) => new Document({
         ...row.data,
         _id: row.id,

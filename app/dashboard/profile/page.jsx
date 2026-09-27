@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { useSession } from "next-auth/react";
+import { PASSWORD_HINT, validatePassword } from "@/app/lib/password";
 
 // Formate un numéro en +33 X XX XX XX XX (France) au fil de la saisie.
 function formatPhone(raw) {
@@ -139,6 +140,10 @@ export default function ProfilePage() {
     e.preventDefault();
     if (pwForm.newPassword !== pwForm.confirmPassword) {
       setPwMsg({ type: "error", text: "Les mots de passe ne correspondent pas." });
+      return;
+    }
+    if (!validatePassword(pwForm.newPassword).isValid) {
+      setPwMsg({ type: "error", text: `Mot de passe trop faible : ${PASSWORD_HINT}.` });
       return;
     }
     setPwLoading(true);
@@ -289,7 +294,7 @@ export default function ProfilePage() {
                 value={pwForm.newPassword}
                 onChange={e => setPwForm(f => ({ ...f, newPassword: e.target.value }))}
                 required
-                minLength={6}
+                minLength={8}
               />
             </div>
 

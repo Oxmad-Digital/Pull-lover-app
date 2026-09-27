@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { connectDB } from "@/app/lib/db";
 import Product from "@/app/models/Product";
+import { escapeRegex } from "@/app/lib/text";
 
 export async function GET(req) {
   try {
@@ -19,9 +20,9 @@ export async function GET(req) {
     // Recherche insensible à la casse
     const products = await Product.find({
       $or: [
-        { name: { $regex: q, $options: "i" } },
-        { brand: { $regex: q, $options: "i" } },
-        { description: { $regex: q, $options: "i" } },
+        { name: { $regex: escapeRegex(q), $options: "i" } },
+        { brand: { $regex: escapeRegex(q), $options: "i" } },
+        { description: { $regex: escapeRegex(q), $options: "i" } },
       ],
     }).limit(20);
 

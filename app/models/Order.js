@@ -26,6 +26,12 @@ const Order = createPostgresModel({
       shippedAt: null,
     },
   },
+  normalize: (order) => ({
+    ...order,
+    customer: order.customer?.email
+      ? { ...order.customer, email: String(order.customer.email).toLowerCase().trim() }
+      : order.customer,
+  }),
 });
 
 export default Order;

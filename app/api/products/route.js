@@ -8,6 +8,8 @@ import { connectDB } from "@/app/lib/db";
 import Product from "@/app/models/Product";
 import { NextResponse } from "next/server";
 import { deleteFromR2 } from "@/app/lib/r2";
+import { requireAdmin } from "@/app/lib/auth";
+import { escapeRegex } from "@/app/lib/text";
 
 /* =======================
    GET
@@ -25,7 +27,7 @@ export async function GET(req) {
     const skip = (page - 1) * limit;
     const filter = {};
 
-    if (search) filter.name = { $regex: search, $options: "i" };
+    if (search) filter.name = { $regex: escapeRegex(search), $options: "i" };
     if (category && category !== "") {
       filter.category = category;
     }
@@ -84,6 +86,9 @@ async function deleteKeys(keys) {
    ✅ Reçoit du JSON (images déjà uploadées)
 ======================= */
 export async function POST(req) {
+  const denied = await requireAdmin();
+  if (denied) return denied;
+
   try {
     await connectDB();
     console.log("🟢 POST produit - DB connectée");
@@ -145,6 +150,9 @@ export async function POST(req) {
    ✅ Reçoit du JSON (images déjà uploadées)
 ======================= */
 export async function PUT(req) {
+  const denied = await requireAdmin();
+  if (denied) return denied;
+
   try {
     await connectDB();
 
@@ -209,6 +217,9 @@ export async function PUT(req) {
    DELETE
 ======================= */
 export async function DELETE(req) {
+  const denied = await requireAdmin();
+  if (denied) return denied;
+
   try {
     await connectDB();
 

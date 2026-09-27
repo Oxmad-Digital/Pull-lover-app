@@ -5,6 +5,7 @@ import { signIn } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { ButtonPrimary } from "../../components/ui/Button";
+import { PASSWORD_HINT, validatePassword } from "@/app/lib/password";
 import AuthShell from "../AuthShell";
 import "../auth.css";
 
@@ -23,7 +24,7 @@ export default function RegisterPage() {
 
   function getPasswordStrength(pwd) {
     if (!pwd) return null;
-    if (pwd.length < 6) return { label: "Faible", color: "#a13b32", width: "33%" };
+    if (!validatePassword(pwd).isValid) return { label: "Faible", color: "#a13b32", width: "33%" };
     if (pwd.length < 10) return { label: "Moyen", color: "#9a6b22", width: "66%" };
     return { label: "Fort", color: "#49705e", width: "100%" };
   }
@@ -42,9 +43,9 @@ export default function RegisterPage() {
       setMessageType("error");
       return setMessage("Vous devez accepter les conditions");
     }
-    if (password.length < 6) {
+    if (!validatePassword(password).isValid) {
       setMessageType("error");
-      return setMessage("Mot de passe trop court (min. 6 caractères)");
+      return setMessage(`Mot de passe trop faible : ${PASSWORD_HINT}`);
     }
 
     setLoading(true);
@@ -122,11 +123,11 @@ export default function RegisterPage() {
               <input
                 id="register-password"
                 type={showPwd ? "text" : "password"}
-                placeholder="6 caractères minimum"
+                placeholder="8 caractères minimum"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 autoComplete="new-password"
-                minLength={6}
+                minLength={8}
                 required
               />
               <button
@@ -158,7 +159,7 @@ export default function RegisterPage() {
                 value={confirmPassword}
                 onChange={(e) => setConfirmPassword(e.target.value)}
                 autoComplete="new-password"
-                minLength={6}
+                minLength={8}
                 required
               />
               <button

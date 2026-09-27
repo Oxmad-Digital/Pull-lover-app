@@ -62,8 +62,8 @@ export async function middleware(req) {
     }
   }
 
-  // 🔒 PROTÉGER SEULEMENT LES SOUS-PAGES ADMIN
-  if (pathname.startsWith("/admin/")) {
+  // 🔒 PROTÉGER LES PAGES D'ADMINISTRATION (dont la gestion des produits)
+  if (pathname.startsWith("/admin/") || pathname.startsWith("/products/add")) {
     if (!token) {
       return NextResponse.redirect(new URL("/auth/login", req.url));
     }

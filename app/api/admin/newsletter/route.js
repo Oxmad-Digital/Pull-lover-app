@@ -3,6 +3,7 @@ import { getServerSession } from "next-auth";
 import { authOptions } from "@/app/api/auth/[...nextauth]/route";
 import { connectDB } from "@/app/lib/db";
 import NewsletterSubscriber from "@/app/models/NewsletterSubscriber";
+import { escapeRegex } from "@/app/lib/text";
 
 async function requireAdmin(req) {
   const session = await getServerSession(authOptions);
@@ -22,7 +23,7 @@ export async function GET(req) {
   const page   = Math.max(1, parseInt(searchParams.get("page") || "1"));
   const limit  = 50;
 
-  const query = search ? { email: { $regex: search, $options: "i" } } : {};
+  const query = search ? { email: { $regex: escapeRegex(search), $options: "i" } } : {};
   const total = await NewsletterSubscriber.countDocuments(query);
   const subscribers = await NewsletterSubscriber.find(query)
     .sort({ createdAt: -1 })

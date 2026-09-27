@@ -3,11 +3,10 @@
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useCart } from "../components/CartContext";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { ButtonPrimary } from "../components/ui/Button";
+import { applicablePromo, computeTotals, formatEuro, PROMO_STORAGE_KEY, readStoredPromo } from "@/app/lib/pricing.mjs";
 import "./cart.css";
-
-const PROMO_STORAGE_KEY = "pull-lover-promo";
 
 export default function CartPage() {
   const { cartItems, increaseQty, decreaseQty, removeFromCart, cartTotal } = useCart();
@@ -17,11 +16,15 @@ export default function CartPage() {
   const [promoError, setPromoError] = useState("");
   const [promoLoading, setPromoLoading] = useState(false);
 
-  const TVA_RATE = 0.20;
-  const discount = promoApplied?.discount ?? 0;
-  const discountedSubtotal = Math.max(0, cartTotal - discount);
-  const tva = Math.round(discountedSubtotal * TVA_RATE);
-  const total = discountedSubtotal + tva;
+  // Code promo déjà validé (conservé 24 h) : restauré pour afficher le même total qu'au checkout
+  useEffect(() => {
+    const stored = readStoredPromo();
+    if (stored) setPromoApplied(stored);
+  }, []);
+
+  // Remise recalculée à chaque changement du panier (même calcul que le serveur)
+  const activePromo = applicablePromo(promoApplied, cartTotal);
+  const { discount, tva, total } = computeTotals({ subtotal: cartTotal, promo: activePromo });
   const totalQty = cartItems.reduce((acc, i) => acc + i.quantity, 0);
   const hasZeroQty = cartItems.some((i) => i.quantity === 0);
   const promoSavings = cartItems.reduce((acc, i) => {
@@ -190,7 +193,7 @@ export default function CartPage() {
               <h3 className="cart-section-title">Résumé</h3>
               <div className="summary-row">
                 <span>Sous-total ({totalQty} article{totalQty > 1 ? "s" : ""})</span>
-                <span>{cartTotal} €</span>
+                <span>{formatEuro(cartTotal)} €</span>
               </div>
               {promoSavings > 0 && (
                 <div className="summary-row summary-discount">
@@ -198,20 +201,25 @@ export default function CartPage() {
                   <span>−{promoSavings.toLocaleString("fr-FR")} €</span>
                 </div>
               )}
-              {promoApplied && (
+              {activePromo && (
                 <div className="summary-row summary-discount">
-                  <span>Remise ({promoApplied.code})</span>
-                  <span>−{discount} €</span>
+                  <span>Remise ({activePromo.code})</span>
+                  <span>−{formatEuro(discount)} €</span>
                 </div>
+              )}
+              {promoApplied && !activePromo && (
+                <p className="promo-error">
+                  Code {promoApplied.code} : montant minimum de {promoApplied.minOrderAmount} € non atteint.
+                </p>
               )}
               <div className="summary-row">
                 <span>TVA (20%)</span>
-                <span>{tva} €</span>
+                <span>{formatEuro(tva)} €</span>
               </div>
               <div className="summary-divider" />
               <div className="summary-row summary-total">
                 <span>Total</span>
-                <span>{total} €</span>
+                <span>{formatEuro(total)} €</span>
               </div>
               {hasZeroQty && (
                 <p className="cart-quantity-warning">
