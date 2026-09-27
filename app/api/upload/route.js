@@ -1,7 +1,6 @@
 // app/api/upload/route.js
 import { NextResponse } from "next/server";
-import { getServerSession } from "next-auth";
-import { authOptions } from "@/app/api/auth/[...nextauth]/route";
+import { requireAdmin } from "@/app/lib/auth";
 import { randomUUID } from "node:crypto";
 import { uploadToR2 } from "@/app/lib/r2";
 
@@ -9,25 +8,13 @@ export const runtime = "nodejs";
 
 export async function POST(req) {
   try {
-    // 🔒 Vérifier que l'utilisateur est connecté
-    const session = await getServerSession(authOptions);
-    if (!session) {
-      return NextResponse.json(
-        { message: "Non autorisé" },
-        { status: 401 }
-      );
-    }
+    // 🔒 Réservé aux administrateurs
+    const denied = await requireAdmin();
+    if (denied) return denied;
 
     const formData = await req.formData();
     const file = formData.get("file");
     const type = formData.get("type"); // "avatar" ou "product"
-
-    if (session.user.role !== "admin") {
-      return NextResponse.json(
-        { message: "Accès réservé aux administrateurs" },
-        { status: 403 }
-      );
-    }
 
     if (!file) {
       return NextResponse.json(

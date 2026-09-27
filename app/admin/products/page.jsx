@@ -98,7 +98,7 @@ export default function ProductsManagement() {
   const handleSave = async (productData) => {
     try {
       const method = editingProduct ? "PUT" : "POST";
-      const res    = await fetch("/api/products", {
+      const res    = await fetch("/api/admin/products", {
         method,
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(productData),

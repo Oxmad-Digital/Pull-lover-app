@@ -1,17 +1,8 @@
 import { NextResponse } from "next/server";
-import { getServerSession } from "next-auth";
-import { authOptions } from "@/app/api/auth/[...nextauth]/route";
+import { requireAdmin } from "@/app/lib/auth";
 import { connectDB } from "@/app/lib/db";
 import NewsletterSubscriber from "@/app/models/NewsletterSubscriber";
 import { escapeRegex } from "@/app/lib/text";
-
-async function requireAdmin() {
-  const session = await getServerSession(authOptions);
-  if (!session || session.user.role !== "admin") {
-    return NextResponse.json({ error: "Non autorisé" }, { status: 401 });
-  }
-  return null;
-}
 
 export async function GET(req) {
   const deny = await requireAdmin();

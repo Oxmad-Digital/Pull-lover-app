@@ -1,6 +1,6 @@
 import { getServerSession } from "next-auth";
 import type { AuthOptions } from "next-auth";
-import { authOptions } from "@/app/api/auth/[...nextauth]/route";
+import { authOptions } from "@/app/lib/authOptions";
 import { redirect } from "next/navigation";
 import { connectDB } from "@/app/lib/db";
 import Order from "@/app/models/Order";

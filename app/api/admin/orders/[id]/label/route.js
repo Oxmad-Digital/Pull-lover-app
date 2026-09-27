@@ -2,8 +2,7 @@
 export const runtime = "nodejs";
 
 import { NextResponse }      from "next/server";
-import { getServerSession }  from "next-auth";
-import { authOptions }       from "@/app/api/auth/[...nextauth]/route";
+import { requireAdmin }      from "@/app/lib/auth";
 import { connectDB, isValidId } from "@/app/lib/db";
 import Order                 from "@/app/models/Order";
 import { SENDCLOUD_CONFIGURED } from "@/app/lib/sendcloud";
@@ -12,10 +11,8 @@ import { shipOrder, ShipError } from "@/app/lib/shipOrder";
 // POST { force?: boolean } — force = expédier avant la fin de la période de drop
 export async function POST(req, { params }) {
   try {
-    const session = await getServerSession(authOptions);
-    if (!session || session.user.role !== "admin") {
-      return NextResponse.json({ message: "Accès refusé" }, { status: 401 });
-    }
+    const denied = await requireAdmin();
+    if (denied) return denied;
 
     const { id } = await params;
     if (!isValidId(id)) {
