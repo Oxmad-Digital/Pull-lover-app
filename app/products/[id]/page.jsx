@@ -211,7 +211,7 @@ export default function ProductDetailPage() {
         <div className="product-main">
 
           {/* Galerie */}
-          <div className="product-gallery">
+          <div className="product-gallery" data-reveal>
             <div className="main-image">
               <Image
                 src={images[selectedImage]}
@@ -256,7 +256,7 @@ export default function ProductDetailPage() {
           </div>
 
           {/* Informations produit */}
-          <div className="product-info">
+          <div className="product-info" data-reveal-stagger>
 
             <h1 className="product-name">{product.name}</h1>
 
@@ -383,7 +383,7 @@ export default function ProductDetailPage() {
         </div>
 
         {/* Section Avis */}
-        <div className="reviews-section">
+        <div className="reviews-section" data-reveal-stagger>
           <h2 className="reviews-title">Avis clients</h2>
 
           <div className="reviews-layout">
@@ -487,8 +487,8 @@ export default function ProductDetailPage() {
         {/* Produits similaires */}
         {relatedProducts.length > 0 && (
           <div className="related-products">
-            <h2>Produits similaires</h2>
-            <div className="related-grid">
+            <h2 data-reveal>Produits similaires</h2>
+            <div className="related-grid" data-reveal-stagger>
               {relatedProducts.map((item) => (
                 <Link key={item._id} href={`/products/${item._id}`} className="related-card">
                   <div className="related-image">

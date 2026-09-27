@@ -1,6 +1,25 @@
 import Image from "next/image";
 import MantasoaProduct from "./components/home/MantasoaProduct";
+import HomeCinematic from "./components/home/HomeCinematic";
 import "./home.css";
+
+const MANIFESTO_LINES = [
+  { text: "Nous ne fabriquons pas plus." },
+  { text: "Nous fabriquons mieux.", accent: true },
+  { text: "Une maille essentielle, née entre les hauts plateaux et le lac de Mantasoa." },
+];
+
+// Chaque mot reste insécable ; chaque lettre est un span animé par HomeCinematic.
+function splitChars(text) {
+  return text.split(" ").flatMap((word, wordIndex) => [
+    wordIndex > 0 ? " " : null,
+    <span key={wordIndex} className="pl-manifesto-word">
+      {Array.from(word).map((char, charIndex) => (
+        <span key={charIndex} className="pl-manifesto-char">{char}</span>
+      ))}
+    </span>,
+  ]);
+}
 
 export const metadata = {
   title: "Pull-Lover — Maille de Madagascar",
@@ -23,11 +42,12 @@ const steps = [
 export default function HomePage() {
   return (
     <div className="pl-home" id="accueil">
+      <HomeCinematic />
       <section className="pl-hero" aria-labelledby="home-title">
         <Image src="/pull-lover-hero.webp" alt="Le pull Mantasoa porté au bord du lac, dans les hauts plateaux de Madagascar" fill sizes="100vw" preload className="pl-hero-image" />
         <div className="pl-hero-copy">
           <p className="pl-eyebrow">Maille de Madagascar · Le Mantasoa</p>
-          <h1 id="home-title">Pull <em>Lover</em></h1>
+          <h1 id="home-title" className="pl-hero-title-line"><span>Pull</span> <span><em>Lover</em></span></h1>
           <div className="pl-hero-foot">
             <a className="pl-button pl-button-light" href="#piece">Découvrir la pièce</a>
             <p>Un cardigan d’exception, fabriqué à la demande dans notre atelier familial à Madagascar.</p>
@@ -37,7 +57,15 @@ export default function HomePage() {
       </section>
 
       <section className="pl-manifesto" id="manifeste" aria-label="Notre philosophie">
-        <p>Nous ne fabriquons pas plus. <span>Nous fabriquons mieux.</span> Une maille essentielle, née entre les hauts plateaux et le lac de Mantasoa.</p>
+        <p aria-label={MANIFESTO_LINES.map((line) => line.text).join(" ")}>
+          {MANIFESTO_LINES.map((line, index) => (
+            <span key={line.text} className={`pl-manifesto-line${line.accent ? " pl-manifesto-accent" : ""}`} aria-hidden="true">
+              {index > 0 && " "}
+              {splitChars(line.text)}
+            </span>
+          ))}
+        </p>
+        <span className="pl-manifesto-thread" aria-hidden="true" />
         <div className="pl-origin">Madagascar · Depuis notre atelier familial</div>
       </section>
 
@@ -45,17 +73,18 @@ export default function HomePage() {
 
       <section className="pl-collection-concept" id="collections" aria-labelledby="collection-concept-title">
         <div className="pl-collection-concept-head">
-          <p className="pl-eyebrow">Notre concept</p>
-          <h2 id="collection-concept-title">UNE COLLECTION, UN UNIVERS</h2>
+          <p className="pl-eyebrow" data-pl-scatter>Notre concept</p>
+          <h2 id="collection-concept-title" data-pl-scatter>UNE COLLECTION, UN UNIVERS</h2>
         </div>
+        <span className="pl-collection-rule" aria-hidden="true" />
         <div className="pl-collection-concept-body">
-          <p className="pl-collection-concept-intro">Chaque nouvelle collection commence par un vêtement et l’univers que nous imaginons autour de lui. Le thème du site, le lieu du shooting et les images évoluent avec chaque pièce. Une nouvelle collection nous emmènera dans un nouvel endroit, toujours à Madagascar.</p>
+          <p className="pl-collection-concept-intro" data-pl-scatter>Chaque nouvelle collection commence par un vêtement et l’univers que nous imaginons autour de lui. Le thème du site, le lieu du shooting et les images évoluent avec chaque pièce. Une nouvelle collection nous emmènera dans un nouvel endroit, toujours à Madagascar.</p>
           <article className="pl-collection-current" aria-label="Première collection : Le Mantasoa">
-            <span className="pl-collection-number" aria-hidden="true">01</span>
+            <span className="pl-collection-number" aria-hidden="true" data-pl-scatter>01</span>
             <div className="pl-collection-story">
-              <p className="pl-collection-label">Première collection</p>
-              <h3>Le Mantasoa</h3>
-              <p>Pour ce premier cardigan, nous avons choisi le lac de Mantasoa. C’est là que nous avons réalisé le shooting et trouvé l’atmosphère de cette première collection : ses eaux calmes, sa lumière et ses hauts plateaux.</p>
+              <p className="pl-collection-label" data-pl-scatter>Première collection</p>
+              <h3 data-pl-scatter>Le Mantasoa</h3>
+              <p data-pl-scatter>Pour ce premier cardigan, nous avons choisi le lac de Mantasoa. C’est là que nous avons réalisé le shooting et trouvé l’atmosphère de cette première collection : ses eaux calmes, sa lumière et ses hauts plateaux.</p>
             </div>
           </article>
         </div>
@@ -78,18 +107,21 @@ export default function HomePage() {
           <p className="pl-eyebrow">La précommande, simplement</p>
           <h2 id="process-title">Votre pull commence à exister quand vous le choisissez.</h2>
         </div>
-        <ol className="pl-steps">
-          {steps.map(([title, description], index) => (
-            <li key={title}>
-              <span className="pl-step-number" aria-hidden="true">0{index + 1}</span>
-              <h3>{title}</h3><p>{description}</p>
-            </li>
-          ))}
-        </ol>
+        <div className="pl-steps-wrap">
+          <span className="pl-process-thread" aria-hidden="true" />
+          <ol className="pl-steps">
+            {steps.map(([title, description], index) => (
+              <li key={title}>
+                <span className="pl-step-number" aria-hidden="true">0{index + 1}</span>
+                <h3>{title}</h3><p>{description}</p>
+              </li>
+            ))}
+          </ol>
+        </div>
       </section>
 
       <section className="pl-final" aria-labelledby="final-title">
-        <Image src="/api/media/site/mantasoa-hero.webp" alt="" fill sizes="100vw" />
+        <Image src="/api/media/pull-lover-manequin-cardigan-2.webp" alt="" fill sizes="100vw" />
         <div className="pl-final-copy">
           <p className="pl-eyebrow">Le Mantasoa · Fabriqué à la demande</p>
           <h2 id="final-title">Un pull.<br />Longtemps.</h2>

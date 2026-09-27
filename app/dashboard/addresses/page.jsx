@@ -51,8 +51,8 @@ export default function AddressesPage() {
   if (fetching) {
     return (
       <div>
-        <h1 className="db-page-title">Mon adresse</h1>
-        <div className="db-wrapper">
+        <h1 className="db-page-title" data-reveal>Mon adresse</h1>
+        <div className="db-wrapper" data-reveal-stagger>
           <div className="db-loading"><div className="db-spinner" /></div>
         </div>
       </div>
@@ -61,8 +61,8 @@ export default function AddressesPage() {
 
   return (
     <div>
-      <h1 className="db-page-title">Mon adresse</h1>
-      <div className="db-wrapper">
+      <h1 className="db-page-title" data-reveal>Mon adresse</h1>
+      <div className="db-wrapper" data-reveal-stagger>
         <div className="db-card">
           <p className="db-section-title">Adresse de livraison</p>
           <form onSubmit={handleSave} className="db-form">

@@ -34,7 +34,7 @@ function RechercheContent() {
 
   return (
     <div className="search-page">
-      <h1 className="search-title">Résultats pour : "{query}"</h1>
+      <h1 className="search-title" data-reveal>Résultats pour : "{query}"</h1>
 
       {loading && <p className="loading">Chargement...</p>}
 
@@ -44,7 +44,7 @@ function RechercheContent() {
         </div>
       )}
 
-      <div className="products-grid">
+      <div className="products-grid" data-reveal-stagger>
         {products.map((product) => (
           <Link
             key={product._id}

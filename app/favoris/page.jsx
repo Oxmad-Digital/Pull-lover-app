@@ -28,10 +28,10 @@ export default function FavorisPage() {
       <div className="favoris-page">
         <div className="favoris-bg"><span /><span /><span /><span /></div>
         <div className="favoris-inner">
-          <div className="favoris-header">
+          <div className="favoris-header" data-reveal-stagger>
             <h1 className="favoris-title">Mes favoris</h1>
           </div>
-          <div className="favoris-empty">
+          <div className="favoris-empty" data-reveal-stagger>
             <p>Chargement...</p>
           </div>
         </div>
@@ -52,7 +52,7 @@ export default function FavorisPage() {
       <div className="favoris-inner">
 
         {/* HEADER */}
-        <div className="favoris-header">
+        <div className="favoris-header" data-reveal-stagger>
           <h1 className="favoris-title">Mes favoris</h1>
           <p className="favoris-count">
             {favorites.length} article{favorites.length !== 1 ? "s" : ""}
@@ -60,7 +60,7 @@ export default function FavorisPage() {
         </div>
 
         {favorites.length === 0 ? (
-          <div className="favoris-empty">
+          <div className="favoris-empty" data-reveal-stagger>
             <div className="favoris-empty-icon">
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.2" width="64" height="64">
                 <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z" />
@@ -74,7 +74,7 @@ export default function FavorisPage() {
           </div>
         ) : (
           <>
-            <div className="favoris-grid">
+            <div className="favoris-grid" data-reveal-stagger>
               {favorites.map((product) => {
                 const colorCount = product.colors?.length ?? null;
                 const displayPrice = product.promoPrice ?? product.price;
@@ -165,7 +165,7 @@ export default function FavorisPage() {
               })}
             </div>
 
-            <div className="favoris-footer">
+            <div className="favoris-footer" data-reveal>
               <ButtonGhost href="/#piece" style={{ color: '#C75C5C' }}>
                 Continuer mes achats
               </ButtonGhost>

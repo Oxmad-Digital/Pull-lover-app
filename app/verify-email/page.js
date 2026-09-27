@@ -49,7 +49,7 @@ function VerifyEmailContent() {
         <span /><span /><span /><span />
       </div>
 
-      <div className="verify-card">
+      <div className="verify-card" data-reveal-stagger>
 
         {status === "loading" && (
           <>

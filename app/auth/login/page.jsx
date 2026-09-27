@@ -33,12 +33,12 @@ export default function LoginPage() {
       eyebrow="Votre espace"
       title="Heureux de vous revoir."
       description="Retrouvez vos commandes, vos adresses et les pièces que vous avez choisies."
-      image="/api/media/site/mantasoa-hero.webp"
+      image="/api/media/pull-lover-manequin-cardigan-2.webp"
       imageAlt="Le pull Mantasoa porté au bord du lac"
       visualTitle="Des pièces qui traversent le temps."
       visualText="Pensées à Madagascar, tricotées à la demande et faites pour vous accompagner saison après saison."
     >
-      <form className="auth-form" onSubmit={handleLogin}>
+      <form className="auth-form" onSubmit={handleLogin} data-reveal-stagger>
         <div className="auth-fields">
           <div className="auth-field">
             <label htmlFor="login-email">Adresse e-mail</label>

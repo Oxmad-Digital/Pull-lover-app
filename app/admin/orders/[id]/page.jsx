@@ -53,8 +53,18 @@ export default function AdminOrderDetailPage() {
   const generateLabel = async () => {
     setGeneratingLabel(true);
     try {
-      const res  = await fetch(`/api/admin/orders/${id}/label`, { method: "POST" });
-      const data = await res.json();
+      let res  = await fetch(`/api/admin/orders/${id}/label`, { method: "POST" });
+      let data = await res.json();
+      // 423 = période de drop en cours : l'envoi au transporteur demande une confirmation explicite
+      if (res.status === 423) {
+        if (!window.confirm(`${data.message}\n\nEnvoyer quand même cette commande au transporteur maintenant ?`)) return;
+        res  = await fetch(`/api/admin/orders/${id}/label`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ force: true }),
+        });
+        data = await res.json();
+      }
       if (!res.ok) { showToast(data.message || "Erreur", "error"); return; }
       setOrder(data.order);
       showToast(`Étiquette générée — Suivi : ${data.trackingNumber}`);
@@ -258,6 +268,11 @@ export default function AdminOrderDetailPage() {
           <div style={{ marginTop: 8 }}>
             <p style={{ fontSize: 13, color: "#888", marginBottom: 16 }}>
               Aucune étiquette générée. Cliquez ci-dessous pour créer l&apos;étiquette via SendCloud et passer la commande en <em>Expédiée</em>.
+              {order.delivery?.releaseAt && new Date(order.delivery.releaseAt) > new Date() && (
+                <strong style={{ display: "block", marginTop: 8, color: "#b45309" }}>
+                  Période de drop : envoi au transporteur prévu à partir du {new Date(order.delivery.releaseAt).toLocaleDateString("fr-FR")}.
+                </strong>
+              )}
             </p>
             <button
               onClick={generateLabel}

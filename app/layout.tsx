@@ -5,6 +5,11 @@ import { Montserrat } from 'next/font/google';
 import HeaderWrapper from "./components/HeaderWrapper";
 import FooterWrapper from "./components/FooterWrapper";
 import Providers from "./components/Providers";
+import SiteReveal from "./components/SiteReveal";
+
+// Posé avant le premier rendu pour que les éléments à révéler soient cachés dès l'affichage.
+// Filet de sécurité : si SiteReveal ne démarre pas en 4 s, tout redevient visible.
+const revealBootstrap = `(function(){try{if(matchMedia("(prefers-reduced-motion: reduce)").matches)return;var d=document.documentElement;d.classList.add("pl-motion");setTimeout(function(){if(!window.__plReveal)d.classList.remove("pl-motion")},4000)}catch(e){}})()`;
 
 const montserrat = Montserrat({
   subsets: ['latin'],
@@ -35,8 +40,12 @@ export const viewport = {
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="fr" className={montserrat.variable}>
+    <html lang="fr" className={montserrat.variable} suppressHydrationWarning>
+      <head>
+        <script dangerouslySetInnerHTML={{ __html: revealBootstrap }} />
+      </head>
       <body className={montserrat.className}>
+        <SiteReveal />
         <Providers>
           <HeaderWrapper />
           <main id="contenu" style={{ background: "transparent" }}>

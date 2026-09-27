@@ -39,9 +39,9 @@ export default async function OrdersPage() {
 
   return (
     <div>
-      <h1 className="db-page-title">Mes commandes</h1>
+      <h1 className="db-page-title" data-reveal>Mes commandes</h1>
 
-      <div className="db-wrapper">
+      <div className="db-wrapper" data-reveal-stagger>
         {orders.length === 0 ? (
           <div className="db-card" style={{ textAlign: "center", padding: "48px 24px" }}>
             <p style={{ fontSize: 14, color: "#888", marginBottom: 16 }}>

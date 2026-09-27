@@ -1,14 +1,20 @@
 // app/api/order/route.js
 
 import { NextResponse } from "next/server";
-import { connectDB, isValidId } from "@/app/lib/db";
+import { connectDB } from "@/app/lib/db";
 import Order from "@/app/models/Order";
 import { sendEmail } from "@/app/lib/mailer";
 import { getOrderConfirmationEmailTemplate, getAdminNewOrderEmailTemplate } from "@/app/lib/emailTemplates";
 import Customer from "@/app/models/Customer";
-import Promo from "@/app/models/Promo";
-import { getShippingOptions } from "@/app/lib/sendcloud";
-import { getCartWeight } from "@/app/lib/cartWeight";
+import Settings from "@/app/models/Settings";
+import Product from "@/app/models/Product";
+import { computeOrderTotals, CheckoutError } from "@/app/lib/checkoutPricing";
+import { getServerSession } from "next-auth";
+import { authOptions } from "@/app/api/auth/[...nextauth]/route";
+import Stripe from "stripe";
+
+const escapeHtml = (v) =>
+  String(v ?? "").replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
 
 export async function POST(req) {
   console.log("🚀 API /api/order APPELÉE");
@@ -17,7 +23,7 @@ export async function POST(req) {
     await connectDB();
 
     const body = await req.json();
-    const { customer, cartItems, total, payment, delivery, promoCode, discountAmount } = body;
+    const { customer, cartItems, delivery, promoCode, stripePaymentId } = body;
 
     /* ======================
        VALIDATION CLIENT
@@ -31,7 +37,7 @@ export async function POST(req) {
 
     const { firstname, lastname, email, city, address, phone, postalCode, country } = customer;
 
-    if (!firstname || !lastname || !email || !city || !address) {
+    if (!firstname || !lastname || !email || !city || !address || !postalCode || !phone) {
       return NextResponse.json(
         { message: "Informations client manquantes" },
         { status: 400 }
@@ -58,41 +64,60 @@ export async function POST(req) {
     }
 
     /* ======================
-       FORMAT PRODUITS
+       PAIEMENT STRIPE (obligatoire, vérifié côté serveur)
     ====================== */
-    const products = cartItems.map((item) => {
-      if (!isValidId(item._id)) {
-        throw new Error("ID produit invalide");
-      }
+    if (!stripePaymentId || typeof stripePaymentId !== "string") {
+      return NextResponse.json({ message: "Paiement manquant" }, { status: 402 });
+    }
 
-      return {
-        product: item._id,
-        quantity: Number(item.quantity) || 1,
-      };
-    });
+    // Idempotence : un même paiement ne crée qu'une seule commande
+    const already = await Order.findOne({ stripePaymentId });
+    if (already) {
+      return NextResponse.json(
+        {
+          success: true,
+          message: "Commande déjà enregistrée",
+          order: { _id: already._id, orderNumber: already._id.toString().slice(-8).toUpperCase(), total: already.total, status: already.status },
+        },
+        { status: 200 }
+      );
+    }
+
+    let totals;
+    try {
+      totals = await computeOrderTotals({ cartItems, promoCode, delivery });
+    } catch (err) {
+      if (err instanceof CheckoutError) {
+        return NextResponse.json({ message: err.message }, { status: err.status });
+      }
+      throw err;
+    }
+    const { lines, total, shippingMethod, weight, countryCode } = totals;
+
+    const stripe = new Stripe(process.env.STRIPE_SECRET_KEY);
+    const paymentIntent = await stripe.paymentIntents.retrieve(stripePaymentId);
+    if (paymentIntent.status !== "succeeded") {
+      return NextResponse.json({ message: "Paiement non confirmé" }, { status: 402 });
+    }
+    if (paymentIntent.currency !== "eur" || paymentIntent.amount_received !== Math.round(total * 100)) {
+      console.error("❌ Montant Stripe ≠ panier", paymentIntent.id, paymentIntent.amount_received, total);
+      return NextResponse.json({ message: "Le montant payé ne correspond pas au panier" }, { status: 409 });
+    }
+
+    const products = lines.map((l) => ({ product: l.product, quantity: l.quantity }));
 
     /* ======================
        CRÉATION COMMANDE
     ====================== */
-    // delivery = { optionKey, countryCode, servicePoint? } — revalidé côté serveur auprès de SendCloud
-    const countryCode = String(delivery?.countryCode || "FR").toUpperCase();
-    let shippingMethod;
-    let weight;
-    try {
-      weight = await getCartWeight(cartItems);
-      const options = await getShippingOptions({ toCountry: countryCode, weight });
-      shippingMethod = options.find((o) => o.key === delivery?.optionKey);
-    } catch (err) {
-      console.error("SENDCLOUD METHODS ERROR:", err);
-      return NextResponse.json({ message: "Modes d'expédition indisponibles" }, { status: 502 });
-    }
-    if (!shippingMethod) {
-      return NextResponse.json({ message: "Mode d'expédition invalide" }, { status: 400 });
-    }
     const servicePoint = shippingMethod.servicePoint ? delivery?.servicePoint : null;
     if (shippingMethod.servicePoint && !servicePoint?.id) {
       return NextResponse.json({ message: "Veuillez choisir un point relais" }, { status: 400 });
     }
+
+    // Drop : les données de livraison restent chez nous jusqu'à la fin de la période de drop
+    const settings = await Settings.findOne();
+    const releaseDate = settings?.shippingReleaseDate ? new Date(settings.shippingReleaseDate) : null;
+    const releaseAt = releaseDate && releaseDate > new Date() ? releaseDate : null;
 
     const order = await Order.create({
       customer: {
@@ -107,8 +132,12 @@ export async function POST(req) {
         country:    country    || "",
       },
       products,
-      total: Number(total),
-      payment: payment || "cash",
+      total,
+      stripePaymentId,
+      payment: "card",
+      promoCode: totals.promoCode,
+      discountAmount: totals.discount,
+      lines,
       delivery: {
         method:         `${shippingMethod.carrier}${shippingMethod.servicePoint ? "_relais" : "_domicile"}`,
         methodId:       shippingMethod.methodId,
@@ -129,19 +158,40 @@ export async function POST(req) {
               city:       String(servicePoint.city || ""),
             }
           : null,
+        releaseAt,
         shippedAt:      null,
       },
-      status: "pending",
+      status: "paid",
     });
 
     console.log("✅ Commande créée:", order._id);
 
-    if (promoCode) {
-      await Promo.findOneAndUpdate(
-        { code: promoCode.toUpperCase() },
-        { $inc: { usedCount: 1 } }
-      );
+    // Incrément atomique du compteur d'utilisation du code promo
+    if (totals.promoCode) {
+      const sql = await connectDB();
+      await sql`
+        UPDATE promos
+        SET data = jsonb_set(data, '{usedCount}', to_jsonb(COALESCE((data->>'usedCount')::int, 0) + 1))
+        WHERE data->>'code' = ${totals.promoCode}
+      `;
     }
+
+    // Décrément du stock (par taille si renseignée)
+    for (const l of lines) {
+      try {
+        const product = await Product.findById(l.product);
+        if (!product) continue;
+        const stocks = { ...(product.stocks || {}) };
+        if (l.size && Number.isFinite(Number(stocks[l.size]))) {
+          stocks[l.size] = Math.max(0, Number(stocks[l.size]) - l.quantity);
+        }
+        const stock = Math.max(0, (Number(product.stock) || 0) - l.quantity);
+        await Product.findByIdAndUpdate(l.product, { stock, stocks, isAvailable: stock > 0 });
+      } catch (err) {
+        console.error("❌ Décrément stock:", l.product, err.message);
+      }
+    }
+
     /* ======================
    👤 SYNC CUSTOMER (IMPORTANT)
 ====================== */
@@ -151,7 +201,7 @@ let existingCustomer = await Customer.findOne({ email: normalizedEmail });
 
 if (existingCustomer) {
   existingCustomer.totalOrders += 1;
-  existingCustomer.totalSpent += Number(total);
+  existingCustomer.totalSpent += total;
   existingCustomer.lastOrderAt = new Date();
 
   if (!existingCustomer.phone && phone) existingCustomer.phone = phone;
@@ -168,7 +218,7 @@ if (existingCustomer) {
     city: city || "",
     address: address || "",
     totalOrders: 1,
-    totalSpent: Number(total),
+    totalSpent: total,
     lastOrderAt: new Date(),
     status: "active",
   });
@@ -198,23 +248,23 @@ if (existingCustomer) {
     const deliveryLabel = `📦 ${shippingMethod.carrierLabel} — ${shippingMethod.name}`;
 
     // Liste des produits formatée
-    const productListHtml = cartItems.map((item) => `
+    const productListHtml = lines.map((item) => `
       <tr style="border-bottom:1px solid #e2e8f0">
         <td style="padding:12px 8px 12px 0;vertical-align:top">
           <table role="presentation" cellpadding="0" cellspacing="0">
             <tr>
               ${item.image ? `<td style="padding-right:12px;vertical-align:top">
-                <img src="${item.image}" width="48" height="60" alt="${item.name || ""}" style="display:block;border-radius:4px;object-fit:cover;border:1px solid #e2e8f0">
+                <img src="${escapeHtml(item.image)}" width="48" height="60" alt="${escapeHtml(item.name)}" style="display:block;border-radius:4px;object-fit:cover;border:1px solid #e2e8f0">
               </td>` : ""}
               <td style="vertical-align:top">
-                <p style="margin:0;font-size:14px;font-weight:600;color:#0f172a">${item.name || "Produit"}</p>
-                ${item.size ? `<p style="margin:3px 0 0;font-size:12px;color:#94a3b8">Taille : ${item.size}</p>` : ""}
+                <p style="margin:0;font-size:14px;font-weight:600;color:#0f172a">${escapeHtml(item.name)}</p>
+                ${item.size ? `<p style="margin:3px 0 0;font-size:12px;color:#94a3b8">Taille : ${escapeHtml(item.size)}</p>` : ""}
               </td>
             </tr>
           </table>
         </td>
         <td style="padding:12px 0;font-size:14px;color:#475569;text-align:center;vertical-align:top">${item.quantity}</td>
-        <td style="padding:12px 0;font-size:14px;color:#475569;text-align:right;font-weight:600;vertical-align:top">${item.price ? Number(item.price).toLocaleString("fr-FR") + " €" : "-"}</td>
+        <td style="padding:12px 0;font-size:14px;color:#475569;text-align:right;font-weight:600;vertical-align:top">${Number(item.unitPrice).toLocaleString("fr-FR")} €</td>
       </tr>
     `).join("");
 
@@ -232,7 +282,7 @@ if (existingCustomer) {
       address,
       city,
       deliveryLabel,
-      paymentLabel: paymentLabels[payment] || payment,
+      paymentLabel: paymentLabels.card,
       total,
     });
 
@@ -244,7 +294,7 @@ if (existingCustomer) {
       address,
       city,
       deliveryLabel,
-      paymentLabel: paymentLabels[payment] || payment,
+      paymentLabel: paymentLabels.card,
       total,
     });
 
@@ -336,6 +386,10 @@ if (existingCustomer) {
 ====================== */
 export async function GET(req) {
   try {
+    const session = await getServerSession(authOptions);
+    if (!session || session.user.role !== "admin") {
+      return NextResponse.json({ message: "Accès refusé" }, { status: 401 });
+    }
     await connectDB();
 
     const { searchParams } = new URL(req.url);

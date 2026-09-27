@@ -120,13 +120,13 @@ function NosMaillesContent() {
     <div className="boutique-container">
 
       {/* EN-TETE */}
-      <div className="boutique-header">
+      <div className="boutique-header" data-reveal-stagger>
         <h1 className="boutique-title">Nos Mailles</h1>
         <p className="boutique-tagline">Des mailles pensées pour durer</p>
       </div>
 
       {/* BARRE FILTRES */}
-      <div className="filters-bar">
+      <div className="filters-bar" data-reveal>
         <div className="search-wrapper">
           <svg className="search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
             <circle cx="11" cy="11" r="8" /><path d="m21 21-4.35-4.35" />
@@ -221,7 +221,7 @@ function NosMaillesContent() {
       {error && <div className="error-state">❌ {error}</div>}
 
       {!loading && products.length === 0 && !error && (
-        <div className="empty-state">
+        <div className="empty-state" data-reveal>
           <p>Aucun produit trouvé</p>
           <button className="reset-btn" onClick={resetFilters}>Réinitialiser</button>
         </div>
@@ -229,7 +229,7 @@ function NosMaillesContent() {
 
       {/* GRILLE PRODUITS */}
       {!loading && products.length > 0 && (
-        <div className="products-grid">
+        <div className="products-grid" data-reveal-stagger>
           {products.map((product) => {
             const secondaryImage = product.images?.[0] || null;
             const hasSecondary = !!secondaryImage;
@@ -326,7 +326,7 @@ function NosMaillesContent() {
 
       {/* VOIR PLUS */}
       {!loading && page < totalPages && (
-        <div className="pagination">
+        <div className="pagination" data-reveal>
           <ButtonGhost onClick={loadMore} disabled={loadingMore}>
             {loadingMore ? "Chargement..." : "Voir plus"}
           </ButtonGhost>

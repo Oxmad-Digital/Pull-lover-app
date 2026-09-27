@@ -168,8 +168,8 @@ export default function ProfilePage() {
 
   return (
     <div>
-      <h1 className="db-page-title">Mon profil</h1>
-      <div className="db-wrapper">
+      <h1 className="db-page-title" data-reveal>Mon profil</h1>
+      <div className="db-wrapper" data-reveal-stagger>
 
         {/* ── Photo de profil (admin uniquement) ── */}
       {session?.user?.role === "admin" && (

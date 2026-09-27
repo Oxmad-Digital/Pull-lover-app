@@ -21,7 +21,7 @@ export default function AuthShell({
           priority
           sizes="(max-width: 939px) 100vw, 52vw"
         />
-        <div className="auth-visual-copy">
+        <div className="auth-visual-copy" data-reveal-stagger>
           <p className="auth-eyebrow">Maille de Madagascar</p>
           <h2>{visualTitle}</h2>
           <p>{visualText}</p>
@@ -31,7 +31,7 @@ export default function AuthShell({
 
       <div className="auth-content">
         <div className="auth-panel">
-          <header className="auth-heading">
+          <header className="auth-heading" data-reveal-stagger>
             <p className="auth-eyebrow">{eyebrow}</p>
             <h1>{title}</h1>
             <p>{description}</p>

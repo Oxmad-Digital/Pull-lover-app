@@ -5,7 +5,7 @@ import "./Footer.css";
 export default function Footer() {
   return (
     <footer className="pl-footer">
-      <div className="pl-footer-main">
+      <div className="pl-footer-main" data-reveal-stagger>
         <Link className="pl-footer-brand" href="/" aria-label="Pull-Lover, accueil">
           <Image
             className="pl-footer-logo"
@@ -29,7 +29,7 @@ export default function Footer() {
           <Link href="/dashboard">Mon compte</Link>
         </nav>
       </div>
-      <div className="pl-footer-bottom">
+      <div className="pl-footer-bottom" data-reveal-stagger>
         <p>© {new Date().getFullYear()} Pull-Lover</p>
         <p>Imaginé et fabriqué à Madagascar</p>
         <nav aria-label="Informations légales">
