@@ -1,6 +1,6 @@
 # Refonte de l’accueil Pull-Lover
 
-La home reprend `Pull-Lover_Codex_Kit` : visuel plein écran, manifeste, Mantasoa, atelier, étapes de précommande et footer. Les visuels sont servis en WebP et redimensionnés par `next/image`. Les tokens `--pl-*` isolent cette direction graphique des pages qui seront refondues ensuite.
+La home reprend la maquette du kit Codex (retiré du dépôt) : visuel plein écran, manifeste, Mantasoa, atelier, étapes de précommande et footer. Les visuels sont servis en WebP et redimensionnés par `next/image`. Les tokens `--pl-*` isolent cette direction graphique des pages qui seront refondues ensuite.
 
 ## Données et panier
 
