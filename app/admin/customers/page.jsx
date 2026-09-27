@@ -20,6 +20,9 @@ const CHIP_FILTERS = [
   { value: "vip",     label: "VIP",     color: "#f59e0b" },
 ];
 
+// Le sens du tri n'est pas réglable depuis l'interface.
+const SORT_DIR = "desc";
+
 const SORT_OPTIONS = [
   { label: "Date inscription",  value: "createdAt"   },
   { label: "Dernière commande", value: "lastOrderAt" },
@@ -32,7 +35,6 @@ export default function CustomersPage() {
   const [debouncedSearch, setDebouncedSearch] = useState("");
   const [statusFilter, setStatusFilter]       = useState("all");
   const [sort, setSort]                       = useState("createdAt");
-  const [sortDir, setSortDir]                 = useState("desc");
   const [syncing, setSyncing]                 = useState(false);
   const [exporting, setExporting]             = useState(false);
   const [filterOpen, setFilterOpen]           = useState(false);
@@ -53,7 +55,7 @@ export default function CustomersPage() {
   }, [search]);
 
   const queryParams = {
-    sort, order: sortDir,
+    sort, order: SORT_DIR,
     ...(debouncedSearch && { search: debouncedSearch }),
     ...(statusFilter === "vip"                        && { vip: "true" }),
     ...(statusFilter !== "all" && statusFilter !== "vip" && { status: statusFilter }),
@@ -69,7 +71,7 @@ export default function CustomersPage() {
   const exportCSV = async () => {
     setExporting(true);
     try {
-      const p = new URLSearchParams({ sort, order: sortDir, limit: "9999" });
+      const p = new URLSearchParams({ sort, order: SORT_DIR, limit: "9999" });
       if (debouncedSearch) p.append("search", debouncedSearch);
       if (statusFilter === "vip") p.append("vip", "true");
       else if (statusFilter && statusFilter !== "all") p.append("status", statusFilter);

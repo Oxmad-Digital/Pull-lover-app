@@ -3,7 +3,6 @@ import { useState } from "react";
 import "./ProductForm.css";
 
 export default function ProductForm({
-  categories,
   onSave,
   editingProduct,
   onCancel,

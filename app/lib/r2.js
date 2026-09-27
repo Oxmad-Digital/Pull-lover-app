@@ -29,7 +29,7 @@ function getConfig() {
 
 let client;
 
-export function getR2Client() {
+function getR2Client() {
   if (!client) {
     const config = getConfig();
     client = new S3Client({
@@ -44,31 +44,13 @@ export function getR2Client() {
   return client;
 }
 
-export function getR2Bucket() {
+function getR2Bucket() {
   return getConfig().bucket;
 }
 
-export function r2Url(key) {
+function r2Url(key) {
   const encodedKey = key.split("/").map(encodeURIComponent).join("/");
   return `/api/media/${encodedKey}`;
-}
-
-export function r2KeyFromUrl(value) {
-  if (!value || typeof value !== "string") return null;
-
-  const marker = "/api/media/";
-  const markerIndex = value.indexOf(marker);
-  if (markerIndex === -1) return null;
-
-  try {
-    return value
-      .slice(markerIndex + marker.length)
-      .split("/")
-      .map(decodeURIComponent)
-      .join("/");
-  } catch {
-    return null;
-  }
 }
 
 export async function uploadToR2({ key, body, contentType, cacheControl }) {

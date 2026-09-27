@@ -40,6 +40,9 @@ const CHIP_FILTERS = [
   { value: "cancelled",   label: "Annulées",    statsKey: "cancelled",  color: "#be123c" },
 ];
 
+// Le sens du tri n'est pas réglable depuis l'interface.
+const SORT_DIR = "desc";
+
 const SORT_OPTIONS = [
   { label: "Date",  value: "createdAt" },
   { label: "Total", value: "total"     },
@@ -50,7 +53,6 @@ export default function AdminOrdersPage() {
   const [debouncedSearch, setDebouncedSearch] = useState("");
   const [statusFilter, setStatusFilter]       = useState("");
   const [sort, setSort]                       = useState("createdAt");
-  const [sortDir, setSortDir]                 = useState("desc");
   const [stats, setStats]                     = useState(null);
   const [updatingId, setUpdatingId]           = useState(null);
   const [exporting, setExporting]             = useState(false);
@@ -72,7 +74,7 @@ export default function AdminOrdersPage() {
   }, [search]);
 
   const queryParams = {
-    sort, order: sortDir,
+    sort, order: SORT_DIR,
     ...(debouncedSearch && { search: debouncedSearch }),
     ...(statusFilter    && { status: statusFilter }),
   };
@@ -131,7 +133,7 @@ export default function AdminOrdersPage() {
   const exportCSV = async () => {
     setExporting(true);
     try {
-      const p = new URLSearchParams({ sort, order: sortDir, limit: 9999 });
+      const p = new URLSearchParams({ sort, order: SORT_DIR, limit: 9999 });
       if (debouncedSearch) p.append("search", debouncedSearch);
       if (statusFilter)    p.append("status", statusFilter);
 

@@ -11,7 +11,7 @@ export const SENDCLOUD_CONFIGURED =
   Boolean(process.env.SENDCLOUD_PUBLIC_KEY) && Boolean(process.env.SENDCLOUD_SECRET_KEY);
 
 // Transporteurs proposés au checkout (codes SendCloud)
-export const ALLOWED_CARRIERS = ["colissimo", "chronopost", "mondial_relay"];
+const ALLOWED_CARRIERS = ["colissimo", "chronopost", "mondial_relay"];
 
 const CARRIER_LABELS = {
   colissimo: "Colissimo",

@@ -211,7 +211,6 @@ export default function ProductsManagement() {
             </div>
             <div className="ap-modal-body">
               <ProductForm
-                categories={categories}
                 editingProduct={editingProduct}
                 onSave={handleSave}
                 onCancel={closeForm}

@@ -5,7 +5,7 @@ import { connectDB } from "@/app/lib/db";
 import NewsletterSubscriber from "@/app/models/NewsletterSubscriber";
 import { escapeRegex } from "@/app/lib/text";
 
-async function requireAdmin(req) {
+async function requireAdmin() {
   const session = await getServerSession(authOptions);
   if (!session || session.user.role !== "admin") {
     return NextResponse.json({ error: "Non autorisé" }, { status: 401 });
@@ -14,7 +14,7 @@ async function requireAdmin(req) {
 }
 
 export async function GET(req) {
-  const deny = await requireAdmin(req);
+  const deny = await requireAdmin();
   if (deny) return deny;
 
   await connectDB();
@@ -35,7 +35,7 @@ export async function GET(req) {
 }
 
 export async function POST(req) {
-  const deny = await requireAdmin(req);
+  const deny = await requireAdmin();
   if (deny) return deny;
 
   const { email } = await req.json();
@@ -54,7 +54,7 @@ export async function POST(req) {
 }
 
 export async function DELETE(req) {
-  const deny = await requireAdmin(req);
+  const deny = await requireAdmin();
   if (deny) return deny;
 
   const { id } = await req.json();
