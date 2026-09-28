@@ -174,7 +174,7 @@ export default function ProductForm({
           onChange={(e) => setName(e.target.value)}
           required
         />
-        <small className="form-hint">Un seul produit peut être actif à la fois ; ce nom s'affiche partout sur le site.</small>
+        <small className="form-hint">Un seul produit peut être actif à la fois ; ce nom s’affiche partout sur le site.</small>
       </div>
 
       <div className="stocks-field">

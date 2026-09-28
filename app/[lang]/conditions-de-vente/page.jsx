@@ -25,15 +25,15 @@ function TermsFr() {
       <Section title="1. Objet">
         Les présentes conditions générales de vente (CGV) régissent les relations contractuelles entre
         Pull Lover (ci-après « le Vendeur ») et toute personne effectuant un achat sur le site
-        <strong> pull-lover.com</strong> (ci-après « le Client »). Tout achat implique l'acceptation
+        <strong> pull-lover.com</strong> (ci-après « le Client »). Tout achat implique l’acceptation
         pleine et entière des présentes CGV.
       </Section>
 
       <Section title="2. Produits">
         Les produits proposés à la vente sont des vêtements et accessoires en mailles faits main,
-        fabriqués à Antananarivo (Madagascar) dans l'atelier familial Ultramaille. Les photographies
+        fabriqués à Antananarivo (Madagascar) dans l’atelier familial Ultramaille. Les photographies
         et descriptions sont aussi fidèles que possible. En raison du caractère artisanal des pièces,
-        de légères variations de couleur ou de texture peuvent exister d'un article à l'autre.
+        de légères variations de couleur ou de texture peuvent exister d’un article à l’autre.
       </Section>
 
       <Section title="3. Prix">
@@ -51,20 +51,20 @@ function TermsFr() {
         </ul>
         <p>
           Un e-mail de confirmation est envoyé dès validation de la commande. Pull Lover se réserve
-          le droit de refuser ou d'annuler toute commande en cas de problème de stock, d'erreur de
+          le droit de refuser ou d’annuler toute commande en cas de problème de stock, d’erreur de
           prix manifeste ou de suspicion de fraude.
         </p>
       </Section>
 
       <Section title="5. Paiement">
-        Le paiement s'effectue en ligne par carte bancaire (Visa, Mastercard, American Express) via
+        Le paiement s’effectue en ligne par carte bancaire (Visa, Mastercard, American Express) via
         la plateforme sécurisée <strong>Stripe</strong>. Les données bancaires sont chiffrées et ne
         sont jamais stockées sur nos serveurs. La commande est traitée après confirmation du paiement.
       </Section>
 
       <Section title="6. Livraison">
         <p>Les commandes sont expédiées vers la France métropolitaine et, selon disponibilité, à
-        l'international. Les délais indicatifs sont :</p>
+        l’international. Les délais indicatifs sont :</p>
         <ul>
           <li><strong>France métropolitaine :</strong> 5 à 10 jours ouvrés</li>
           <li><strong>International :</strong> 10 à 20 jours ouvrés</li>
@@ -77,16 +77,16 @@ function TermsFr() {
       </Section>
 
       <Section title="7. Droit de rétractation">
-        Conformément à l'article L.221-18 du Code de la consommation, le Client dispose d'un délai
+        Conformément à l’article L.221-18 du Code de la consommation, le Client dispose d’un délai
         de <strong>14 jours</strong> à compter de la réception de sa commande pour exercer son droit
         de rétractation, sans avoir à justifier sa décision. Pour ce faire, il doit contacter Pull
         Lover à <a href="mailto:tom.wybo@yahoo.fr">tom.wybo@yahoo.fr</a>{" "}
-        avant de retourner l'article dans son état d'origine. Les frais de retour sont à la charge
+        avant de retourner l’article dans son état d’origine. Les frais de retour sont à la charge
         du Client.
       </Section>
 
       <Section title="8. Retours et remboursements">
-        Les articles retournés doivent être non portés, non lavés et dans leur emballage d'origine.
+        Les articles retournés doivent être non portés, non lavés et dans leur emballage d’origine.
         Après réception et vérification du retour, le remboursement est effectué sous 14 jours sur
         le moyen de paiement utilisé lors de la commande. Les articles personnalisés ou en promotion
         ne sont pas éligibles au retour sauf défaut avéré.
@@ -100,8 +100,8 @@ function TermsFr() {
       </Section>
 
       <Section title="10. Propriété intellectuelle">
-        L'ensemble des visuels, textes et contenus du site sont la propriété de Pull Lover. Toute
-        reproduction sans autorisation écrite est interdite. Pour plus d'informations, consultez
+        L’ensemble des visuels, textes et contenus du site sont la propriété de Pull Lover. Toute
+        reproduction sans autorisation écrite est interdite. Pour plus d’informations, consultez
         nos{" "}
         <Link href={localePath("fr", "/mentions-legales")}>
           Mentions légales

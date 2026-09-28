@@ -201,7 +201,7 @@ export default function AdminPromosPage() {
                 />
               </div>
               <div>
-                <label style={labelStyle}>Date d'expiration</label>
+                <label style={labelStyle}>Date d’expiration</label>
                 <input
                   type="date"
                   value={form.expiresAt}

@@ -23,6 +23,10 @@ export function usePaginatedFetch(url, queryParams, { itemsKey = "items", perPag
   const isFirst   = useRef(true);
   const paramsKey = JSON.stringify(queryParams);
 
+  // onData est souvent une fonction inline : on garde la dernière version sans relancer le fetch
+  const onDataRef = useRef(onData);
+  useEffect(() => { onDataRef.current = onData; });
+
   // Réinitialise la page quand les filtres changent (skip premier rendu)
   useEffect(() => {
     if (isFirst.current) { isFirst.current = false; return; }
@@ -37,7 +41,7 @@ export function usePaginatedFetch(url, queryParams, { itemsKey = "items", perPag
     (async () => {
       try {
         const p = new URLSearchParams();
-        Object.entries({ ...queryParams, page }).forEach(([k, v]) => {
+        Object.entries({ ...JSON.parse(paramsKey ?? "{}"), page }).forEach(([k, v]) => {
           if (v !== undefined && v !== null && v !== "") p.set(k, String(v));
         });
         if (perPage) p.set("limit", String(perPage));
@@ -53,7 +57,7 @@ export function usePaginatedFetch(url, queryParams, { itemsKey = "items", perPag
           totalPages: pg.totalPages ?? pg.pages ?? 1,
         });
 
-        if (onData) onData(data);
+        if (onDataRef.current) onDataRef.current(data);
       } catch (err) {
         if (err.name !== "AbortError") setError(err.message || "Erreur réseau");
       } finally {
@@ -62,7 +66,7 @@ export function usePaginatedFetch(url, queryParams, { itemsKey = "items", perPag
     })();
 
     return () => controller.abort();
-  }, [url, paramsKey, page]);
+  }, [url, paramsKey, page, itemsKey, perPage]);
 
   return { items, pagination, loading, error, page, setPage };
 }

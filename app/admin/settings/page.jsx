@@ -236,7 +236,7 @@ export default function AdminSettingsPage() {
                 <label style={labelStyle}>Date & heure *</label>
                 <input type="datetime-local" value={dropDate} onChange={(e) => setDropDate(e.target.value)} />
                 <p style={{ fontSize: 11, color: "#a8a29e", marginTop: 5 }}>
-                  Le compteur est affiché sur la page d'accueil jusqu'à cette date, puis se cache automatiquement.
+                  Le compteur est affiché sur la page d’accueil jusqu’à cette date, puis se cache automatiquement.
                 </p>
               </div>
             ) : (
@@ -350,7 +350,7 @@ export default function AdminSettingsPage() {
         {/* ── Badge / notif hero ── */}
         <div className="admin-content-card">
           <p style={{ fontSize: 12, fontWeight: 700, color: "#78716c", textTransform: "uppercase", letterSpacing: "0.05em", marginBottom: 14 }}>
-            Notification hero (page d'accueil)
+            Notification hero (page d’accueil)
           </p>
           <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 16, flexWrap: "wrap" }}>
             <span style={{ fontSize: 13, color: "#57534e", fontStyle: current?.badgeText ? "normal" : "italic" }}>
@@ -365,7 +365,7 @@ export default function AdminSettingsPage() {
               <input type="text" placeholder="Nouvel arrivage le 01/09/2026 à 19H" value={badgeText}
                 onChange={(e) => setBadgeText(e.target.value)} />
               <p style={{ fontSize: 11, color: "#a8a29e", marginTop: 5 }}>
-                Badge clochette affiché sur la page d'accueil. Laisser vide pour masquer.
+                Badge clochette affiché sur la page d’accueil. Laisser vide pour masquer.
               </p>
             </div>
             {errors.badgeText && <p style={{ fontSize: 13, color: "#C75C5C" }}>{errors.badgeText}</p>}

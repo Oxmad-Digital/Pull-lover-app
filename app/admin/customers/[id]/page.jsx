@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { useParams, useRouter } from "next/navigation";
 import Link from "next/link";
 import { useToast } from "@/app/hooks/useToast";
@@ -39,9 +39,7 @@ export default function CustomerDetailPage() {
   const { toast, showToast }                    = useToast();
   const { confirmModal, askConfirm, closeConfirm } = useConfirmDialog();
 
-  useEffect(() => { loadCustomer(); }, [id]);
-
-  const loadCustomer = async () => {
+  const loadCustomer = useCallback(async () => {
     try {
       const res  = await fetch(`/api/customers/${id}`);
       const data = await res.json();
@@ -64,7 +62,9 @@ export default function CustomerDetailPage() {
     } finally {
       setLoading(false);
     }
-  };
+  }, [id, showToast]);
+
+  useEffect(() => { loadCustomer(); }, [loadCustomer]);
 
   const handleSave = async () => {
     setSaving(true);

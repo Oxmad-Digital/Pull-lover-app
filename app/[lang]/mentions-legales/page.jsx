@@ -33,7 +33,7 @@ function LegalNoticeFr() {
       </Section>
 
       <Section title="2. Directeur de la publication">
-        Le directeur de la publication est le responsable de Pull Lover, joignable à l'adresse e-mail
+        Le directeur de la publication est le responsable de Pull Lover, joignable à l’adresse e-mail
         indiquée ci-dessus.
       </Section>
 
@@ -50,7 +50,7 @@ function LegalNoticeFr() {
       </Section>
 
       <Section title="4. Propriété intellectuelle">
-        L'ensemble des contenus présents sur ce site (textes, images, vidéos, logos, graphismes) est la
+        L’ensemble des contenus présents sur ce site (textes, images, vidéos, logos, graphismes) est la
         propriété exclusive de Pull Lover ou de ses partenaires, et est protégé par les lois françaises et
         internationales relatives à la propriété intellectuelle. Toute reproduction, représentation,
         modification ou exploitation, totale ou partielle, sans autorisation écrite préalable est strictement
@@ -58,14 +58,14 @@ function LegalNoticeFr() {
       </Section>
 
       <Section title="5. Responsabilité">
-        Pull Lover s'efforce de maintenir les informations publiées sur ce site à jour et exactes. Toutefois,
-        nous ne saurions garantir l'exactitude, la complétude ou l'actualité des informations diffusées.
-        Pull Lover ne peut être tenu responsable des dommages directs ou indirects résultant de l'utilisation
-        de ce site ou de l'impossibilité d'y accéder.
+        Pull Lover s’efforce de maintenir les informations publiées sur ce site à jour et exactes. Toutefois,
+        nous ne saurions garantir l’exactitude, la complétude ou l’actualité des informations diffusées.
+        Pull Lover ne peut être tenu responsable des dommages directs ou indirects résultant de l’utilisation
+        de ce site ou de l’impossibilité d’y accéder.
       </Section>
 
       <Section title="6. Liens hypertextes">
-        Le site peut contenir des liens vers des sites tiers. Pull Lover n'exerce aucun contrôle sur ces
+        Le site peut contenir des liens vers des sites tiers. Pull Lover n’exerce aucun contrôle sur ces
         sites et décline toute responsabilité quant à leur contenu ou leur politique de confidentialité.
       </Section>
 
