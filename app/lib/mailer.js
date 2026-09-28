@@ -24,8 +24,9 @@ const transporter = nodemailer.createTransport({
   socketTimeout: 15000,
 });
 
-// Vérification SMTP au démarrage
-transporter.verify((error) => {
+// Vérification SMTP au démarrage, en développement seulement : en production elle ouvrirait
+// une connexion SMTP à chaque démarrage à froid de toute route qui importe ce module.
+if (process.env.NODE_ENV !== "production") transporter.verify((error) => {
   if (error) {
     console.error("❌ SMTP ERROR:", error.message);
     console.error("   → Host:", process.env.EMAIL_HOST);

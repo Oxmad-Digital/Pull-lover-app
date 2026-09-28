@@ -2,11 +2,10 @@
 // Source de vérité serveur du montant d'une commande : le client n'envoie que
 // des ids / quantités / code promo, jamais de prix.
 
-import Product from "@/app/models/Product";
 import Promo from "@/app/models/Promo";
 import { isValidId } from "@/app/lib/db";
 import { getShippingOptions } from "@/app/lib/sendcloud";
-import { getCartWeight } from "@/app/lib/cartWeight";
+import { getCartWeight, loadCartProducts } from "@/app/lib/cartWeight";
 import { computeTotals, round2, TVA_RATE } from "@/app/lib/pricing.mjs";
 
 export { round2, TVA_RATE };
@@ -40,6 +39,8 @@ export async function computeOrderTotals({ cartItems, promoCode, delivery, allow
     if (!allowStockShortage) throw new CheckoutError(message);
     shortages.push(message);
   };
+  // Une seule lecture pour tout le panier, réutilisée pour le calcul du poids
+  const productsById = await loadCartProducts(cartItems);
   for (const item of cartItems) {
     if (!isValidId(item?._id)) throw new CheckoutError("ID produit invalide");
     const quantity = Math.floor(Number(item.quantity));
@@ -48,7 +49,7 @@ export async function computeOrderTotals({ cartItems, promoCode, delivery, allow
     const size = typeof item.size === "string" ? item.size : "";
     const color = typeof item.color === "string" ? item.color : "";
 
-    const product = await Product.findById(item._id);
+    const product = productsById.get(item._id.toLowerCase());
     if (!product) throw new CheckoutError(`Produit indisponible : ${item._id}`);
     if (product.isAvailable === false) shortage(`Produit indisponible : ${product.name}`);
 
@@ -99,7 +100,7 @@ export async function computeOrderTotals({ cartItems, promoCode, delivery, allow
   let weight;
   let shippingMethod;
   try {
-    weight = await getCartWeight(cartItems);
+    weight = await getCartWeight(cartItems, productsById);
     const options = await getShippingOptions({ toCountry: countryCode, weight });
     shippingMethod = options.find((o) => o.key === delivery?.optionKey);
   } catch (err) {

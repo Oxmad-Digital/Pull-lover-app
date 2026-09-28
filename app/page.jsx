@@ -1,7 +1,11 @@
 import Image from "next/image";
 import MantasoaProduct from "./components/home/MantasoaProduct";
 import HomeCinematic from "./components/home/HomeCinematic";
+import { getFeaturedProductState } from "./lib/products";
 import "./home.css";
+
+// Le prix et la description du produit sont rendus côté serveur, régénérés au plus toutes les 60 s
+export const revalidate = 60;
 
 const MANIFESTO_LINES = [
   { text: "Produire uniquement ce que vous commandez." },
@@ -39,7 +43,8 @@ const steps = [
   ["Nous expédions", "Votre maille quitte notre atelier pour vous accompagner longtemps."],
 ];
 
-export default function HomePage() {
+export default async function HomePage() {
+  const featured = await getFeaturedProductState();
   return (
     <div className="pl-home" id="accueil">
       <HomeCinematic />
@@ -69,7 +74,7 @@ export default function HomePage() {
         <div className="pl-origin">Madagascar · Depuis notre atelier familial</div>
       </section>
 
-      <MantasoaProduct />
+      <MantasoaProduct initialState={featured} />
 
       <section className="pl-collection-concept" id="collections" aria-labelledby="collection-concept-title">
         <div className="pl-collection-concept-head">

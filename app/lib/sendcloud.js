@@ -72,11 +72,25 @@ const WEIGHT_RANGE_SUFFIX = /\s*\d+(?:[.,]\d+)?\s*-\s*\d+(?:[.,]\d+)?\s*kg\s*$/i
  * @returns {Promise<Array<{ key: string, methodId: number, name: string, carrier: string,
  *   carrierLabel: string, servicePoint: boolean, price: number | null, leadTimeDays: number | null }>>}
  */
+// Le catalogue de méthodes d'un pays change rarement : il est gardé en mémoire de l'instance,
+// ce qui évite trois appels identiques par commande (modes d'expédition, paiement, enregistrement).
+const METHODS_TTL_MS = 10 * 60 * 1000;
+const methodsCache = new Map();
+
+function fetchShippingMethods(toCountry) {
+  const cached = methodsCache.get(toCountry);
+  if (cached && cached.expiresAt > Date.now()) return cached.promise;
+
+  const promise = sendcloudFetch(`/shipping_methods?to_country=${encodeURIComponent(toCountry)}&is_return=false`)
+    .then((res) => res.json())
+    .then(({ shipping_methods = [] }) => shipping_methods);
+  methodsCache.set(toCountry, { promise, expiresAt: Date.now() + METHODS_TTL_MS });
+  promise.catch(() => methodsCache.delete(toCountry)); // une erreur n'est jamais mise en cache
+  return promise;
+}
+
 export async function getShippingOptions({ toCountry = "FR", weight = DEFAULT_ITEM_WEIGHT } = {}) {
-  const res = await sendcloudFetch(
-    `/shipping_methods?to_country=${encodeURIComponent(toCountry)}&is_return=false`
-  );
-  const { shipping_methods = [] } = await res.json();
+  const shipping_methods = await fetchShippingMethods(toCountry);
 
   const options = new Map();
   for (const m of shipping_methods) {

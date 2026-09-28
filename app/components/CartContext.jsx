@@ -5,6 +5,8 @@ import {
   useContext,
   useState,
   useEffect,
+  useCallback,
+  useMemo,
 } from "react";
 
 const CartContext = createContext();
@@ -42,7 +44,7 @@ export function CartProvider({ children }) {
   }, [cartItems]);
 
   /* ➕ Ajouter au panier */
-  const addToCart = (product) => {
+  const addToCart = useCallback((product) => {
     const cartKey = `${product._id}_${product.size || ""}_${product.color || ""}`;
     setCartItems((prev) => {
       const existing = prev.find((item) => item.cartKey === cartKey);
@@ -57,10 +59,10 @@ export function CartProvider({ children }) {
 
       return [...prev, { ...product, cartKey, quantity: 1 }];
     });
-  };
+  }, []);
 
   /* ➕ Quantité */
-  const increaseQty = (cartKey) => {
+  const increaseQty = useCallback((cartKey) => {
     setCartItems((prev) =>
       prev.map((item) =>
         item.cartKey === cartKey
@@ -68,10 +70,10 @@ export function CartProvider({ children }) {
           : item
       )
     );
-  };
+  }, []);
 
   /* ➖ Quantité */
-  const decreaseQty = (cartKey) => {
+  const decreaseQty = useCallback((cartKey) => {
     setCartItems((prev) =>
       prev.map((item) =>
         item.cartKey === cartKey
@@ -79,17 +81,17 @@ export function CartProvider({ children }) {
           : item
       )
     );
-  };
+  }, []);
 
   /* ❌ Supprimer */
-  const removeFromCart = (cartKey) => {
+  const removeFromCart = useCallback((cartKey) => {
     setCartItems((prev) =>
       prev.filter((item) => item.cartKey !== cartKey)
     );
-  };
+  }, []);
 
   /* 🗑️ Vider le panier */
-  const clearCart = () => setCartItems([]);
+  const clearCart = useCallback(() => setCartItems([]), []);
 
   /* 💰 TOTAL AUTOMATIQUE */
   const cartTotal = cartItems.reduce((total, item) => {
@@ -97,18 +99,14 @@ export function CartProvider({ children }) {
     return total + price * item.quantity;
   }, 0);
 
+  // Valeur stable tant que le panier ne change pas : les consommateurs ne se re-rendent pas pour rien
+  const value = useMemo(
+    () => ({ cartItems, addToCart, increaseQty, decreaseQty, removeFromCart, clearCart, cartTotal }),
+    [cartItems, addToCart, increaseQty, decreaseQty, removeFromCart, clearCart, cartTotal]
+  );
+
   return (
-    <CartContext.Provider
-      value={{
-        cartItems,
-        addToCart,
-        increaseQty,
-        decreaseQty,
-        removeFromCart,
-        clearCart,
-        cartTotal,
-      }}
-    >
+    <CartContext.Provider value={value}>
       {children}
     </CartContext.Provider>
   );

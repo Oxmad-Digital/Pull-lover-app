@@ -7,10 +7,12 @@ import { selectFeaturedProduct } from "@/app/lib/featured-product.mjs";
 
 const money = (value) => new Intl.NumberFormat("fr-FR", { style: "currency", currency: "EUR", maximumFractionDigits: 2 }).format(value);
 
-export default function MantasoaProduct() {
-  const [state, setState] = useState({ status: "loading", product: null });
+// initialState : calculé au rendu serveur ; absent (base injoignable), le produit est chargé ici.
+export default function MantasoaProduct({ initialState = null }) {
+  const [state, setState] = useState(initialState ?? { status: "loading", product: null });
 
   useEffect(() => {
+    if (initialState) return undefined;
     const controller = new AbortController();
     const timeout = setTimeout(() => controller.abort(), 15000);
     let active = true;
@@ -26,7 +28,7 @@ export default function MantasoaProduct() {
       .catch(() => { if (active) setState({ status: "error", product: null }); })
       .finally(() => clearTimeout(timeout));
     return () => { active = false; clearTimeout(timeout); controller.abort(); };
-  }, []);
+  }, [initialState]);
 
   const { product, status } = state;
   const price = product ? Number(product.promoPrice ?? product.price) : null;

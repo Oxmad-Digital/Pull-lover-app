@@ -6,6 +6,9 @@ const nextConfig: NextConfig = {
     root: __dirname,
   },
   serverExternalPackages: ["@neondatabase/serverless"],
+  images: {
+    formats: ["image/avif", "image/webp"],
+  },
   async headers() {
     return [
       {

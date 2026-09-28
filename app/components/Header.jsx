@@ -30,9 +30,48 @@ function padTime(value) {
   return String(value).padStart(2, "0");
 }
 
+// Isolé du header : seul ce bandeau se re-rend chaque seconde
+function AnnouncementCountdown({ dropDate }) {
+  const [remainingTime, setRemainingTime] = useState(null);
+
+  useEffect(() => {
+    if (!dropDate) return;
+
+    const updateCountdown = () => setRemainingTime(getRemainingTime(dropDate));
+    updateCountdown();
+    const interval = window.setInterval(updateCountdown, 1000);
+    return () => window.clearInterval(interval);
+  }, [dropDate]);
+
+  const formattedDropDate = dropDate
+    ? new Intl.DateTimeFormat("fr-FR", { day: "numeric", month: "long", hour: "2-digit", minute: "2-digit" }).format(new Date(dropDate))
+    : "";
+
+  return (
+    <div className="pl-announcement">
+      {remainingTime ? (
+        <div className="pl-announcement-countdown">
+          <span>Précommandes ouvertes jusqu’au <time dateTime={dropDate}>{formattedDropDate}</time></span>
+          <span className="pl-announcement-separator" aria-hidden="true" />
+          <span
+            className="pl-announcement-timer"
+            aria-label={`${remainingTime.days} jours, ${remainingTime.hours} heures, ${remainingTime.minutes} minutes et ${remainingTime.seconds} secondes restantes`}
+          >
+            <strong>{padTime(remainingTime.days)}j</strong>
+            <strong>{padTime(remainingTime.hours)}h</strong>
+            <strong>{padTime(remainingTime.minutes)}m</strong>
+            <strong>{padTime(remainingTime.seconds)}s</strong>
+          </span>
+        </div>
+      ) : (
+        <span>Précommandes ouvertes jusqu’au <strong className="pl-announcement-pending">— date à définir</strong></span>
+      )}
+    </div>
+  );
+}
+
 export default function Header({ transparent = false, dashboard = false }) {
   const [dropDate, setDropDate] = useState(null);
-  const [remainingTime, setRemainingTime] = useState(null);
   const { cartItems } = useCart();
   const { data: session } = useSession();
   const mobileMenu = useRef(null);
@@ -69,46 +108,15 @@ export default function Header({ transparent = false, dashboard = false }) {
     };
   }, []);
 
-  useEffect(() => {
-    if (!dropDate) return;
-
-    const updateCountdown = () => setRemainingTime(getRemainingTime(dropDate));
-    updateCountdown();
-    const interval = window.setInterval(updateCountdown, 1000);
-    return () => window.clearInterval(interval);
-  }, [dropDate]);
-
   function closeMenus() {
     if (mobileMenu.current) mobileMenu.current.open = false;
     if (accountMenu.current) accountMenu.current.open = false;
   }
 
-  const formattedDropDate = dropDate
-    ? new Intl.DateTimeFormat("fr-FR", { day: "numeric", month: "long", hour: "2-digit", minute: "2-digit" }).format(new Date(dropDate))
-    : "";
-
   return (
     <header className={`pl-header${transparent ? " pl-header-home" : ""}${dashboard ? " pl-header-dashboard" : ""}`}>
       <a className="pl-skip-link" href="#contenu">Aller au contenu</a>
-      <div className="pl-announcement">
-        {remainingTime ? (
-          <div className="pl-announcement-countdown">
-            <span>Précommandes ouvertes jusqu’au <time dateTime={dropDate}>{formattedDropDate}</time></span>
-            <span className="pl-announcement-separator" aria-hidden="true" />
-            <span
-              className="pl-announcement-timer"
-              aria-label={`${remainingTime.days} jours, ${remainingTime.hours} heures, ${remainingTime.minutes} minutes et ${remainingTime.seconds} secondes restantes`}
-            >
-              <strong>{padTime(remainingTime.days)}j</strong>
-              <strong>{padTime(remainingTime.hours)}h</strong>
-              <strong>{padTime(remainingTime.minutes)}m</strong>
-              <strong>{padTime(remainingTime.seconds)}s</strong>
-            </span>
-          </div>
-        ) : (
-          <span>Précommandes ouvertes jusqu’au <strong className="pl-announcement-pending">— date à définir</strong></span>
-        )}
-      </div>
+      <AnnouncementCountdown dropDate={dropDate} />
       <div className="pl-nav">
         <Link href="/" className="pl-logo" aria-label="Pull-Lover, accueil">
           <Image

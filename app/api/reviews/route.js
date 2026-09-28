@@ -12,7 +12,10 @@ export async function GET(req) {
 
     await connectDB();
     const reviews = await Review.find({ productId }).sort({ date: -1 }).lean();
-    return Response.json(reviews);
+    // Le formulaire ajoute l'avis publié localement : un léger cache CDN ne le masque pas
+    return Response.json(reviews, {
+      headers: { "Cache-Control": "public, s-maxage=60, stale-while-revalidate=300" },
+    });
   } catch (error) {
     return Response.json({ error: error.message }, { status: 500 });
   }

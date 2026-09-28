@@ -8,10 +8,14 @@ import Customer from "@/app/models/Customer";
 import Product  from "@/app/models/Product";
 import { requireAdmin } from "@/app/lib/auth";
 
+// Valeur numérique d'un champ jsonb (NULL si le texte n'est pas un nombre)
+const num = (expr) => `(CASE WHEN ${expr} ~ '^-?[0-9]+(\\.[0-9]+)?$' THEN (${expr})::float8 END)`;
+const ORDER_LINES = `jsonb_array_elements(CASE WHEN jsonb_typeof(o.data->'products') = 'array' THEN o.data->'products' ELSE '[]'::jsonb END)`;
+
 const fetchStats = unstable_cache(
   async (period) => {
     try {
-    await connectDB();
+    const sql = await connectDB();
     const daysAgo = parseInt(period);
 
     const periodStart = new Date();
@@ -50,7 +54,7 @@ const fetchStats = unstable_cache(
       topProductsAgg,
       ordersByStatusAgg,
       paymentAgg,
-      soldProductsAgg,
+      [{ count: neverSoldProducts }],
       topCustomersAgg,
       recentOrders,
     ] = await Promise.all([
@@ -73,7 +77,7 @@ const fetchStats = unstable_cache(
       Product.countDocuments({ stock: { $gt: 0, $lt: 5 } }),
 
       // Revenus
-      Order.aggregate([{ $group: { _id: null, total: { $sum: "$total" } } }]),
+      sql.query(`SELECT COALESCE(sum(${num("data->>'total'")}), 0) AS total FROM orders`),
       Order.aggregate([
         { $match: { createdAt: { $gte: periodStart } } },
         { $group: { _id: null, total: { $sum: "$total" } } },
@@ -105,43 +109,37 @@ const fetchStats = unstable_cache(
       ]),
 
       // Top produits
-      Order.aggregate([
-        { $unwind: "$products" },
-        { $group: { _id: "$products.product", totalQuantity: { $sum: "$products.quantity" } } },
-        { $sort: { totalQuantity: -1 } },
-        { $limit: 5 },
-        { $lookup: { from: "products", localField: "_id", foreignField: "_id", as: "p" } },
-        { $unwind: "$p" },
-        { $project: { name: "$p.name", quantity: "$totalQuantity" } },
-      ]),
+      sql.query(`
+        WITH sold AS (
+          SELECT line->>'product' AS product_id, COALESCE(sum(${num("line->>'quantity'")}), 0) AS quantity
+          FROM orders o, ${ORDER_LINES} AS line
+          GROUP BY 1 ORDER BY 2 DESC LIMIT 5
+        )
+        SELECT p.data->>'name' AS name, sold.quantity
+        FROM sold JOIN products p ON p.id::text = lower(sold.product_id)
+        ORDER BY sold.quantity DESC
+      `),
 
       // Distributions
-      Order.aggregate([{ $group: { _id: "$status", count: { $sum: 1 } } }]),
-      Order.aggregate([
-        { $group: { _id: { $ifNull: ["$payment", "cash"] }, count: { $sum: 1 } } },
-      ]),
+      sql.query(`SELECT data->>'status' AS "_id", count(*)::int AS count FROM orders GROUP BY 1`),
+      sql.query(`SELECT COALESCE(data->>'payment', 'cash') AS "_id", count(*)::int AS count FROM orders GROUP BY 1`),
 
-      // Produits vendus (pour "jamais vendus")
-      Order.aggregate([
-        { $unwind: "$products" },
-        { $group: { _id: "$products.product" } },
-      ]),
+      // Produits en stock jamais vendus
+      sql.query(`
+        SELECT count(*)::int AS count FROM products p
+        WHERE p.data->>'isAvailable' = 'true' AND ${num("p.data->>'stock'")} > 0
+          AND NOT EXISTS (SELECT 1 FROM orders o, ${ORDER_LINES} AS line WHERE lower(line->>'product') = p.id::text)
+      `),
 
       // Top clients calculé depuis les commandes (fiable même si Customer.totalSpent non mis à jour)
-      Order.aggregate([
-        {
-          $group: {
-            _id: "$customer.email",
-            firstname:   { $first: "$customer.firstname" },
-            lastname:    { $first: "$customer.lastname" },
-            totalSpent:  { $sum: "$total" },
-            totalOrders: { $sum: 1 },
-          },
-        },
-        { $sort: { totalSpent: -1 } },
-        { $limit: 5 },
-        { $project: { _id: 0, firstname: 1, lastname: 1, totalSpent: 1, totalOrders: 1 } },
-      ]),
+      sql.query(`
+        SELECT (array_agg(data #>> '{customer,firstname}' ORDER BY created_at))[1] AS firstname,
+               (array_agg(data #>> '{customer,lastname}' ORDER BY created_at))[1] AS lastname,
+               COALESCE(sum(${num("data->>'total'")}), 0) AS "totalSpent",
+               count(*)::int AS "totalOrders"
+        FROM orders GROUP BY data #>> '{customer,email}'
+        ORDER BY 3 DESC LIMIT 5
+      `),
 
       Order.find()
         .sort({ createdAt: -1 })
@@ -149,14 +147,6 @@ const fetchStats = unstable_cache(
         .select("customer.firstname customer.lastname total status createdAt")
         .lean(),
     ]);
-
-    // ── Requête dépendante : produits jamais vendus ──
-    const soldIds = soldProductsAgg.map((item) => item._id);
-    const neverSoldProducts = await Product.countDocuments({
-      _id: { $nin: soldIds },
-      isAvailable: true,
-      stock: { $gt: 0 },
-    });
 
     // ── Calculs dérivés ──
     const totalRevenue      = totalRevenueAgg[0]?.total      || 0;

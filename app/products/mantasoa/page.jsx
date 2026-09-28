@@ -1,4 +1,8 @@
 import MantasoaProductPage from "./MantasoaProductPage";
+import { getFeaturedProductState } from "@/app/lib/products";
+
+// Fiche rendue côté serveur avec le stock du moment, régénérée au plus toutes les 60 s
+export const revalidate = 60;
 
 export const metadata = {
   title: "Cardigan en maille — Pull-Lover",
@@ -14,6 +18,6 @@ export const metadata = {
   },
 };
 
-export default function MantasoaPage() {
-  return <MantasoaProductPage />;
+export default async function MantasoaPage() {
+  return <MantasoaProductPage initialState={await getFeaturedProductState()} />;
 }

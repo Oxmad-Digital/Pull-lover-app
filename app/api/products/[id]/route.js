@@ -1,18 +1,12 @@
 // app/api/products/[id]/route.js
 
 import { NextResponse } from "next/server";
-import { connectDB, isValidId } from "@/app/lib/db";
-import Product from "@/app/models/Product";
-import "@/app/models/Category";
+import { findProductByParam } from "@/app/lib/products";
 
 export async function GET(req, { params }) {
   try {
-    await connectDB();
-
     // ✅ Next.js 16 : params doit être await
     const { id } = await params;
-
-    console.log("🔍 Recherche produit ID:", id);
 
     if (!id) {
       return NextResponse.json(
@@ -21,21 +15,7 @@ export async function GET(req, { params }) {
       );
     }
 
-    // Mode mono-produit : "mantasoa" est une URL marketing fixe qui pointe
-    // toujours vers l'unique produit, quel que soit son nom en base.
-    const productQuery = id.toLowerCase() === "mantasoa"
-      ? Product.findOne({})
-      : isValidId(id)
-        ? Product.findById(id)
-        : Product.findOne({ slug: id });
-
-    const product = await productQuery
-      .populate({
-        path: "category",
-        select: "name slug",
-        options: { strictPopulate: false },
-      })
-      .lean();
+    const product = await findProductByParam(id);
 
     if (!product) {
       return NextResponse.json(
@@ -44,12 +24,8 @@ export async function GET(req, { params }) {
       );
     }
 
-    console.log("✅ Produit trouvé:", product.name);
-
-    return NextResponse.json({ 
-      success: true, 
-      product 
-    });
+    // Cache-Control posé par next.config.ts (/api/products(.*))
+    return NextResponse.json({ success: true, product });
 
   } catch (error) {
     console.error("❌ ERREUR:", error.message);

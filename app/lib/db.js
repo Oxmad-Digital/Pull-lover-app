@@ -23,7 +23,7 @@ const UNIQUE_INDEXES = [
   ["users", "email"],
 ];
 
-function getClient() {
+export function getClient() {
   if (!DATABASE_URL) {
     throw new Error("DATABASE_URL n'est pas définie pour Neon PostgreSQL");
   }
@@ -51,6 +51,8 @@ function getClient() {
       });
       return query.query(text, parameters);
     };
+    // Requête déjà paramétrée ($1, $2…), construite par postgres-model / sql-filter
+    sql.query = (text, parameters = []) => query.query(text, parameters);
     sql.json = (value) => ({ jsonValue: JSON.stringify(value) });
     sql.literal = (value) => {
       if (!/^[a-z_][a-z0-9_]*$/i.test(value)) throw new Error("Littéral SQL invalide");
@@ -63,13 +65,23 @@ function getClient() {
   return globalThis.__pullLoverPostgres;
 }
 
-// Index uniques ajoutés après coup : leur création ne doit pas bloquer le site si
+// Index uniques ajoutés après coup : leur création ne doit pas bloquer la migration si
 // des doublons existent déjà en base (ils sont alors signalés dans les logs).
 const OPTIONAL_UNIQUE_INDEXES = [
   ["orders", "stripePaymentId"],
 ];
 
-async function initializeSchema(sql) {
+// Index de lecture, alignés sur les expressions générées par sql-filter.mjs
+const LOOKUP_INDEXES = [
+  ["orders_created_at_idx", "orders", "(created_at)"],
+  ["orders_status_idx", "orders", "((data->>'status'))"],
+  ["orders_customer_email_idx", "orders", "(lower(data #>> '{customer,email}'))"],
+  ["reviews_product_id_idx", "reviews", "((data->>'productId'))"],
+  ["customers_created_at_idx", "customers", "(created_at)"],
+];
+
+/** Crée tables et index manquants. Lancé par `npm run migrate`, jamais pendant une requête. */
+export async function initializeSchema(sql = getClient()) {
   for (const table of TABLES) {
     await sql`
       CREATE TABLE IF NOT EXISTS ${sql(table)} (
@@ -102,20 +114,16 @@ async function initializeSchema(sql) {
       console.error(`⚠️ Index unique ${indexName} non créé (doublons existants ?) :`, error.message);
     }
   }
+
+  // Expressions fixes définies ci-dessus (aucune entrée utilisateur)
+  for (const [indexName, table, expression] of LOOKUP_INDEXES) {
+    await sql.query(`CREATE INDEX IF NOT EXISTS "${indexName}" ON "${table}" ${expression}`);
+  }
 }
 
+// Le schéma est créé par `npm run migrate` : plus de DDL au démarrage à froid.
 export async function connectDB() {
-  const sql = getClient();
-
-  if (!globalThis.__pullLoverSchemaPromise) {
-    globalThis.__pullLoverSchemaPromise = initializeSchema(sql).catch((error) => {
-      globalThis.__pullLoverSchemaPromise = null;
-      throw error;
-    });
-  }
-
-  await globalThis.__pullLoverSchemaPromise;
-  return sql;
+  return getClient();
 }
 
 export function isValidId(value) {
