@@ -22,9 +22,9 @@ export default function NotreMarque() {
                     <div className="nm-intro__inner">
                         <div className="nm-intro__left" data-reveal-stagger>
                             <Eyebrow className="nm-eyebrow">Notre marque</Eyebrow>
-                            <h2 className="nm-intro__heading">
-                                Pull Lover, une marque, une histoire
-                            </h2>
+                            <h1 className="nm-intro__heading">
+                                Pull-Lover, une marque, une histoire
+                            </h1>
                         </div>
                         <div className="nm-intro__right" data-reveal-stagger>
                             <p>

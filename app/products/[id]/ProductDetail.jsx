@@ -3,6 +3,7 @@
 import { useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
+import { productPath } from "@/app/lib/seo";
 import { useCart } from "@/app/components/CartContext";
 import { useFavorites } from "@/app/components/FavoritesContext";
 import { ButtonPrimary, ButtonSecondary } from "@/app/components/ui/Button";
@@ -70,7 +71,7 @@ export default function ProductDetail({ product, initialReviews, relatedProducts
     if (product.image) allImages.push(product.image);
     if (product.images?.length) allImages.push(...product.images);
     const unique = [...new Set(allImages)].filter(Boolean);
-    return unique.length > 0 ? unique : ["/no-image.png"];
+    return unique.length > 0 ? unique : ["/no-image.svg"];
   };
 
   const handleAddToCart = () => {
@@ -166,7 +167,7 @@ export default function ProductDetail({ product, initialReviews, relatedProducts
               <div className="thumbnails">
                 {images.map((img, index) => (
                   <button key={index} className={`thumbnail ${selectedImage === index ? "active" : ""}`} onClick={() => setSelectedImage(index)}>
-                    <Image src={img} alt={`Vue ${index + 1}`} width={80} height={80} />
+                    <Image src={img} alt={`${product.name} — vue ${index + 1}`} width={80} height={80} />
                   </button>
                 ))}
               </div>
@@ -408,9 +409,9 @@ export default function ProductDetail({ product, initialReviews, relatedProducts
             <h2 data-reveal>Produits similaires</h2>
             <div className="related-grid" data-reveal-stagger>
               {relatedProducts.map((item) => (
-                <Link key={item._id} href={`/products/${item._id}`} className="related-card">
+                <Link key={item._id} href={productPath(item)} className="related-card">
                   <div className="related-image">
-                    <Image src={item.image || "/no-image.png"} alt={item.name} width={200} height={200} />
+                    <Image src={item.image || "/no-image.svg"} alt={item.name} width={200} height={200} />
                   </div>
                   <h3>{item.name}</h3>
                   <p className="related-price">{Number(item.promoPrice || item.price).toLocaleString()} €</p>

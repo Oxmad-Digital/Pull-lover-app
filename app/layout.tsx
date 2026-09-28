@@ -6,6 +6,7 @@ import HeaderWrapper from "./components/HeaderWrapper";
 import FooterWrapper from "./components/FooterWrapper";
 import Providers from "./components/Providers";
 import SiteReveal from "./components/SiteReveal";
+import { OPEN_GRAPH_BASE, SITE_NAME, SITE_URL } from "./lib/seo";
 
 // Posé avant le premier rendu pour que les éléments à révéler soient cachés dès l'affichage.
 // Filet de sécurité : si SiteReveal ne démarre pas en 4 s, tout redevient visible.
@@ -20,14 +21,11 @@ const montserrat = Montserrat({
 
 
 export const metadata = {
-  title: { default: "Pull Lover", template: "%s | Pull Lover" },
-  description: "Boutique de mailles artisanales faites main à Antananarivo, Madagascar.",
-  metadataBase: new URL("https://www.pull-lover.com"),
-  openGraph: {
-    siteName: "Pull Lover",
-    type: "website",
-    locale: "fr_FR",
-  },
+  title: { default: `${SITE_NAME} — Maille de Madagascar`, template: `%s | ${SITE_NAME}` },
+  description: "Mailles artisanales fabriquées à la demande dans notre atelier familial à Antananarivo, Madagascar.",
+  applicationName: SITE_NAME,
+  metadataBase: new URL(SITE_URL),
+  openGraph: OPEN_GRAPH_BASE,
   twitter: { card: "summary_large_image" },
   robots: { index: true, follow: true },
 };
