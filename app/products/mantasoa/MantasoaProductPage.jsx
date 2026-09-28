@@ -37,11 +37,12 @@ function normalizeImages(product) {
   });
 }
 
-export default function MantasoaProductPage() {
+// initialState : calculé au rendu serveur ; absent (base injoignable), le produit est chargé ici.
+export default function MantasoaProductPage({ initialState = null }) {
   const router = useRouter();
   const { addToCart, cartItems } = useCart();
-  const [status, setStatus] = useState("loading");
-  const [product, setProduct] = useState(null);
+  const [status, setStatus] = useState(initialState?.status ?? "loading");
+  const [product, setProduct] = useState(initialState?.product ?? null);
   const [activeImage, setActiveImage] = useState(0);
   const [selectedSize, setSelectedSize] = useState("");
   const [quantity, setQuantity] = useState(1);
@@ -49,6 +50,7 @@ export default function MantasoaProductPage() {
   const [confirmation, setConfirmation] = useState(false);
 
   useEffect(() => {
+    if (initialState) return undefined;
     const controller = new AbortController();
     const timeout = setTimeout(() => controller.abort(), 15000);
     fetch("/api/products?limit=20", { signal: controller.signal })
@@ -62,7 +64,7 @@ export default function MantasoaProductPage() {
       .catch(() => setStatus("error"))
       .finally(() => clearTimeout(timeout));
     return () => { clearTimeout(timeout); controller.abort(); };
-  }, []);
+  }, [initialState]);
 
   const images = useMemo(() => normalizeImages(product), [product]);
   const sizes = useMemo(() => {

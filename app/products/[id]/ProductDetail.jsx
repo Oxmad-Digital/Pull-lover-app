@@ -1,7 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
-import { useParams } from "next/navigation";
+import { useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { useCart } from "@/app/components/CartContext";
@@ -10,13 +9,9 @@ import { ButtonPrimary, ButtonSecondary } from "@/app/components/ui/Button";
 import { BadgePromo } from "@/app/components/ui/Tag";
 import "./product-detail.css";
 
-export default function ProductDetailPage() {
-  const { id } = useParams();
+// Partie interactive de la fiche : les données arrivent déjà rendues par page.jsx (serveur)
+export default function ProductDetail({ product, initialReviews, relatedProducts }) {
   const { addToCart } = useCart();
-
-  const [product, setProduct] = useState(null);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState("");
 
   const [selectedImage, setSelectedImage] = useState(0);
   const [selectedSize, setSelectedSize] = useState("");
@@ -28,16 +23,14 @@ export default function ProductDetailPage() {
   const [detailsOpen, setDetailsOpen] = useState(false);
   const [careOpen, setCareOpen] = useState(false);
 
-  const [relatedProducts, setRelatedProducts] = useState([]);
-
-  const [reviews, setReviews] = useState([]);
+  const [reviews, setReviews] = useState(initialReviews);
   const [showReviewForm, setShowReviewForm] = useState(false);
   const [reviewName, setReviewName] = useState("");
   const [reviewComment, setReviewComment] = useState("");
   const [reviewRating, setReviewRating] = useState(5);
   const [reviewSuccess, setReviewSuccess] = useState(false);
   const [expandedReviews, setExpandedReviews] = useState({});
-  const productId = product?._id;
+  const productId = product._id;
 
   const averageRating =
     reviews.length > 0
@@ -54,72 +47,25 @@ export default function ProductDetailPage() {
     setExpandedReviews((prev) => ({ ...prev, [reviewId]: !prev[reviewId] }));
   };
 
-  useEffect(() => {
-    async function fetchProduct() {
-      try {
-        setLoading(true);
-        const res = await fetch(`/api/products/${id}`);
-        const data = await res.json();
-        if (data.success && data.product) {
-          setProduct(data.product);
-          if (data.product.category) {
-            fetchRelatedProducts(
-              data.product.category._id || data.product.category,
-              data.product._id
-            );
-          }
-        } else {
-          throw new Error(data.message || "Produit introuvable");
-        }
-      } catch (err) {
-        setError(err.message);
-      } finally {
-        setLoading(false);
-      }
-    }
-    if (id) fetchProduct();
-  }, [id]);
-
-  const fetchRelatedProducts = async (categoryId, currentProductId) => {
-    try {
-      const res = await fetch(`/api/products?category=${categoryId}&limit=4`);
-      const data = await res.json();
-      if (data.products) {
-        setRelatedProducts(data.products.filter((p) => p._id !== currentProductId));
-      }
-    } catch (err) {
-      console.error("Erreur produits similaires:", err);
-    }
-  };
-
-  useEffect(() => {
-    if (!productId) return;
-    fetch(`/api/reviews?productId=${productId}`)
-      .then((res) => res.json())
-      .then((data) => { if (Array.isArray(data)) setReviews(data); })
-      .catch((err) => console.error(err));
-  }, [productId]);
-
   const submitReview = async () => {
     if (!productId || !reviewName || !reviewComment) return;
-    await fetch("/api/reviews", {
+    const res = await fetch("/api/reviews", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ productId, name: reviewName, rating: reviewRating, comment: reviewComment }),
     });
+    const created = res.ok ? await res.json() : null;
     setReviewName("");
     setReviewComment("");
     setReviewRating(5);
     setShowReviewForm(false);
     setReviewSuccess(true);
     setTimeout(() => setReviewSuccess(false), 3000);
-    const res = await fetch(`/api/reviews?productId=${productId}`);
-    const data = await res.json();
-    if (Array.isArray(data)) setReviews(data);
+    // L'avis créé est ajouté en tête (tri par date décroissante) au lieu de relire la liste
+    if (created?._id) setReviews((prev) => [created, ...prev]);
   };
 
   const getAllImages = () => {
-    if (!product) return ["/no-image.png"];
     const allImages = [];
     if (product.image) allImages.push(product.image);
     if (product.images?.length) allImages.push(...product.images);
@@ -166,34 +112,6 @@ export default function ProductDetailPage() {
     }
     return stars;
   };
-
-  if (loading) {
-    return (
-      <div className="product-page-bg">
-        <div className="product-detail-page">
-          <div className="product-loading">
-            <div className="spinner"></div>
-            <p>Chargement du produit...</p>
-          </div>
-        </div>
-      </div>
-    );
-  }
-
-  if (error) {
-    return (
-      <div className="product-page-bg">
-        <div className="product-detail-page">
-          <div className="product-error">
-            <h2>{error}</h2>
-            <Link href="/#piece" className="back-link">← Découvrir le cardigan</Link>
-          </div>
-        </div>
-      </div>
-    );
-  }
-
-  if (!product) return null;
 
   const images = getAllImages();
   const productSizes =

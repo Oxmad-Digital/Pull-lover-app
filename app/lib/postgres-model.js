@@ -1,5 +1,6 @@
 import { randomUUID } from "node:crypto";
 import { connectDB, isValidId } from "./db";
+import { buildOrderBy, buildWhere } from "./sql-filter.mjs";
 
 const modelRegistry = new Map();
 
@@ -59,6 +60,11 @@ function comparable(value) {
   return value?.toString?.() ?? value;
 }
 
+// Tris et comparaisons d'ordre : les nombres restent des nombres ("10" < "5" en texte)
+function orderable(value) {
+  return typeof value === "number" ? value : comparable(value);
+}
+
 function equals(left, right) {
   if (Array.isArray(left)) return left.some((item) => equals(item, right));
   return comparable(left) === comparable(right);
@@ -71,8 +77,8 @@ function matchesCondition(value, condition) {
   }
 
   return Object.entries(condition).every(([operator, expected]) => {
-    const left = comparable(value);
-    const right = comparable(expected);
+    const left = orderable(value);
+    const right = orderable(expected);
     if (operator === "$regex") {
       const flags = condition.$options || "";
       return new RegExp(expected, flags).test(String(value ?? ""));
@@ -181,8 +187,8 @@ async function runPipeline(input, pipeline) {
       const fields = Object.entries(stage.$sort);
       rows.sort((a, b) => {
         for (const [field, direction] of fields) {
-          const left = comparable(getPath(a, field));
-          const right = comparable(getPath(b, field));
+          const left = orderable(getPath(a, field));
+          const right = orderable(getPath(b, field));
           if (left < right) return -1 * direction;
           if (left > right) return 1 * direction;
         }
@@ -221,7 +227,12 @@ async function runPipeline(input, pipeline) {
       rows = [...groups.values()];
     } else if (stage.$lookup) {
       const related = modelRegistry.get(stage.$lookup.from);
-      const foreignRows = related ? await related.find().lean() : [];
+      // Jointure sur l'identifiant : on ne lit que les lignes référencées
+      const foreignRows = !related
+        ? []
+        : stage.$lookup.foreignField === "_id"
+          ? (await related._byIds(rows.map((row) => getPath(row, stage.$lookup.localField)))).map(plain)
+          : await related.find().lean();
       rows = rows.map((row) => ({
         ...row,
         [stage.$lookup.as]: foreignRows.filter((foreign) =>
@@ -267,12 +278,29 @@ class Query {
     // Recherche par identifiant seul (findById) : une ligne lue au lieu de toute la table
     const keys = Object.keys(this.filter);
     const byId = keys.length === 1 && keys[0] === "_id" && typeof this.filter._id === "string";
-    let rows = byId
-      ? await this.model._byId(this.filter._id)
-      : (await this.model._all()).filter((row) => matches(row, this.filter));
+    let rows;
+    let paged = false;
+
+    if (byId) {
+      rows = await this.model._byId(this.filter._id);
+    } else {
+      // Le WHERE est calculé en SQL ; le filtre JS reste appliqué pour ce qui n'a pas été traduit.
+      // LIMIT / OFFSET ne sont délégués que si le WHERE et le tri sont exacts côté SQL.
+      const where = this.model._where(this.filter);
+      const orderBy = buildOrderBy(this.sortSpec);
+      const skip = this.skipCount || 0;
+      const limit = this.single ? 1 : this.limitCount;
+      paged = where.complete && (!this.sortSpec || orderBy !== null) &&
+        Number.isInteger(skip) && skip >= 0 && (limit == null || (Number.isInteger(limit) && limit >= 0));
+      rows = await this.model._select(where, paged ? { orderBy, limit, offset: skip } : {});
+      rows = rows.filter((row) => matches(row, this.filter));
+    }
+
     if (this.sortSpec) rows = await runPipeline(rows, [{ $sort: this.sortSpec }]);
-    if (this.skipCount) rows = rows.slice(this.skipCount);
-    if (this.limitCount != null) rows = rows.slice(0, this.limitCount);
+    if (!paged) {
+      if (this.skipCount) rows = rows.slice(this.skipCount);
+      if (this.limitCount != null) rows = rows.slice(0, this.limitCount);
+    }
     if (this.single) rows = rows.slice(0, 1);
 
     for (const spec of this.populateSpecs) rows = await this.model.populate(rows, spec);
@@ -302,31 +330,49 @@ export function createPostgresModel({ table, defaults = {}, normalize, reference
     toJSON() { return plain(this); }
   }
 
+  const toDocument = (row) => new Document({
+    ...row.data,
+    _id: row.id,
+    createdAt: row.created_at,
+    updatedAt: row.updated_at,
+  });
+
+  // Champs couverts par un index unique lower(data->>champ) (voir db.js)
+  const lowerIndexed = { categories: ["name"], customers: ["email"], newsletter_subscribers: ["email"], products: ["slug"], promos: ["code"], users: ["email"] }[table] || [];
+
   class Model {
     static table = table;
     static references = references;
 
-    static async _all() {
+    static _where(filter) {
+      return buildWhere(filter, { defaults, lowerIndexed });
+    }
+
+    static async _select({ clauses = [], params = [] } = {}, { orderBy, limit, offset } = {}) {
       const sql = await connectDB();
-      const rows = await sql`SELECT id, data, created_at, updated_at FROM ${sql(table)}`;
-      return rows.map((row) => new Document({
-        ...row.data,
-        _id: row.id,
-        createdAt: row.created_at,
-        updatedAt: row.updated_at,
-      }));
+      let text = `SELECT id, data, created_at, updated_at FROM "${table}"`;
+      if (clauses.length) text += ` WHERE ${clauses.join(" AND ")}`;
+      if (orderBy) text += ` ORDER BY ${orderBy}`;
+      if (limit != null) text += ` LIMIT ${limit}`;
+      if (offset) text += ` OFFSET ${offset}`;
+      return (await sql.query(text, params)).map(toDocument);
+    }
+
+    static async _all() {
+      return Model._select();
     }
 
     static async _byId(id) {
       if (!isValidId(id)) return [];
       const sql = await connectDB();
       const rows = await sql`SELECT id, data, created_at, updated_at FROM ${sql(table)} WHERE id = ${id}::uuid`;
-      return rows.map((row) => new Document({
-        ...row.data,
-        _id: row.id,
-        createdAt: row.created_at,
-        updatedAt: row.updated_at,
-      }));
+      return rows.map(toDocument);
+    }
+
+    static async _byIds(ids) {
+      const unique = [...new Set(ids.filter(isValidId))];
+      if (!unique.length) return [];
+      return Model._select({ clauses: ["id = ANY($1::uuid[])"], params: [unique] });
     }
 
     static async _persist(document, isNew = false) {
@@ -363,7 +409,12 @@ export function createPostgresModel({ table, defaults = {}, normalize, reference
     }
 
     static async countDocuments(filter = {}) {
-      return (await Model.find(filter).lean()).length;
+      const where = Model._where(filter);
+      if (!where.complete) return (await Model.find(filter).lean()).length;
+      const sql = await connectDB();
+      const text = `SELECT count(*)::int AS count FROM "${table}"${where.clauses.length ? ` WHERE ${where.clauses.join(" AND ")}` : ""}`;
+      const [row] = await sql.query(text, where.params);
+      return row.count;
     }
 
     static async findByIdAndUpdate(id, update) {
@@ -394,14 +445,14 @@ export function createPostgresModel({ table, defaults = {}, normalize, reference
 
     static async updateMany(filter, update) {
       const documents = await Model.find(filter);
-      for (const document of documents) {
-        applyUpdate(document, update);
-        await document.save();
-      }
+      await Promise.all(documents.map((document) => applyUpdate(document, update).save()));
       return { acknowledged: true, matchedCount: documents.length, modifiedCount: documents.length };
     }
 
     static async aggregate(pipeline) {
+      // Un $match en tête est exécuté en SQL (même traduction que find)
+      const [first, ...rest] = pipeline;
+      if (first?.$match) return runPipeline(await Model.find(first.$match), rest);
       return runPipeline(await Model._all(), pipeline);
     }
 
@@ -412,26 +463,31 @@ export function createPostgresModel({ table, defaults = {}, normalize, reference
       const related = modelRegistry.get(references[path]);
       if (!related) return input;
 
-      const populated = [];
-      for (const source of rows) {
-        const row = source instanceof Document ? source : plain(source);
-        if (path.includes(".")) {
-          const [arrayField, nestedField] = path.split(".");
-          row[arrayField] = await Promise.all((row[arrayField] || []).map(async (item) => {
-            const relatedDocument = await related.findById(item[nestedField]).lean();
+      const [arrayField, nestedField] = path.split(".");
+      const prepared = rows.map((source) => source instanceof Document ? source : plain(source));
+
+      // Une seule requête pour toutes les références de toutes les lignes
+      const ids = prepared.flatMap((row) => {
+        if (nestedField) return (row[arrayField] || []).map((item) => item?.[nestedField]);
+        return Array.isArray(row[path]) ? row[path] : [row[path]];
+      }).filter((id) => typeof id === "string");
+      const byId = new Map((await related._byIds(ids)).map((document) => [document._id.toLowerCase(), plain(document)]));
+      const lookup = (id) => (typeof id === "string" ? byId.get(id.toLowerCase()) : null) || null;
+
+      for (const row of prepared) {
+        if (nestedField) {
+          row[arrayField] = (row[arrayField] || []).map((item) => {
+            const relatedDocument = lookup(item[nestedField]);
             return { ...item, [nestedField]: relatedDocument ? pickFields(relatedDocument, selection) : null };
-          }));
+          });
         } else if (Array.isArray(row[path])) {
-          row[path] = (await Promise.all(row[path].map((id) => related.findById(id).lean())))
-            .filter(Boolean)
-            .map((item) => pickFields(item, selection));
+          row[path] = row[path].map(lookup).filter(Boolean).map((item) => pickFields(item, selection));
         } else if (row[path]) {
-          const relatedDocument = await related.findById(row[path]).lean();
+          const relatedDocument = lookup(row[path]);
           row[path] = relatedDocument ? pickFields(relatedDocument, selection) : null;
         }
-        populated.push(row);
       }
-      return Array.isArray(input) ? populated : populated[0];
+      return Array.isArray(input) ? prepared : prepared[0];
     }
   }
 

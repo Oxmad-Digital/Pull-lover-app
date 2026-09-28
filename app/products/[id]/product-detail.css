@@ -711,9 +711,8 @@
   margin: 2px 0 0;
 }
 
-/* ── CHARGEMENT / ERREUR ── */
-.product-detail-page .product-loading,
-.product-detail-page .product-error {
+/* ── CHARGEMENT ── */
+.product-detail-page .product-loading {
   min-height: 50vh;
   display: flex;
   flex-direction: column;
@@ -732,11 +731,6 @@
 }
 
 @keyframes spin { to { transform: rotate(360deg); } }
-
-.product-detail-page .back-link {
-  color: var(--brand);
-  text-decoration: none;
-}
 
 /* ── SPECS TABLE ── */
 .product-detail-page .specs-table {

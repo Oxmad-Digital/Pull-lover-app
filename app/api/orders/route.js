@@ -1,6 +1,6 @@
 // app/api/order/route.js
 
-import { NextResponse } from "next/server";
+import { NextResponse, after } from "next/server";
 import { connectDB } from "@/app/lib/db";
 import Order from "@/app/models/Order";
 import { sendEmail } from "@/app/lib/mailer";
@@ -37,6 +37,36 @@ async function decrementStock(sql, { product, size, quantity }) {
       updated_at = now()
     WHERE id = ${product}::uuid
   `;
+}
+
+/** Crée ou met à jour la fiche client à partir de la commande. */
+async function syncCustomer({ firstname, lastname, email, phone, city, address, total }) {
+  const existingCustomer = await Customer.findOne({ email });
+
+  if (existingCustomer) {
+    existingCustomer.totalOrders += 1;
+    existingCustomer.totalSpent += total;
+    existingCustomer.lastOrderAt = new Date();
+
+    if (!existingCustomer.phone && phone) existingCustomer.phone = phone;
+    if (!existingCustomer.city && city) existingCustomer.city = city;
+    if (!existingCustomer.address && address) existingCustomer.address = address;
+
+    await existingCustomer.save();
+  } else {
+    await Customer.create({
+      firstname,
+      lastname,
+      email,
+      phone: phone || "",
+      city: city || "",
+      address: address || "",
+      totalOrders: 1,
+      totalSpent: total,
+      lastOrderAt: new Date(),
+      status: "active",
+    });
+  }
 }
 
 export async function POST(req) {
@@ -212,57 +242,22 @@ export async function POST(req) {
 
     console.log("✅ Commande créée:", order._id);
 
-    // Incrément atomique du compteur d'utilisation du code promo
-    if (totals.promoCode) {
-      await sql`
+    const sql = await connectDB();
+
+    // Compteur promo, stock et fiche client sont indépendants : écrits en parallèle
+    await Promise.all([
+      // Incrément atomique du compteur d'utilisation du code promo
+      totals.promoCode && sql`
         UPDATE promos
         SET data = jsonb_set(data, '{usedCount}', to_jsonb(COALESCE((data->>'usedCount')::int, 0) + 1))
         WHERE data->>'code' = ${totals.promoCode}
-      `;
-    }
-
-    // Décrément du stock (par taille si renseignée)
-    const sql = await connectDB();
-    for (const l of lines) {
-      try {
-        await decrementStock(sql, l);
-      } catch (err) {
-        console.error("❌ Décrément stock:", l.product, err.message);
-      }
-    }
-
-    /* ======================
-   👤 SYNC CUSTOMER (IMPORTANT)
-====================== */
-const normalizedEmail = email;
-
-let existingCustomer = await Customer.findOne({ email: normalizedEmail });
-
-if (existingCustomer) {
-  existingCustomer.totalOrders += 1;
-  existingCustomer.totalSpent += total;
-  existingCustomer.lastOrderAt = new Date();
-
-  if (!existingCustomer.phone && phone) existingCustomer.phone = phone;
-  if (!existingCustomer.city && city) existingCustomer.city = city;
-  if (!existingCustomer.address && address) existingCustomer.address = address;
-
-  await existingCustomer.save();
-} else {
-  await Customer.create({
-    firstname,
-    lastname,
-    email: normalizedEmail,
-    phone: phone || "",
-    city: city || "",
-    address: address || "",
-    totalOrders: 1,
-    totalSpent: total,
-    lastOrderAt: new Date(),
-    status: "active",
-  });
-}
-
+      `,
+      // Décrément du stock (par taille si renseignée) : chaque UPDATE est atomique
+      ...lines.map((l) =>
+        decrementStock(sql, l).catch((err) => console.error("❌ Décrément stock:", l.product, err.message))
+      ),
+      syncCustomer({ firstname, lastname, email, phone, city, address, total }),
+    ]);
 
     /* ======================
        📧 PRÉPARATION DES EMAILS
@@ -341,42 +336,25 @@ if (existingCustomer) {
     });
 
     /* ======================
-       📧 ENVOI DES EMAILS
+       📧 ENVOI DES EMAILS (après la réponse : le client n'attend pas le SMTP)
     ====================== */
-    let emailErrors = [];
-
-    // 1️⃣ Email à l'ADMIN
-    try {
+    after(async () => {
       const adminEmail = process.env.ADMIN_EMAIL || process.env.EMAIL_USER;
-      console.log("📧 Envoi email ADMIN à:", adminEmail);
-
-      await sendEmail({
-        to: adminEmail,
-        subject: `🛒 Nouvelle commande #${orderNumber} - ${firstname} ${lastname}`,
-        html: shortageHtml ? adminEmailHtml.replace(/<body[^>]*>/, (tag) => tag + shortageHtml) : adminEmailHtml,
-      });
-
-      console.log("✅ Email ADMIN envoyé avec succès");
-    } catch (emailError) {
-      console.error("❌ Erreur email ADMIN:", emailError.message);
-      emailErrors.push({ type: "admin", error: emailError.message });
-    }
-
-    // 2️⃣ Email au CLIENT (✅ EMAIL DYNAMIQUE - tous les clients reçoivent !)
-    try {
-      console.log("📧 Envoi email CLIENT à:", email);
-
-      await sendEmail({
-        to: email, // ✅ L'email du client qui passe la commande
-        subject: `✅ Confirmation de votre commande #${orderNumber}`,
-        html: clientEmailHtml,
-      });
-
-      console.log("✅ Email CLIENT envoyé avec succès à:", email);
-    } catch (emailError) {
-      console.error("❌ Erreur email CLIENT:", emailError.message);
-      emailErrors.push({ type: "client", error: emailError.message });
-    }
+      const [adminResult, clientResult] = await Promise.allSettled([
+        sendEmail({
+          to: adminEmail,
+          subject: `🛒 Nouvelle commande #${orderNumber} - ${firstname} ${lastname}`,
+          html: shortageHtml ? adminEmailHtml.replace(/<body[^>]*>/, (tag) => tag + shortageHtml) : adminEmailHtml,
+        }),
+        sendEmail({
+          to: email,
+          subject: `✅ Confirmation de votre commande #${orderNumber}`,
+          html: clientEmailHtml,
+        }),
+      ]);
+      if (adminResult.status === "rejected") console.error("❌ Erreur email ADMIN:", adminResult.reason?.message);
+      if (clientResult.status === "rejected") console.error("❌ Erreur email CLIENT:", clientResult.reason?.message);
+    });
 
     /* ======================
        ✅ RÉPONSE SUCCÈS
@@ -392,8 +370,6 @@ if (existingCustomer) {
           status: order.status,
           createdAt: order.createdAt,
         },
-        emailStatus: emailErrors.length === 0 ? "sent" : "partial",
-        emailErrors: emailErrors.length > 0 ? emailErrors : undefined,
       },
       { status: 201 }
     );

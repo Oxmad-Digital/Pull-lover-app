@@ -6,6 +6,7 @@ import { authOptions } from "@/app/lib/authOptions";
 import { connectDB, isValidId } from "@/app/lib/db";
 import User from "@/app/models/User";
 import "@/app/models/Product";
+import { FAVORITE_FIELDS } from "@/app/lib/favorites.mjs";
 
 export async function GET() {
   try {
@@ -13,8 +14,10 @@ export async function GET() {
     if (!session) return NextResponse.json({ message: "Non autorisé" }, { status: 401 });
 
     await connectDB();
+    // Seulement les champs affichés par la page favoris, pas la fiche produit complète
     const user = await User.findOne({ email: session.user.email })
-      .populate("favorites")
+      .select("favorites")
+      .populate("favorites", FAVORITE_FIELDS.join(" "))
       .lean();
 
     if (!user) return NextResponse.json({ message: "Utilisateur introuvable" }, { status: 404 });
