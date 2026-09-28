@@ -26,4 +26,3 @@ function Btn({ variant, size, full, children, href, onClick, type = "button", di
 
 export function ButtonPrimary(props) { return <Btn variant="primary" {...props} />; }
 export function ButtonSecondary(props) { return <Btn variant="secondary" {...props} />; }
-export function ButtonGhost(props) { return <Btn variant="ghost" {...props} />; }

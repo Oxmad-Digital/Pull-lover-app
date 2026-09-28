@@ -24,8 +24,6 @@ export default function Footer() {
         </nav>
         <nav className="pl-footer-column" aria-label="Restons en lien">
           <h2>Restons en lien</h2>
-          <Link href="/contact">Nous écrire</Link>
-          <Link href="/notre-marque">Notre histoire</Link>
           <Link href="/dashboard">Mon compte</Link>
         </nav>
       </div>

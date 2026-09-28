@@ -1,15 +1,4 @@
-﻿/* ── Eyebrow — label de section en capitales (font-size défini dans globals.css) ── */
-.eyebrow {
-  display: block;
-  font-family: var(--font-montserrat, 'Montserrat', sans-serif);
-  font-weight: 700;
-  letter-spacing: 0.15em;
-  text-transform: uppercase;
-  color: #C75C5C;
-  margin: 0;
-}
-
-/* ── BadgePromo — pastille remise sur image ── */
+﻿/* ── BadgePromo — pastille remise sur image ── */
 .badge-promo {
   display: inline-block;
   font-family: var(--font-montserrat, 'Montserrat', sans-serif);

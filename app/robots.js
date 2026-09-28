@@ -13,7 +13,6 @@ export default function robots() {
         "/panier",
         "/checkout",
         "/success",
-        "/favoris",
         "/verify-email",
       ],
     },
