@@ -16,7 +16,7 @@ export default function SuppressionDonneesPage() {
           <li>Votre compte Pull Lover (nom, e-mail, mot de passe chiffré)</li>
           <li>Votre historique de commandes</li>
           <li>Vos informations de livraison</li>
-          <li>Vos préférences et favoris</li>
+          <li>Vos préférences</li>
           <li>Les données reçues lors de votre connexion via Facebook ou Google</li>
         </ul>
       </section>

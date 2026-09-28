@@ -12,7 +12,6 @@ const links = [
   { label: "La pièce", href: "/products/mantasoa" },
   { label: "L’atelier", href: "/#atelier" },
   { label: "Précommande", href: "/#precommande-info" },
-  { label: "Notre histoire", href: "/notre-marque" },
 ];
 
 function getRemainingTime(target) {
@@ -138,8 +137,6 @@ export default function Header({ transparent = false, dashboard = false }) {
             <summary className="pl-icon-button" aria-label="Mon compte"><UserIcon size={20} /></summary>
             <nav className="pl-account-panel" aria-label="Mon compte">
               <Link href={accountHref} onClick={closeMenus}>{session?.user?.role === "admin" ? "Administration" : session ? "Mon espace" : "Se connecter"}</Link>
-              <Link href="/favoris" onClick={closeMenus}>Mes favoris</Link>
-              <Link href="/contact" onClick={closeMenus}>Nous écrire</Link>
               {session && <button onClick={() => { closeMenus(); signOut({ callbackUrl: "/" }); }}>Se déconnecter</button>}
             </nav>
           </details>
@@ -149,7 +146,6 @@ export default function Header({ transparent = false, dashboard = false }) {
             <nav className="pl-mobile-panel" aria-label="Navigation mobile">
               {links.map((link) => <Link key={link.href} href={link.href} onClick={closeMenus}>{link.label}<span aria-hidden="true">↗</span></Link>)}
               <Link href={accountHref} onClick={closeMenus}>{session?.user?.role === "admin" ? "Administration" : "Mon compte"}</Link>
-              <Link href="/contact" onClick={closeMenus}>Nous écrire</Link>
             </nav>
           </details>
         </div>

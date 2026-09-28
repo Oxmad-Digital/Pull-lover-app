@@ -86,23 +86,6 @@ p {
   font-size: 18px;
 }
 
-/* ── Eyebrow — tailles responsive communes ── */
-.eyebrow {
-  font-size: 14px;
-}
-
-@media (max-width: 1199px) {
-  .eyebrow {
-    font-size: 12px;
-  }
-}
-
-@media (max-width: 767px) {
-  .eyebrow {
-    font-size: 10px;
-  }
-}
-
 /* ── Section title (H2) — tailles responsive communes ── */
 .section-title {
   font-size: 48px;

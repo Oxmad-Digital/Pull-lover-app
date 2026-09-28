@@ -60,16 +60,3 @@
   background: #243B3B;
   color: #fff;
 }
-
-/* — Ghost — */
-.btn-ghost {
-  background: transparent;
-  color: #243B3B;
-  border-color: transparent;
-  padding-left: 2px;
-  padding-right: 2px;
-}
-
-.btn-ghost:hover:not(:disabled) {
-  color: #C75C5C;
-}

@@ -35,7 +35,11 @@ const nextConfig: NextConfig = {
       { source: "/boutique", destination: "/products/mantasoa", permanent: true },
       { source: "/boutique/:path*", destination: "/products/mantasoa", permanent: true },
       { source: "/nos-mailles/:path*", destination: "/products/mantasoa", permanent: true },
-      { source: "/NotreMarque", destination: "/notre-marque", permanent: true },
+      // Pages supprimées
+      { source: "/NotreMarque", destination: "/", permanent: true },
+      { source: "/notre-marque", destination: "/", permanent: true },
+      { source: "/contact", destination: "/", permanent: true },
+      { source: "/favoris", destination: "/", permanent: true },
     ];
   },
 };

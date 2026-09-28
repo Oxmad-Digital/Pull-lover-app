@@ -121,15 +121,6 @@ export async function middleware(req) {
     if (slug) return NextResponse.redirect(new URL(`/products/${encodeURIComponent(slug)}`, req.url), 308);
   }
 
-  // 🔒 PROTÉGER LES FAVORIS (connexion obligatoire)
-  if (pathname.startsWith("/favoris")) {
-    if (!(await readToken())) {
-      const loginUrl = new URL("/auth/login", req.url);
-      loginUrl.searchParams.set("callbackUrl", pathname);
-      return NextResponse.redirect(loginUrl);
-    }
-  }
-
   // 🔒 PROTÉGER LES PAGES D'ADMINISTRATION
   if (pathname.startsWith("/admin/")) {
     const token = await readToken();
