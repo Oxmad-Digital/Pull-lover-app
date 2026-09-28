@@ -1,4 +1,4 @@
-﻿"use client";
+"use client";
 
 import { useEffect, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
@@ -10,20 +10,25 @@ import "./order-detail.css";
 
 const STATUS_OPTIONS = [
   { value: "pending",    label: "En attente"     },
-  { value: "confirmed",  label: "Confirm�e"      },
-  { value: "processing", label: "En pr�paration" },
-  { value: "paid",       label: "Pay�e"          },
-  { value: "shipped",    label: "Exp�di�e"       },
-  { value: "delivered",  label: "Livr�e"         },
-  { value: "cancelled",  label: "Annul�e"        },
+  { value: "confirmed",  label: "Confirmée"      },
+  { value: "processing", label: "En préparation" },
+  { value: "paid",       label: "Payée"          },
+  { value: "shipped",    label: "Expédiée"       },
+  { value: "delivered",  label: "Livrée"         },
+  { value: "cancelled",  label: "Annulée"        },
 ];
 
+// Étapes du parcours normal d'une commande (hors annulation, traitée à part)
+const MAIN_STATUSES = STATUS_OPTIONS.filter(s => s.value !== "cancelled");
+
 const PAYMENT_LABELS = {
-  cash:          "Esp�ces",
+  cash:          "Espèces",
   mobile_money:  "Mobile Money",
   card:          "Carte bancaire",
   bank_transfer: "Virement bancaire",
 };
+
+const money = (n) => `${(Number(n) || 0).toFixed(2)} €`;
 
 export default function AdminOrderDetailPage() {
   const { id }   = useParams();
@@ -76,6 +81,8 @@ export default function AdminOrderDetailPage() {
   };
 
   const updateStatus = async (newStatus) => {
+    if (!order || newStatus === order.status) return;
+    if (newStatus === "cancelled" && !window.confirm("Annuler cette commande ? Un email sera envoyé au client.")) return;
     setUpdating(true);
     try {
       const res  = await fetch(`/api/admin/orders/${id}`, {
@@ -86,7 +93,7 @@ export default function AdminOrderDetailPage() {
       const data = await res.json();
       if (!res.ok) { showToast(data.message || "Erreur", "error"); return; }
       setOrder(data);
-      showToast("Statut mis � jour � email envoy� au client");
+      showToast("Statut mis à jour — email envoyé au client");
     } catch {
       showToast("Erreur serveur", "error");
     } finally {
@@ -105,9 +112,23 @@ export default function AdminOrderDetailPage() {
   if (!order) return null;
 
   const c           = order.customer || {};
-  const fullName    = [c.firstname, c.lastname].filter(Boolean).join(" ") || "�";
+  const fullName    = [c.firstname, c.lastname].filter(Boolean).join(" ") || "—";
   const initials    = ((c.firstname?.[0] || "") + (c.lastname?.[0] || "")).toUpperCase() || "?";
   const orderNumber = order._id.toString().slice(-8).toUpperCase();
+
+  const isCancelled  = order.status === "cancelled";
+  const currentIndex = MAIN_STATUSES.findIndex(s => s.value === order.status);
+
+  // Source des lignes : "lines" (snapshot avec prix) si présent, sinon "products" (populate, sans prix)
+  const items = order.lines?.length
+    ? order.lines
+    : (order.products || []).map(p => ({
+        product:   p.product?._id,
+        name:      p.product?.name,
+        image:     p.product?.image,
+        quantity:  p.quantity,
+        unitPrice: null,
+      }));
 
   return (
     <div className="od-page">
@@ -130,204 +151,261 @@ export default function AdminOrderDetailPage() {
         </span>
       </div>
 
-      <div className="od-grid">
-
-        {/* ── Client ── */}
-        <div className="od-card">
-          <h2 className="od-card-title">Client</h2>
-          <div className="od-client-row">
-            <div className="od-avatar">{initials}</div>
-            <div>
-              <div className="od-client-name">{fullName}</div>
-              {c.email && (
-                <a href={`mailto:${c.email}`} className="od-client-email">{c.email}</a>
-              )}
-              {c.phone && <div className="od-client-phone">{c.phone}</div>}
-            </div>
-          </div>
-          {(c.address || c.city) && (
-            <div className="od-address-block">
-              <div className="od-address-label">Adresse de livraison</div>
-              {c.address && <div className="od-address-line">{c.address}</div>}
-              {c.city    && <div className="od-address-city">{c.city}</div>}
-            </div>
+      {/* ── Statut de la commande ── */}
+      <div className="od-card od-stepper-card">
+        <div className="od-stepper-head">
+          <h2 className="od-card-title">Statut de la commande</h2>
+          {!isCancelled && (
+            <button
+              className="od-cancel-link"
+              disabled={updating}
+              onClick={() => updateStatus("cancelled")}
+            >
+              ✕ Annuler la commande
+            </button>
           )}
         </div>
 
-        {/* ── R�sum� ── */}
-        <div className="od-card">
-          <h2 className="od-card-title">R�sum�</h2>
-          <div className="od-summary-row">
-            <span className="od-summary-label">Paiement</span>
-            <span className={`ao-payment ao-payment-${order.payment}`}>
-              {PAYMENT_LABELS[order.payment] || order.payment || "�"}
-            </span>
+        {isCancelled && (
+          <div className="od-cancelled-banner">
+            Cette commande a été annulée.
+            <button
+              className="od-reactivate-link"
+              disabled={updating}
+              onClick={() => updateStatus("pending")}
+            >
+              Réactiver
+            </button>
           </div>
-          <div className="od-summary-row">
-            <span className="od-summary-label">Articles</span>
-            <span className="od-summary-value">{order.products?.length || 0}</span>
-          </div>
-          <div className="od-summary-row od-summary-total">
-            <span className="od-summary-label">Total</span>
-            <span className="od-total-value">{(order.total || 0).toLocaleString()} �</span>
-          </div>
-        </div>
+        )}
 
-        {/* ── Changer le statut ── */}
-        <div className="od-card">
-          <h2 className="od-card-title">Changer le statut</h2>
-          <p className="od-status-hint">Un email est envoy� automatiquement au client.</p>
-          <div className="od-status-grid">
-            {STATUS_OPTIONS.map(s => (
+        <div className={`od-stepper ${isCancelled ? "od-stepper-muted" : ""}`}>
+          {MAIN_STATUSES.map((s, i) => {
+            const state = isCancelled ? "todo" : i < currentIndex ? "done" : i === currentIndex ? "current" : "todo";
+            return (
               <button
                 key={s.value}
-                disabled={updating || order.status === s.value}
+                className={`od-step od-step-${state}`}
+                disabled={updating}
                 onClick={() => updateStatus(s.value)}
-                className={`od-status-btn ao-status-${s.value} ${order.status === s.value ? "od-status-current" : ""}`}
               >
-                {s.label}
-                {order.status === s.value && <span className="od-status-check">✓</span>}
+                <span className="od-step-dot">{state === "done" ? "✓" : i + 1}</span>
+                <span className="od-step-label">{s.label}</span>
               </button>
-            ))}
-          </div>
+            );
+          })}
         </div>
 
+        <p className="od-status-hint">Cliquez sur une étape pour la mettre à jour — un email est envoyé automatiquement au client.</p>
       </div>
 
-      {/* ── Expédition ── */}
-      <div className="od-card" style={{ marginTop: 24 }}>
-        <h2 className="od-card-title">Expédition</h2>
+      <div className="od-layout">
 
-        {order.delivery?.method && (
-          <div className="od-summary-row" style={{ marginBottom: 12 }}>
-            <span className="od-summary-label">Mode</span>
-            <span className="od-summary-value">
-              {order.delivery.methodName || order.delivery.method}
-            </span>
-          </div>
-        )}
+        {/* ── Colonne principale ── */}
+        <div className="od-main-col">
 
-        {order.delivery?.servicePoint && (
-          <div className="od-summary-row" style={{ marginBottom: 12 }}>
-            <span className="od-summary-label">Point relais</span>
-            <span className="od-summary-value">
-              {order.delivery.servicePoint.name} — {order.delivery.servicePoint.street}, {order.delivery.servicePoint.postalCode} {order.delivery.servicePoint.city}
-            </span>
-          </div>
-        )}
-
-        {order.delivery?.trackingNumber ? (
-          <>
-            <div className="od-summary-row" style={{ marginBottom: 12 }}>
-              <span className="od-summary-label">N° de suivi</span>
-              <span style={{ fontWeight: 700, fontSize: 15, letterSpacing: "1px", color: "#0c4a6e" }}>
-                {order.delivery.trackingNumber}
-              </span>
+          {/* Client */}
+          <div className="od-card">
+            <h2 className="od-card-title">Client</h2>
+            <div className="od-client-row">
+              <div className="od-avatar">{initials}</div>
+              <div className="od-client-name">{fullName}</div>
             </div>
+            <div className="od-client-grid">
+              <div className="od-client-field">
+                <span className="od-field-label">Email</span>
+                {c.email
+                  ? <a href={`mailto:${c.email}`} className="od-client-email">{c.email}</a>
+                  : <span className="od-field-value">—</span>}
+              </div>
+              <div className="od-client-field">
+                <span className="od-field-label">Téléphone</span>
+                <span className="od-field-value">{c.phone || "—"}</span>
+              </div>
+              <div className="od-client-field od-client-field-wide">
+                <span className="od-field-label">Adresse de livraison</span>
+                <span className="od-field-value">
+                  {c.address || c.city
+                    ? [c.address, [c.postalCode, c.city].filter(Boolean).join(" ")].filter(Boolean).join(" · ")
+                    : "—"}
+                </span>
+              </div>
+            </div>
+          </div>
 
-            {order.delivery.shippedAt && (
+          {/* Articles commandés */}
+          {items.length > 0 && (
+            <div className="od-card od-products-card">
+              <h2 className="od-card-title">Articles commandés</h2>
+              <table className="od-products-table">
+                <thead>
+                  <tr>
+                    <th>Produit</th>
+                    <th>Prix unit.</th>
+                    <th>Qté</th>
+                    <th>Sous-total</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {items.map((item, i) => {
+                    const qty       = item.quantity || 1;
+                    const unitPrice = item.unitPrice;
+                    const lineTotal = unitPrice != null ? unitPrice * qty : null;
+                    const variant   = [item.size, item.color].filter(Boolean).join(" · ");
+                    return (
+                      <tr key={i}>
+                        <td>
+                          <div className="od-product-cell">
+                            {item.image
+                              ? <Image src={item.image} alt={item.name || ""} width={44} height={44} className="od-product-img" />
+                              : <div className="od-product-no-img">👕</div>
+                            }
+                            <div>
+                              <div className="od-product-name">{item.name || "Produit supprimé"}</div>
+                              {variant && <div className="od-product-variant">{variant}</div>}
+                            </div>
+                          </div>
+                        </td>
+                        <td className="od-product-price">{unitPrice != null ? money(unitPrice) : "—"}</td>
+                        <td className="od-product-qty">× {qty}</td>
+                        <td className="od-product-subtotal">{lineTotal != null ? money(lineTotal) : "—"}</td>
+                      </tr>
+                    );
+                  })}
+                </tbody>
+                <tfoot>
+                  {order.discountAmount > 0 && (
+                    <tr className="od-products-discount-row">
+                      <td colSpan={3}>Réduction{order.promoCode ? ` (${order.promoCode})` : ""}</td>
+                      <td>−{money(order.discountAmount)}</td>
+                    </tr>
+                  )}
+                  <tr className="od-products-total-row">
+                    <td colSpan={3}>Total commande</td>
+                    <td>{money(order.total)}</td>
+                  </tr>
+                </tfoot>
+              </table>
+            </div>
+          )}
+
+          {/* Expédition */}
+          <div className="od-card">
+            <h2 className="od-card-title">Expédition</h2>
+
+            {order.delivery?.method && (
               <div className="od-summary-row" style={{ marginBottom: 12 }}>
-                <span className="od-summary-label">Expédiée le</span>
+                <span className="od-summary-label">Mode</span>
                 <span className="od-summary-value">
-                  {new Date(order.delivery.shippedAt).toLocaleString("fr-FR", { dateStyle: "medium", timeStyle: "short" })}
+                  {order.delivery.methodName || order.delivery.method}
                 </span>
               </div>
             )}
 
-            <div style={{ display: "flex", gap: 12, flexWrap: "wrap", marginTop: 16 }}>
-              <a
-                href={order.delivery.trackingUrl || `https://www.laposte.fr/outils/suivre-vos-envois?code=${order.delivery.trackingNumber}`}
-                target="_blank"
-                rel="noopener noreferrer"
-                style={{
-                  display: "inline-flex", alignItems: "center", gap: 6,
-                  padding: "9px 18px", borderRadius: 8, fontSize: 13, fontWeight: 700,
-                  background: "#0ea5e9", color: "#fff", textDecoration: "none",
-                }}
-              >
-                Suivre le colis →
-              </a>
+            {order.delivery?.servicePoint && (
+              <div className="od-summary-row" style={{ marginBottom: 12 }}>
+                <span className="od-summary-label">Point relais</span>
+                <span className="od-summary-value">
+                  {order.delivery.servicePoint.name} — {order.delivery.servicePoint.street}, {order.delivery.servicePoint.postalCode} {order.delivery.servicePoint.city}
+                </span>
+              </div>
+            )}
 
-              {order.delivery.labelUrl && (
-                <a
-                  href={order.delivery.labelUrl}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  style={{
-                    display: "inline-flex", alignItems: "center", gap: 6,
-                    padding: "9px 18px", borderRadius: 8, fontSize: 13, fontWeight: 700,
-                    background: "#f1f5f9", color: "#252323", border: "1px solid #e2e8f0", textDecoration: "none",
-                  }}
+            {order.delivery?.trackingNumber ? (
+              <>
+                <div className="od-summary-row" style={{ marginBottom: 12 }}>
+                  <span className="od-summary-label">N° de suivi</span>
+                  <span className="od-tracking-number">{order.delivery.trackingNumber}</span>
+                </div>
+
+                {order.delivery.shippedAt && (
+                  <div className="od-summary-row" style={{ marginBottom: 12 }}>
+                    <span className="od-summary-label">Expédiée le</span>
+                    <span className="od-summary-value">
+                      {new Date(order.delivery.shippedAt).toLocaleString("fr-FR", { dateStyle: "medium", timeStyle: "short" })}
+                    </span>
+                  </div>
+                )}
+
+                <div className="od-shipping-actions">
+                  <a
+                    href={order.delivery.trackingUrl || `https://www.laposte.fr/outils/suivre-vos-envois?code=${order.delivery.trackingNumber}`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="od-btn od-btn-primary"
+                  >
+                    Suivre le colis →
+                  </a>
+
+                  {order.delivery.labelUrl && (
+                    <a
+                      href={order.delivery.labelUrl}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="od-btn od-btn-secondary"
+                    >
+                      Télécharger l&apos;étiquette PDF
+                    </a>
+                  )}
+                </div>
+              </>
+            ) : (
+              <div>
+                <p className="od-shipping-hint">
+                  Aucune étiquette générée. Cliquez ci-dessous pour créer l&apos;étiquette via SendCloud et passer la commande en <em>Expédiée</em>.
+                  {order.delivery?.releaseAt && new Date(order.delivery.releaseAt) > new Date() && (
+                    <strong className="od-shipping-warning">
+                      Période de drop : envoi au transporteur prévu à partir du {new Date(order.delivery.releaseAt).toLocaleDateString("fr-FR")}.
+                    </strong>
+                  )}
+                </p>
+                <button
+                  onClick={generateLabel}
+                  disabled={generatingLabel || order.status === "cancelled" || order.status === "delivered"}
+                  className="od-btn od-btn-generate"
                 >
-                  Télécharger l&apos;étiquette PDF
-                </a>
-              )}
-            </div>
-          </>
-        ) : (
-          <div style={{ marginTop: 8 }}>
-            <p style={{ fontSize: 13, color: "#888", marginBottom: 16 }}>
-              Aucune étiquette générée. Cliquez ci-dessous pour créer l&apos;étiquette via SendCloud et passer la commande en <em>Expédiée</em>.
-              {order.delivery?.releaseAt && new Date(order.delivery.releaseAt) > new Date() && (
-                <strong style={{ display: "block", marginTop: 8, color: "#b45309" }}>
-                  Période de drop : envoi au transporteur prévu à partir du {new Date(order.delivery.releaseAt).toLocaleDateString("fr-FR")}.
-                </strong>
-              )}
-            </p>
-            <button
-              onClick={generateLabel}
-              disabled={generatingLabel || order.status === "cancelled" || order.status === "delivered"}
-              style={{
-                display: "inline-flex", alignItems: "center", gap: 8,
-                padding: "10px 22px", borderRadius: 8, fontSize: 14, fontWeight: 700,
-                background: generatingLabel ? "#94a3b8" : "#AD4646", color: "#fff",
-                border: "none", cursor: generatingLabel ? "not-allowed" : "pointer",
-                transition: "background 0.2s",
-              }}
-            >
-              {generatingLabel ? "Génération en cours…" : "Générer l'étiquette"}
-            </button>
+                  {generatingLabel ? "Génération en cours…" : "Générer l'étiquette"}
+                </button>
+              </div>
+            )}
           </div>
-        )}
-      </div>
 
-      {/* ── Produits ── */}
-      {order.products?.length > 0 && (
-        <div className="od-card od-products-card">
-          <h2 className="od-card-title">Articles command�s</h2>
-          <table className="od-products-table">
-            <thead>
-              <tr>
-                <th>Produit</th>
-                <th>R�f�rence</th>
-                <th>Quantit�</th>
-              </tr>
-            </thead>
-            <tbody>
-              {order.products.map((item, i) => {
-                const p = item.product || {};
-                return (
-                  <tr key={i}>
-                    <td>
-                      <div className="od-product-cell">
-                        {p.image
-                          ? <Image src={p.image} alt={p.name || ""} width={48} height={48} className="od-product-img" />
-                          : <div className="od-product-no-img">👕</div>
-                        }
-                        <span className="od-product-name">{p.name || "Produit supprim�"}</span>
-                      </div>
-                    </td>
-                    <td className="od-product-ref">
-                      {p._id ? p._id.toString().slice(-8).toUpperCase() : "�"}
-                    </td>
-                    <td className="od-product-qty">� {item.quantity || 1}</td>
-                  </tr>
-                );
-              })}
-            </tbody>
-          </table>
         </div>
-      )}
+
+        {/* ── Colonne latérale ── */}
+        <div className="od-side-col">
+          <div className="od-card od-summary-card">
+            <h2 className="od-card-title">Résumé</h2>
+            <div className="od-summary-row">
+              <span className="od-summary-label">Statut</span>
+              <span className={`ao-status-badge ao-status-${order.status}`}>
+                {STATUS_OPTIONS.find(s => s.value === order.status)?.label || order.status}
+              </span>
+            </div>
+            <div className="od-summary-row">
+              <span className="od-summary-label">Paiement</span>
+              <span className={`ao-payment ao-payment-${order.payment}`}>
+                {PAYMENT_LABELS[order.payment] || order.payment || "—"}
+              </span>
+            </div>
+            <div className="od-summary-row">
+              <span className="od-summary-label">Articles</span>
+              <span className="od-summary-value">{order.products?.length || 0}</span>
+            </div>
+            {order.discountAmount > 0 && (
+              <div className="od-summary-row">
+                <span className="od-summary-label">Réduction</span>
+                <span className="od-summary-value">−{money(order.discountAmount)}</span>
+              </div>
+            )}
+            <div className="od-summary-row od-summary-total">
+              <span className="od-summary-label">Total</span>
+              <span className="od-total-value">{money(order.total)}</span>
+            </div>
+          </div>
+        </div>
+
+      </div>
 
     </div>
   );
