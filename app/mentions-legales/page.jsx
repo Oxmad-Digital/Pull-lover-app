@@ -2,8 +2,9 @@ import Link from "next/link";
 import { LegalPage, LegalSection as Section } from "../components/LegalPage";
 
 export const metadata = {
-  title: "Mentions légales — Pull Lover",
-  description: "Mentions légales de la boutique en ligne Pull Lover.",
+  title: "Mentions légales",
+  description: "Mentions légales de la boutique en ligne Pull-Lover.",
+  alternates: { canonical: "/mentions-legales" },
 };
 
 export default function MentionsLegalesPage() {

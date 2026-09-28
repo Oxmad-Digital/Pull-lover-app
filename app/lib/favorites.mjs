@@ -1,5 +1,5 @@
 // Champs d'un produit conservés dans la liste des favoris (API et contexte client).
-export const FAVORITE_FIELDS = ["name", "image", "price", "promoPrice", "colors", "isAvailable", "stock"];
+export const FAVORITE_FIELDS = ["name", "slug", "image", "price", "promoPrice", "colors", "isAvailable", "stock"];
 
 /** Version allégée d'une fiche produit, telle que renvoyée par GET /api/favorites. */
 export function toFavorite(product) {

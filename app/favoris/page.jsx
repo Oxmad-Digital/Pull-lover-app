@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import { productPath } from "@/app/lib/seo";
 import Image from "next/image";
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
@@ -100,9 +101,9 @@ export default function FavorisPage() {
                           <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z" />
                         </svg>
                       </button>
-                      <Link href={`/products/${product._id}`}>
+                      <Link href={productPath(product)}>
                         <Image
-                          src={product.image || "/no-image.png"}
+                          src={product.image || "/no-image.svg"}
                           alt={product.name}
                           width={400}
                           height={480}
@@ -113,7 +114,7 @@ export default function FavorisPage() {
 
                     {/* INFOS */}
                     <div className="fav-info">
-                      <Link href={`/products/${product._id}`} className="fav-name">
+                      <Link href={productPath(product)} className="fav-name">
                         {product.name}
                       </Link>
 

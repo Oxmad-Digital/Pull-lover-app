@@ -1,5 +1,7 @@
-import { notFound } from "next/navigation";
+import { notFound, permanentRedirect } from "next/navigation";
 import { getProductPageData } from "@/app/lib/products";
+import JsonLd from "@/app/components/JsonLd";
+import { breadcrumbJsonLd, productJsonLd, productPath } from "@/app/lib/seo";
 import ProductDetail from "./ProductDetail";
 import "./product-detail.css";
 
@@ -17,11 +19,24 @@ export default async function ProductPage({ params }) {
 
   if (!data) notFound();
 
+  // Une seule URL par fiche. /products/<uuid> est déjà redirigé en 308 par le middleware ;
+  // ceci rattrape les autres variantes (casse différente, « MANTASOA »…).
+  const path = productPath(data.product);
+  if (decodeURIComponent(id) !== path.slice("/products/".length)) permanentRedirect(path);
+
   return (
-    <ProductDetail
-      product={data.product}
-      initialReviews={data.reviews}
-      relatedProducts={data.relatedProducts}
-    />
+    <>
+      <JsonLd
+        data={[
+          productJsonLd(data.product, { path, reviews: data.reviews }),
+          breadcrumbJsonLd([["Accueil", "/"], [data.product.name, path]]),
+        ]}
+      />
+      <ProductDetail
+        product={data.product}
+        initialReviews={data.reviews}
+        relatedProducts={data.relatedProducts}
+      />
+    </>
   );
 }

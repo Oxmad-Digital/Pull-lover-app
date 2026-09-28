@@ -1,11 +1,12 @@
 export const metadata = {
-  title: "Suppression des données — Pull Lover",
-  description: "Comment demander la suppression de vos données personnelles sur Pull Lover.",
+  title: "Suppression des données",
+  description: "Comment demander la suppression de vos données personnelles sur Pull-Lover.",
+  alternates: { canonical: "/suppression-donnees" },
 };
 
 export default function SuppressionDonneesPage() {
   return (
-    <main style={{ maxWidth: 800, margin: "0 auto", padding: "60px 24px", fontFamily: "Montserrat, sans-serif", color: "#252323", lineHeight: 1.8 }} data-reveal-stagger>
+    <div style={{ maxWidth: 800, margin: "0 auto", padding: "60px 24px", fontFamily: "Montserrat, sans-serif", color: "#252323", lineHeight: 1.8 }} data-reveal-stagger>
       <h1 style={{ fontSize: 32, fontWeight: 700, marginBottom: 8 }}>Suppression de vos données</h1>
       <p style={{ color: "#64748b", marginBottom: 48 }}>Conformément au RGPD et aux exigences de Meta (Facebook), vous pouvez demander la suppression de vos données à tout moment.</p>
 
@@ -54,6 +55,6 @@ export default function SuppressionDonneesPage() {
           <span style={{ fontSize: 14, color: "#64748b" }}>Réponse garantie sous 30 jours ouvrés.</span>
         </p>
       </div>
-    </main>
+    </div>
   );
 }

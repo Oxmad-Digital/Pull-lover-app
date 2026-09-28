@@ -2,8 +2,9 @@ import Link from "next/link";
 import { LegalPage, LegalSection as Section } from "../components/LegalPage";
 
 export const metadata = {
-  title: "Conditions générales de vente — Pull Lover",
-  description: "Conditions générales de vente de la boutique en ligne Pull Lover.",
+  title: "Conditions générales de vente",
+  description: "Conditions générales de vente de la boutique en ligne Pull-Lover.",
+  alternates: { canonical: "/conditions-de-vente" },
 };
 
 export default function ConditionsDeVentePage() {

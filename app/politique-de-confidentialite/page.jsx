@@ -2,8 +2,9 @@ import Link from "next/link";
 import { LegalPage, LegalSection as Section } from "../components/LegalPage";
 
 export const metadata = {
-  title: "Politique de confidentialité — Pull Lover",
-  description: "Politique de confidentialité et protection des données personnelles de Pull Lover.",
+  title: "Politique de confidentialité",
+  description: "Politique de confidentialité et protection des données personnelles de Pull-Lover.",
+  alternates: { canonical: "/politique-de-confidentialite" },
 };
 
 export default function PolitiqueConfidentialitePage() {

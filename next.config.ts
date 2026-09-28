@@ -29,22 +29,13 @@ const nextConfig: NextConfig = {
     ];
   },
   async redirects() {
+    // Anciennes URLs de la boutique multi-produits : redirigées définitivement vers
+    // la fiche (un fragment comme /#piece est ignoré par les moteurs de recherche).
     return [
-      {
-        source: "/boutique",
-        destination: "/#piece",
-        permanent: false,
-      },
-      {
-        source: "/boutique/:path*",
-        destination: "/#piece",
-        permanent: false,
-      },
-      {
-        source: "/nos-mailles/:path*",
-        destination: "/#piece",
-        permanent: false,
-      },
+      { source: "/boutique", destination: "/products/mantasoa", permanent: true },
+      { source: "/boutique/:path*", destination: "/products/mantasoa", permanent: true },
+      { source: "/nos-mailles/:path*", destination: "/products/mantasoa", permanent: true },
+      { source: "/NotreMarque", destination: "/notre-marque", permanent: true },
     ];
   },
 };

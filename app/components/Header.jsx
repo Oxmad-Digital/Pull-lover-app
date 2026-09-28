@@ -9,9 +9,10 @@ import { BagIcon, UserIcon } from "./icons";
 import "./Header.css";
 
 const links = [
-  { label: "La pièce", href: "/#piece" },
+  { label: "La pièce", href: "/products/mantasoa" },
   { label: "L’atelier", href: "/#atelier" },
   { label: "Précommande", href: "/#precommande-info" },
+  { label: "Notre histoire", href: "/notre-marque" },
 ];
 
 function getRemainingTime(target) {

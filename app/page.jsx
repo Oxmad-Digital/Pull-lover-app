@@ -1,7 +1,9 @@
 import Image from "next/image";
 import MantasoaProduct from "./components/home/MantasoaProduct";
 import HomeCinematic from "./components/home/HomeCinematic";
+import JsonLd from "./components/JsonLd";
 import { getFeaturedProductState } from "./lib/products";
+import { OPEN_GRAPH_BASE, SITE_NAME, organizationJsonLd, websiteJsonLd } from "./lib/seo";
 import "./home.css";
 
 // Le prix et la description du produit sont rendus côté serveur, régénérés au plus toutes les 60 s
@@ -26,10 +28,11 @@ function splitChars(text) {
 }
 
 export const metadata = {
-  title: "Pull-Lover — Maille de Madagascar",
+  title: { absolute: `${SITE_NAME} — Cardigan en maille de Madagascar, fait à la demande` },
   description: "Notre cardigan en maille de Madagascar, une pièce essentielle fabriquée à la demande dans notre atelier familial à Antananarivo, Madagascar.",
   alternates: { canonical: "/" },
   openGraph: {
+    ...OPEN_GRAPH_BASE,
     title: "Pull-Lover — Le pull qui prend son temps",
     description: "Une seule pièce, fabriquée à la demande dans notre atelier familial à Madagascar.",
     images: [{ url: "/api/media/site/mantasoa-hero.webp", width: 1586, height: 992, alt: "Le cardigan, au bord du lac" }],
@@ -47,12 +50,15 @@ export default async function HomePage() {
   const featured = await getFeaturedProductState();
   return (
     <div className="pl-home" id="accueil">
+      <JsonLd data={[organizationJsonLd(), websiteJsonLd()]} />
       <HomeCinematic />
       <section className="pl-hero" aria-labelledby="home-title">
         <Image src="/pull-lover-hero.webp" alt="Le cardigan porté au bord du lac, dans les hauts plateaux de Madagascar" fill sizes="100vw" preload className="pl-hero-image" />
         <div className="pl-hero-copy">
-          <p className="pl-eyebrow">Maille de Madagascar</p>
-          <h1 id="home-title" className="pl-hero-title-line"><span>Pull</span> <span><em>Lover</em></span></h1>
+          <h1 id="home-title">
+            <span className="pl-eyebrow">Maille de Madagascar</span>
+            <span className="pl-hero-title-line"><span>Pull</span> <span><em>Lover</em></span></span>
+          </h1>
           <div className="pl-hero-foot">
             <a className="pl-button pl-button-light" href="#piece">Découvrir la pièce</a>
             <p>Un cardigan d’exception, fabriqué à la demande dans notre atelier familial à Madagascar.</p>
