@@ -34,6 +34,28 @@ const STATUS_COLORS: Record<string, string> = {
   cancelled:  "#ef4444",
 };
 
+type OrderItem = {
+  product?: { name?: string; price?: number; translations?: Record<string, { name?: string }> } | null;
+  quantity: number;
+};
+
+type OrderDoc = {
+  _id: { toString(): string };
+  status: string;
+  createdAt: Date | string;
+  total: number;
+  products?: OrderItem[];
+  customer?: { address?: string; city?: string };
+  payment?: string;
+  delivery?: {
+    trackingNumber?: string;
+    trackingUrl?: string;
+    shippedAt?: Date | string;
+    method?: string;
+    methodName?: string;
+  };
+};
+
 const TEXT = {
   fr: {
     title: "Mes commandes",
@@ -78,7 +100,7 @@ export default async function OrdersPage({ params }: { params: Promise<{ lang: s
     .populate("products.product", "name price translations")
     .sort({ createdAt: -1 })
     .lean()
-    .exec();
+    .exec() as unknown as OrderDoc[];
 
   return (
     <div>
@@ -96,12 +118,12 @@ export default async function OrdersPage({ params }: { params: Promise<{ lang: s
           </div>
         ) : (
           <div className="orders-list">
-            {orders.map((order: any) => {
+            {orders.map((order) => {
               const statusKey = STATUS_COLORS[order.status] ? order.status : "pending";
               const currentStep = STEP_INDEX[order.status] ?? -1;
 
               return (
-                <div key={order._id} className="order-card">
+                <div key={order._id.toString()} className="order-card">
 
                   {/* Header */}
                   <div className="order-card-header">
@@ -176,7 +198,7 @@ export default async function OrdersPage({ params }: { params: Promise<{ lang: s
 
                     {/* Produits */}
                     <div className="order-products">
-                      {order.products?.map((item: any, idx: number) => (
+                      {order.products?.map((item, idx) => (
                         <div key={idx} className="order-product-row">
                           <span>{localizeProduct(item.product, lang)?.name || t.product}</span>
                           <span>× {item.quantity}</span>
@@ -191,21 +213,21 @@ export default async function OrdersPage({ params }: { params: Promise<{ lang: s
                     </div>
 
                     {/* Suivi du colis */}
-                    {(order.status === "shipped" || order.status === "delivered") && (order as any).delivery?.trackingNumber && (
+                    {(order.status === "shipped" || order.status === "delivered") && order.delivery?.trackingNumber && (
                       <div className="order-tracking">
                         <p className="order-tracking-label">
                           {t.tracking}
                         </p>
                         <p className="order-tracking-number">
-                          {(order as any).delivery.trackingNumber}
+                          {order.delivery.trackingNumber}
                         </p>
-                        {(order as any).delivery.shippedAt && (
+                        {order.delivery.shippedAt && (
                           <p className="order-tracking-date">
-                            {t.shippedOn(new Date((order as any).delivery.shippedAt).toLocaleDateString(intl, { day: "numeric", month: "long", year: "numeric" }))}
+                            {t.shippedOn(new Date(order.delivery.shippedAt).toLocaleDateString(intl, { day: "numeric", month: "long", year: "numeric" }))}
                           </p>
                         )}
                         <a
-                          href={(order as any).delivery.trackingUrl || `https://www.laposte.fr/outils/suivre-vos-envois?code=${(order as any).delivery.trackingNumber}`}
+                          href={order.delivery.trackingUrl || `https://www.laposte.fr/outils/suivre-vos-envois?code=${order.delivery.trackingNumber}`}
                           target="_blank"
                           rel="noopener noreferrer"
                           className="order-tracking-link"
@@ -229,10 +251,10 @@ export default async function OrdersPage({ params }: { params: Promise<{ lang: s
                           {paymentLabel(order.payment, lang)}
                         </span>
                       )}
-                      {(order as any).delivery?.method && (
+                      {order.delivery?.method && (
                         <span>
                           <strong>{t.delivery}</strong>
-                          {(order as any).delivery.methodName || (order as any).delivery.method}
+                          {order.delivery.methodName || order.delivery.method}
                         </span>
                       )}
                     </div>

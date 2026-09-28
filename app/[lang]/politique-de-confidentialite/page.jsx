@@ -49,7 +49,7 @@ function PrivacyFr() {
       </Section>
 
       <Section title="4. Connexion via réseaux sociaux (Google, Facebook)">
-        Si vous choisissez de vous connecter via Google ou Facebook, nous recevons uniquement votre nom et votre adresse e-mail depuis ces plateformes. Nous ne publions rien sur votre profil social et n'accédons pas à vos contacts. Ces données sont traitées conformément à la présente politique.
+        Si vous choisissez de vous connecter via Google ou Facebook, nous recevons uniquement votre nom et votre adresse e-mail depuis ces plateformes. Nous ne publions rien sur votre profil social et n’accédons pas à vos contacts. Ces données sont traitées conformément à la présente politique.
       </Section>
 
       <Section title="5. Conservation des données">
@@ -68,11 +68,11 @@ function PrivacyFr() {
       <Section title="7. Vos droits (RGPD)">
         Conformément au Règlement Général sur la Protection des Données (RGPD), vous disposez des droits suivants :
         <ul>
-          <li><strong>Droit d'accès</strong> : obtenir une copie de vos données</li>
+          <li><strong>Droit d’accès</strong> : obtenir une copie de vos données</li>
           <li><strong>Droit de rectification</strong> : corriger vos données inexactes</li>
-          <li><strong>Droit à l'effacement</strong> : demander la suppression de vos données</li>
+          <li><strong>Droit à l’effacement</strong> : demander la suppression de vos données</li>
           <li><strong>Droit à la portabilité</strong> : recevoir vos données dans un format structuré</li>
-          <li><strong>Droit d'opposition</strong> : vous opposer à certains traitements</li>
+          <li><strong>Droit d’opposition</strong> : vous opposer à certains traitements</li>
         </ul>
         <p>
           Pour exercer ces droits, et notamment demander la <Link href={localePath("fr", "/suppression-donnees")}>suppression de vos données</Link>, contactez-nous à <a href="mailto:tom.wybo@yahoo.fr">tom.wybo@yahoo.fr</a>. Nous répondons dans un délai maximum de 30 jours.
@@ -80,7 +80,7 @@ function PrivacyFr() {
       </Section>
 
       <Section title="8. Cookies">
-        Nous utilisons des cookies techniques nécessaires au fonctionnement du site (session, panier, langue). Aucun cookie publicitaire tiers n'est utilisé sans votre consentement.
+        Nous utilisons des cookies techniques nécessaires au fonctionnement du site (session, panier, langue). Aucun cookie publicitaire tiers n’est utilisé sans votre consentement.
       </Section>
 
       <Section title="9. Sécurité">

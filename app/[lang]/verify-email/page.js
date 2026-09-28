@@ -39,15 +39,11 @@ function VerifyEmailContent() {
   const router = useRouter();
   const token = searchParams.get("token");
 
-  const [status, setStatus] = useState("loading");
-  const [message, setMessage] = useState("");
+  const [fetchStatus, setStatus] = useState("loading");
+  const [fetchMessage, setMessage] = useState("");
 
   useEffect(() => {
-    if (!token) {
-      setStatus("error");
-      setMessage(t.missingToken);
-      return;
-    }
+    if (!token) return;
 
     const verifyEmail = async () => {
       try {
@@ -70,6 +66,10 @@ function VerifyEmailContent() {
 
     verifyEmail();
   }, [token, router, lang, t]);
+
+  // Sans token, on affiche directement l'erreur sans passer par l'effet
+  const status = token ? fetchStatus : "error";
+  const message = token ? fetchMessage : t.missingToken;
 
   return (
     <div className="verify-page">

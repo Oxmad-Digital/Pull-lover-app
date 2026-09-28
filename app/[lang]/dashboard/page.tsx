@@ -13,6 +13,18 @@ import { orderStatusLabel } from "@/app/i18n/orders.mjs";
 
 const STATUSES = ["pending", "confirmed", "processing", "paid", "shipped", "delivered", "cancelled"];
 
+type OrderDoc = {
+  _id: { toString(): string };
+  status: string;
+  createdAt: Date | string;
+  total: number;
+  products?: { quantity?: number }[];
+};
+
+type UserDoc = {
+  address?: { street?: string; city?: string; postalCode?: string; country?: string } | null;
+};
+
 const TEXT = {
   fr: {
     title: "Vue d'ensemble",
@@ -68,9 +80,9 @@ export default async function DashboardOverview({ params }: { params: Promise<{ 
   const allOrders = await Order.find(orderEmailFilter(session.user.email))
     .sort({ createdAt: -1 })
     .lean()
-    .exec() as any[];
+    .exec() as unknown as OrderDoc[];
 
-  const user = await User.findOne({ email: session.user.email }).lean().exec() as any;
+  const user = await User.findOne({ email: session.user.email }).lean().exec() as unknown as UserDoc | null;
   const address = user?.address || null;
 
   // KPIs
@@ -81,7 +93,7 @@ export default async function DashboardOverview({ params }: { params: Promise<{ 
   ).length;
 
   // 3 dernières commandes pour le résumé
-  const recentOrders = allOrders.slice(0, 3) as any[];
+  const recentOrders = allOrders.slice(0, 3);
 
   return (
     <div>
@@ -128,9 +140,9 @@ export default async function DashboardOverview({ params }: { params: Promise<{ 
             <div className="db-recent-orders">
               {recentOrders.map((order) => {
                 const statusKey = STATUSES.includes(order.status) ? order.status : "pending";
-                const articleCount = order.products?.reduce((s: number, i: any) => s + (i.quantity || 1), 0) || 0;
+                const articleCount = order.products?.reduce((s, i) => s + (i.quantity || 1), 0) || 0;
                 return (
-                  <div key={order._id} className="db-recent-order-row">
+                  <div key={order._id.toString()} className="db-recent-order-row">
                     <span className="db-order-num">
                       #{order._id.toString().slice(-6).toUpperCase()}
                     </span>

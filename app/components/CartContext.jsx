@@ -32,6 +32,8 @@ export function CartProvider({ children }) {
       }
     }
 
+    // localStorage n'existe pas côté serveur : l'hydratation doit se faire après le montage
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     setCartItems(cartData);
   }, []);
 
