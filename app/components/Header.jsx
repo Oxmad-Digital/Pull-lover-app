@@ -3,17 +3,64 @@
 import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import Image from "next/image";
+import { usePathname } from "next/navigation";
 import { useSession, signOut } from "next-auth/react";
 import { useCart } from "./CartContext";
 import { BagIcon, UserIcon } from "./icons";
+import { useLang } from "@/app/i18n/I18nProvider";
+import { INTL_LOCALE, localePath, splitLocale } from "@/app/i18n/config.mjs";
 import "./Header.css";
 
-const links = [
-  { label: "La pièce", href: "/products/mantasoa" },
-  { label: "L’atelier", href: "/#atelier" },
-  { label: "Précommande", href: "/#precommande-info" },
-  { label: "Contact", href: "/contact" },
-];
+const TEXT = {
+  fr: {
+    links: [
+      { label: "La pièce", href: "/products/mantasoa" },
+      { label: "L’atelier", href: "/#atelier" },
+      { label: "Précommande", href: "/#precommande-info" },
+      { label: "Contact", href: "/contact" },
+    ],
+    preorderUntil: "Précommandes ouvertes jusqu’au",
+    pending: "— date à définir",
+    remaining: (t) => `${t.days} jours, ${t.hours} heures, ${t.minutes} minutes et ${t.seconds} secondes restantes`,
+    dayUnit: "j",
+    skip: "Aller au contenu",
+    home: "Pull-Lover, accueil",
+    mainNav: "Navigation principale",
+    account: "Mon compte",
+    admin: "Administration",
+    mySpace: "Mon espace",
+    signIn: "Se connecter",
+    signOut: "Se déconnecter",
+    cart: (count) => `Panier, ${count} article${count > 1 ? "s" : ""}`,
+    menu: "Menu de navigation",
+    mobileNav: "Navigation mobile",
+    switchLabel: "English version",
+  },
+  en: {
+    links: [
+      { label: "The piece", href: "/products/mantasoa" },
+      { label: "The workshop", href: "/#atelier" },
+      { label: "Pre-order", href: "/#precommande-info" },
+      { label: "Contact", href: "/contact" },
+    ],
+    preorderUntil: "Pre-orders open until",
+    pending: "— date to be announced",
+    remaining: (t) => `${t.days} days, ${t.hours} hours, ${t.minutes} minutes and ${t.seconds} seconds left`,
+    dayUnit: "d",
+    skip: "Skip to content",
+    home: "Pull-Lover, home",
+    mainNav: "Main navigation",
+    account: "My account",
+    admin: "Administration",
+    mySpace: "My account",
+    signIn: "Sign in",
+    signOut: "Sign out",
+    cart: (count) => `Cart, ${count} item${count > 1 ? "s" : ""}`,
+    menu: "Navigation menu",
+    mobileNav: "Mobile navigation",
+    switchLabel: "Version française",
+  },
+};
 
 function getRemainingTime(target) {
   if (!target) return null;
@@ -32,7 +79,7 @@ function padTime(value) {
 }
 
 // Isolé du header : seul ce bandeau se re-rend chaque seconde
-function AnnouncementCountdown({ dropDate }) {
+function AnnouncementCountdown({ dropDate, lang, t }) {
   const [remainingTime, setRemainingTime] = useState(null);
 
   useEffect(() => {
@@ -45,40 +92,44 @@ function AnnouncementCountdown({ dropDate }) {
   }, [dropDate]);
 
   const formattedDropDate = dropDate
-    ? new Intl.DateTimeFormat("fr-FR", { day: "numeric", month: "long", hour: "2-digit", minute: "2-digit" }).format(new Date(dropDate))
+    ? new Intl.DateTimeFormat(INTL_LOCALE[lang], { day: "numeric", month: "long", hour: "2-digit", minute: "2-digit" }).format(new Date(dropDate))
     : "";
 
   return (
     <div className="pl-announcement">
       {remainingTime ? (
         <div className="pl-announcement-countdown">
-          <span>Précommandes ouvertes jusqu’au <time dateTime={dropDate}>{formattedDropDate}</time></span>
+          <span>{t.preorderUntil} <time dateTime={dropDate}>{formattedDropDate}</time></span>
           <span className="pl-announcement-separator" aria-hidden="true" />
-          <span
-            className="pl-announcement-timer"
-            aria-label={`${remainingTime.days} jours, ${remainingTime.hours} heures, ${remainingTime.minutes} minutes et ${remainingTime.seconds} secondes restantes`}
-          >
-            <strong>{padTime(remainingTime.days)}j</strong>
+          <span className="pl-announcement-timer" aria-label={t.remaining(remainingTime)}>
+            <strong>{padTime(remainingTime.days)}{t.dayUnit}</strong>
             <strong>{padTime(remainingTime.hours)}h</strong>
             <strong>{padTime(remainingTime.minutes)}m</strong>
             <strong>{padTime(remainingTime.seconds)}s</strong>
           </span>
         </div>
       ) : (
-        <span>Précommandes ouvertes jusqu’au <strong className="pl-announcement-pending">— date à définir</strong></span>
+        <span>{t.preorderUntil} <strong className="pl-announcement-pending">{t.pending}</strong></span>
       )}
     </div>
   );
 }
 
 export default function Header({ transparent = false, dashboard = false }) {
+  const lang = useLang();
+  const t = TEXT[lang];
+  const href = (path) => localePath(lang, path);
+  const pathname = usePathname();
+  const otherLang = lang === "fr" ? "en" : "fr";
+  const switchHref = localePath(otherLang, splitLocale(pathname).path);
   const [dropDate, setDropDate] = useState(null);
   const { cartItems } = useCart();
   const { data: session } = useSession();
   const mobileMenu = useRef(null);
   const accountMenu = useRef(null);
   const count = cartItems.reduce((total, item) => total + (item.quantity || 0), 0);
-  const accountHref = session?.user?.role === "admin" ? "/admin/dashboard" : session ? "/dashboard" : "/auth/login";
+  const isAdmin = session?.user?.role === "admin";
+  const accountHref = isAdmin ? "/admin/dashboard" : href(session ? "/dashboard" : "/auth/login");
 
   useEffect(() => {
     const controller = new AbortController();
@@ -116,10 +167,10 @@ export default function Header({ transparent = false, dashboard = false }) {
 
   return (
     <header className={`pl-header${transparent ? " pl-header-home" : ""}${dashboard ? " pl-header-dashboard" : ""}`}>
-      <a className="pl-skip-link" href="#contenu">Aller au contenu</a>
-      <AnnouncementCountdown dropDate={dropDate} />
+      <a className="pl-skip-link" href="#contenu">{t.skip}</a>
+      <AnnouncementCountdown dropDate={dropDate} lang={lang} t={t} />
       <div className="pl-nav">
-        <Link href="/" className="pl-logo" aria-label="Pull-Lover, accueil">
+        <Link href={href("/")} className="pl-logo" aria-label={t.home}>
           <Image
             className="pl-logo-image"
             src="/api/media/pull-lover_logo_coeur_rouge-transparent.webp"
@@ -130,23 +181,26 @@ export default function Header({ transparent = false, dashboard = false }) {
             priority
           />
         </Link>
-        <nav className="pl-nav-links" aria-label="Navigation principale">
-          {links.map((link) => <Link key={link.href} href={link.href}>{link.label}</Link>)}
+        <nav className="pl-nav-links" aria-label={t.mainNav}>
+          {t.links.map((link) => <Link key={link.href} href={href(link.href)}>{link.label}</Link>)}
         </nav>
         <div className="pl-nav-actions">
+          <Link className="pl-lang-switch" href={switchHref} hrefLang={otherLang} lang={otherLang} aria-label={t.switchLabel} onClick={closeMenus}>
+            {otherLang.toUpperCase()}
+          </Link>
           <details className="pl-account-menu" ref={accountMenu}>
-            <summary className="pl-icon-button" aria-label="Mon compte"><UserIcon size={20} /></summary>
-            <nav className="pl-account-panel" aria-label="Mon compte">
-              <Link href={accountHref} onClick={closeMenus}>{session?.user?.role === "admin" ? "Administration" : session ? "Mon espace" : "Se connecter"}</Link>
-              {session && <button onClick={() => { closeMenus(); signOut({ callbackUrl: "/" }); }}>Se déconnecter</button>}
+            <summary className="pl-icon-button" aria-label={t.account}><UserIcon size={20} /></summary>
+            <nav className="pl-account-panel" aria-label={t.account}>
+              <Link href={accountHref} onClick={closeMenus}>{isAdmin ? t.admin : session ? t.mySpace : t.signIn}</Link>
+              {session && <button onClick={() => { closeMenus(); signOut({ callbackUrl: href("/") }); }}>{t.signOut}</button>}
             </nav>
           </details>
-          <Link href="/panier" className="pl-icon-button pl-bag" aria-label={`Panier, ${count} article${count > 1 ? "s" : ""}`}><BagIcon size={22} /><span className="pl-bag-count">{count}</span></Link>
+          <Link href={href("/panier")} className="pl-icon-button pl-bag" aria-label={t.cart(count)}><BagIcon size={22} /><span className="pl-bag-count">{count}</span></Link>
           <details className="pl-mobile-menu" ref={mobileMenu}>
-            <summary className="pl-icon-button" aria-label="Menu de navigation"><span className="pl-menu-lines" aria-hidden="true" /></summary>
-            <nav className="pl-mobile-panel" aria-label="Navigation mobile">
-              {links.map((link) => <Link key={link.href} href={link.href} onClick={closeMenus}>{link.label}<span aria-hidden="true">↗</span></Link>)}
-              <Link href={accountHref} onClick={closeMenus}>{session?.user?.role === "admin" ? "Administration" : "Mon compte"}</Link>
+            <summary className="pl-icon-button" aria-label={t.menu}><span className="pl-menu-lines" aria-hidden="true" /></summary>
+            <nav className="pl-mobile-panel" aria-label={t.mobileNav}>
+              {t.links.map((link) => <Link key={link.href} href={href(link.href)} onClick={closeMenus}>{link.label}<span aria-hidden="true">↗</span></Link>)}
+              <Link href={accountHref} onClick={closeMenus}>{isAdmin ? t.admin : t.account}</Link>
             </nav>
           </details>
         </div>

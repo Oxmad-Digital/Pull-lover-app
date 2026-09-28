@@ -4,13 +4,16 @@ import { NextResponse, after } from "next/server";
 import { connectDB } from "@/app/lib/db";
 import Order from "@/app/models/Order";
 import { sendEmail } from "@/app/lib/mailer";
-import { getOrderConfirmationEmailTemplate, getAdminNewOrderEmailTemplate } from "@/app/lib/emailTemplates";
+import { getOrderConfirmationEmailTemplate, getAdminNewOrderEmailTemplate, orderItemsHtml } from "@/app/lib/emailTemplates";
 import Customer from "@/app/models/Customer";
 import Settings from "@/app/models/Settings";
 import { computeOrderTotals, CheckoutError } from "@/app/lib/checkoutPricing";
 import { escapeHtml } from "@/app/lib/text";
 import { requireAdmin } from "@/app/lib/auth";
 import Stripe from "stripe";
+import { translator } from "@/app/i18n/server";
+import { INTL_LOCALE } from "@/app/i18n/config.mjs";
+import { paymentLabel } from "@/app/i18n/orders.mjs";
 
 const cleanText = (value) => (typeof value === "string" ? value.trim() : "");
 
@@ -71,19 +74,23 @@ async function syncCustomer({ firstname, lastname, email, phone, city, address, 
 
 export async function POST(req) {
   console.log("🚀 API /api/order APPELÉE");
-  
+  let t = translator(req);
+
   try {
     await connectDB();
 
     const body = await req.json();
     const { customer, cartItems, delivery, promoCode, stripePaymentId } = body;
+    // Langue du client : messages de cette réponse et e-mails de confirmation / suivi
+    t = translator(req, body.locale);
+    const lang = t.lang;
 
     /* ======================
        VALIDATION CLIENT
     ====================== */
     if (!customer) {
       return NextResponse.json(
-        { message: "Client manquant" },
+        { message: t("Client manquant", "Missing customer details") },
         { status: 400 }
       );
     }
@@ -101,7 +108,7 @@ export async function POST(req) {
 
     if (!firstname || !lastname || !email || !city || !address || !postalCode || !phone) {
       return NextResponse.json(
-        { message: "Informations client manquantes" },
+        { message: t("Informations client manquantes", "Missing customer information") },
         { status: 400 }
       );
     }
@@ -110,7 +117,7 @@ export async function POST(req) {
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     if (!emailRegex.test(email)) {
       return NextResponse.json(
-        { message: "Format d'email invalide" },
+        { message: t("Format d'email invalide", "Invalid email format") },
         { status: 400 }
       );
     }
@@ -120,7 +127,7 @@ export async function POST(req) {
     ====================== */
     if (!Array.isArray(cartItems) || cartItems.length === 0) {
       return NextResponse.json(
-        { message: "Panier vide" },
+        { message: t("Panier vide", "Your cart is empty") },
         { status: 400 }
       );
     }
@@ -129,14 +136,14 @@ export async function POST(req) {
        PAIEMENT STRIPE (obligatoire, vérifié côté serveur)
     ====================== */
     if (!stripePaymentId || typeof stripePaymentId !== "string") {
-      return NextResponse.json({ message: "Paiement manquant" }, { status: 402 });
+      return NextResponse.json({ message: t("Paiement manquant", "Missing payment") }, { status: 402 });
     }
 
     // Idempotence : un même paiement ne crée qu'une seule commande
     const already = await Order.findOne({ stripePaymentId });
     if (already) {
       return NextResponse.json(
-        { success: true, message: "Commande déjà enregistrée", order: orderSummary(already) },
+        { success: true, message: t("Commande déjà enregistrée", "Order already saved"), order: orderSummary(already) },
         { status: 200 }
       );
     }
@@ -145,7 +152,7 @@ export async function POST(req) {
     try {
       // Le client a déjà payé : une rupture de stock survenue entre-temps est signalée à l'admin
       // au lieu de bloquer l'enregistrement (le montant reste vérifié contre Stripe ci-dessous).
-      totals = await computeOrderTotals({ cartItems, promoCode, delivery, allowStockShortage: true });
+      totals = await computeOrderTotals({ cartItems, promoCode, delivery, allowStockShortage: true, lang });
     } catch (err) {
       if (err instanceof CheckoutError) {
         return NextResponse.json({ message: err.message }, { status: err.status });
@@ -157,11 +164,11 @@ export async function POST(req) {
     const stripe = new Stripe(process.env.STRIPE_SECRET_KEY);
     const paymentIntent = await stripe.paymentIntents.retrieve(stripePaymentId);
     if (paymentIntent.status !== "succeeded") {
-      return NextResponse.json({ message: "Paiement non confirmé" }, { status: 402 });
+      return NextResponse.json({ message: t("Paiement non confirmé", "Payment not confirmed") }, { status: 402 });
     }
     if (paymentIntent.currency !== "eur" || paymentIntent.amount_received !== Math.round(total * 100)) {
       console.error("❌ Montant Stripe ≠ panier", paymentIntent.id, paymentIntent.amount_received, total);
-      return NextResponse.json({ message: "Le montant payé ne correspond pas au panier" }, { status: 409 });
+      return NextResponse.json({ message: t("Le montant payé ne correspond pas au panier", "The amount paid doesn't match the cart") }, { status: 409 });
     }
 
     const products = lines.map((l) => ({ product: l.product, quantity: l.quantity }));
@@ -171,7 +178,7 @@ export async function POST(req) {
     ====================== */
     const servicePoint = shippingMethod.servicePoint ? delivery?.servicePoint : null;
     if (shippingMethod.servicePoint && !servicePoint?.id) {
-      return NextResponse.json({ message: "Veuillez choisir un point relais" }, { status: 400 });
+      return NextResponse.json({ message: t("Veuillez choisir un point relais", "Please choose a pickup point") }, { status: 400 });
     }
 
     // Drop : les données de livraison restent chez nous jusqu'à la fin de la période de drop
@@ -225,6 +232,7 @@ export async function POST(req) {
       },
       stockShortages: totals.shortages,
       status: "paid",
+      locale: lang,
     });
     } catch (err) {
       // Index unique sur stripePaymentId : une requête simultanée a déjà créé la commande
@@ -232,7 +240,7 @@ export async function POST(req) {
         const existing = await Order.findOne({ stripePaymentId });
         if (existing) {
           return NextResponse.json(
-            { success: true, message: "Commande déjà enregistrée", order: orderSummary(existing) },
+            { success: true, message: t("Commande déjà enregistrée", "Order already saved"), order: orderSummary(existing) },
             { status: 200 }
           );
         }
@@ -263,7 +271,7 @@ export async function POST(req) {
        📧 PRÉPARATION DES EMAILS
     ====================== */
     const orderNumber = order._id.toString().slice(-8).toUpperCase();
-    const orderDate = new Date().toLocaleDateString("fr-FR", {
+    const dateFor = (locale) => new Date().toLocaleDateString(INTL_LOCALE[locale], {
       weekday: "long",
       year: "numeric",
       month: "long",
@@ -272,38 +280,13 @@ export async function POST(req) {
       minute: "2-digit",
     });
 
-    const paymentLabels = {
-      cash: "💵 Espèces à la livraison",
-      mobile_money: "📱 Mobile Money",
-      card: "💳 Carte bancaire",
-      bank_transfer: "🏦 Virement bancaire",
-    };
-
     const deliveryLabel = `📦 ${shippingMethod.carrierLabel} — ${shippingMethod.name}`;
     const shortageHtml = totals.shortages.length
       ? `<p style="margin:16px 0;padding:12px;background:#fef2f2;color:#991b1b;border-radius:8px;font-size:14px"><strong>⚠️ Rupture de stock au moment de l'enregistrement :</strong><br>${totals.shortages.map(escapeHtml).join("<br>")}</p>`
       : "";
 
-    // Liste des produits formatée
-    const productListHtml = lines.map((item) => `
-      <tr style="border-bottom:1px solid #e2e8f0">
-        <td style="padding:12px 8px 12px 0;vertical-align:top">
-          <table role="presentation" cellpadding="0" cellspacing="0">
-            <tr>
-              ${item.image ? `<td style="padding-right:12px;vertical-align:top">
-                <img src="${escapeHtml(item.image)}" width="48" height="60" alt="${escapeHtml(item.name)}" style="display:block;border-radius:4px;object-fit:cover;border:1px solid #e2e8f0">
-              </td>` : ""}
-              <td style="vertical-align:top">
-                <p style="margin:0;font-size:14px;font-weight:600;color:#0f172a">${escapeHtml(item.name)}</p>
-                ${item.size ? `<p style="margin:3px 0 0;font-size:12px;color:#94a3b8">Taille : ${escapeHtml(item.size)}</p>` : ""}
-              </td>
-            </tr>
-          </table>
-        </td>
-        <td style="padding:12px 0;font-size:14px;color:#475569;text-align:center;vertical-align:top">${item.quantity}</td>
-        <td style="padding:12px 0;font-size:14px;color:#475569;text-align:right;font-weight:600;vertical-align:top">${Number(item.unitPrice).toLocaleString("fr-FR")} €</td>
-      </tr>
-    `).join("");
+    // Articles : en français pour l'admin, dans la langue du client pour sa confirmation
+    const clientLines = lang === "en" ? lines.map((line) => ({ ...line, name: line.nameEn || line.name })) : lines;
 
     /* ======================
        📧 TEMPLATES EMAIL
@@ -314,25 +297,26 @@ export async function POST(req) {
       email,
       phone,
       orderNumber,
-      orderDate,
-      productListHtml,
+      orderDate: dateFor("fr"),
+      productListHtml: orderItemsHtml(lines),
       address,
       city,
       deliveryLabel,
-      paymentLabel: paymentLabels.card,
+      paymentLabel: `💳 ${paymentLabel("card", "fr")}`,
       total,
     });
 
     const clientEmailHtml = getOrderConfirmationEmailTemplate({
       firstname,
       orderNumber,
-      orderDate,
-      productListHtml,
+      orderDate: dateFor(lang),
+      productListHtml: orderItemsHtml(clientLines, lang),
       address,
       city,
       deliveryLabel,
-      paymentLabel: paymentLabels.card,
+      paymentLabel: `💳 ${paymentLabel("card", lang)}`,
       total,
+      lang,
     });
 
     /* ======================
@@ -348,7 +332,7 @@ export async function POST(req) {
         }),
         sendEmail({
           to: email,
-          subject: `✅ Confirmation de votre commande #${orderNumber}`,
+          subject: t(`✅ Confirmation de votre commande #${orderNumber}`, `✅ Your order confirmation #${orderNumber}`),
           html: clientEmailHtml,
         }),
       ]);
@@ -362,7 +346,7 @@ export async function POST(req) {
     return NextResponse.json(
       {
         success: true,
-        message: "Commande créée avec succès",
+        message: t("Commande créée avec succès", "Order created successfully"),
         order: {
           _id: order._id,
           orderNumber: orderNumber,
@@ -382,7 +366,7 @@ export async function POST(req) {
       return NextResponse.json(
         {
           success: false,
-          message: "Erreur de validation",
+          message: t("Erreur de validation", "Validation error"),
           errors: Object.values(error.errors).map((e) => e.message),
         },
         { status: 400 }
@@ -390,7 +374,7 @@ export async function POST(req) {
     }
 
     return NextResponse.json(
-      { success: false, message: "Erreur serveur lors de l'enregistrement de la commande" },
+      { success: false, message: t("Erreur serveur lors de l'enregistrement de la commande", "Server error while saving the order") },
       { status: 500 }
     );
   }

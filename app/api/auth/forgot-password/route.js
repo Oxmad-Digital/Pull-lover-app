@@ -4,24 +4,27 @@ import { sendEmail } from "@/app/lib/mailer";
 import { getResetPasswordEmailTemplate } from "@/app/lib/emailTemplates";
 import crypto from "crypto";
 import { NextResponse } from "next/server";
+import { translator } from "@/app/i18n/server";
+import { localePath } from "@/app/i18n/config.mjs";
 
 export async function POST(req) {
+  let t = translator(req);
   try {
     await connectDB();
 
-    const { email } = await req.json();
+    const { email, locale } = await req.json();
+    t = translator(req, locale);
+    const sent = t("Si cette adresse est associée à un compte, vous recevrez un email.", "If this address is linked to an account, you will receive an email.");
 
     if (typeof email !== "string" || !email.trim()) {
-      return NextResponse.json({ message: "Email requis" }, { status: 400 });
+      return NextResponse.json({ message: t("Email requis", "Email is required") }, { status: 400 });
     }
 
     const user = await User.findOne({ email: email.toLowerCase().trim() });
 
     // Réponse identique que l'utilisateur existe ou non (sécurité anti-énumération)
     if (!user) {
-      return NextResponse.json({
-        message: "Si cette adresse est associée à un compte, vous recevrez un email.",
-      });
+      return NextResponse.json({ message: sent });
     }
 
     const token = crypto.randomBytes(32).toString("hex");
@@ -31,19 +34,17 @@ export async function POST(req) {
     user.resetTokenExpiry = expiry;
     await user.save();
 
-    const resetUrl = `${process.env.NEXTAUTH_URL}/auth/reset-password?token=${token}`;
+    const resetUrl = `${process.env.NEXTAUTH_URL}${localePath(t.lang, "/auth/reset-password")}?token=${token}`;
 
     await sendEmail({
       to: user.email,
-      subject: "Réinitialisation de votre mot de passe — Pull-Lover",
-      html: getResetPasswordEmailTemplate(user.name, resetUrl),
+      subject: t("Réinitialisation de votre mot de passe — Pull-Lover", "Reset your password — Pull-Lover"),
+      html: getResetPasswordEmailTemplate(user.name, resetUrl, t.lang),
     });
 
-    return NextResponse.json({
-      message: "Si cette adresse est associée à un compte, vous recevrez un email.",
-    });
+    return NextResponse.json({ message: sent });
   } catch (error) {
     console.error("❌ Erreur forgot-password:", error);
-    return NextResponse.json({ message: "Erreur serveur" }, { status: 500 });
+    return NextResponse.json({ message: t("Erreur serveur", "Server error") }, { status: 500 });
   }
 }

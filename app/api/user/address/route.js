@@ -3,16 +3,18 @@ import { getServerSession } from "next-auth";
 import { authOptions } from "@/app/lib/authOptions";
 import { connectDB } from "@/app/lib/db";
 import User from "@/app/models/User";
+import { translator } from "@/app/i18n/server";
 
 export async function PATCH(request) {
+  const t = translator(request);
   try {
     const session = await getServerSession(authOptions);
-    if (!session) return NextResponse.json({ message: "Non autorisé" }, { status: 401 });
+    if (!session) return NextResponse.json({ message: t("Non autorisé", "Unauthorized") }, { status: 401 });
 
     const { street, city, postalCode, country } = await request.json();
 
     if (!street || !city || !postalCode) {
-      return NextResponse.json({ message: "Rue, ville et code postal sont obligatoires" }, { status: 400 });
+      return NextResponse.json({ message: t("Rue, ville et code postal sont obligatoires", "Street, city and postcode are required") }, { status: 400 });
     }
 
     await connectDB();
@@ -22,11 +24,11 @@ export async function PATCH(request) {
       { new: true }
     );
 
-    if (!user) return NextResponse.json({ message: "Utilisateur introuvable" }, { status: 404 });
+    if (!user) return NextResponse.json({ message: t("Utilisateur introuvable", "User not found") }, { status: 404 });
 
-    return NextResponse.json({ message: "Adresse mise à jour" });
+    return NextResponse.json({ message: t("Adresse mise à jour", "Address updated") });
   } catch (err) {
     console.error("PATCH /api/user/address:", err);
-    return NextResponse.json({ message: "Erreur serveur" }, { status: 500 });
+    return NextResponse.json({ message: t("Erreur serveur", "Server error") }, { status: 500 });
   }
 }

@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { getToken } from "next-auth/jwt";
 import { getClient } from "./app/lib/db";
+import { DEFAULT_LOCALE, LOCALE_COOKIE, localePath, splitLocale } from "./app/i18n/config.mjs";
 
 // 🚧 Mode maintenance : n'affecte que ces domaines (le lien *.vercel.app reste
 // toujours accessible pour continuer à travailler sur le site en prod).
@@ -52,6 +53,7 @@ const MAINTENANCE_HTML = `<!doctype html>
   <img src="/pull-lover_logo_coeur_rouge-transparent.webp" alt="Pull-Lover" width="160" height="160">
   <h1>Bientôt de retour.</h1>
   <p>Notre site est en cours de préparation.</p>
+  <p lang="en">Back soon — our site is being prepared.</p>
 </body>
 </html>`;
 
@@ -80,19 +82,46 @@ function maintenanceResponse() {
   });
 }
 
+// Fichiers générés par les conventions de métadonnées (sans extension dans l'URL)
+const METADATA_ROUTE = /^\/(opengraph-image|twitter-image|icon|apple-icon)(-[\w-]+)?$/;
+
+/** Réponse finale d'une page publique : réécrite vers app/[lang]/…, avec la langue mémorisée en cookie. */
+function localizedResponse(req, lang, path) {
+  const url = req.nextUrl.clone();
+  url.pathname = `/${lang}${path === "/" ? "" : path}`;
+  const res = NextResponse.rewrite(url);
+  if (req.cookies.get(LOCALE_COOKIE)?.value !== lang) {
+    res.cookies.set(LOCALE_COOKIE, lang, { path: "/", maxAge: 60 * 60 * 24 * 365, sameSite: "lax" });
+  }
+  return res;
+}
+
 export async function middleware(req) {
   const { pathname } = req.nextUrl;
 
-  // ✅ Pages publiques
+  // ✅ Fichiers, API et assets : jamais localisés
   if (
-    pathname.startsWith("/auth/login") ||
-    pathname.startsWith("/admin/unauthorized") ||
     pathname.startsWith("/api") ||
     pathname.startsWith("/_next") ||
-    pathname.includes(".")
+    pathname.includes(".") ||
+    METADATA_ROUTE.test(pathname)
   ) {
     return NextResponse.next();
   }
+
+  const { lang, path, prefixed } = splitLocale(pathname);
+
+  // Le français n'a pas de préfixe : /fr/panier → /panier. L'admin n'existe qu'en français.
+  if ((prefixed && lang === DEFAULT_LOCALE) || (prefixed && path.startsWith("/admin"))) {
+    const url = req.nextUrl.clone();
+    url.pathname = path;
+    return NextResponse.redirect(url, 308);
+  }
+
+  const isAdmin = path.startsWith("/admin");
+
+  // ✅ Pages accessibles sans contrôle (connexion admin, même en maintenance)
+  if (path.startsWith("/admin/unauthorized")) return NextResponse.next();
 
   // Le JWT n'est décodé que si une règle en a besoin (et au plus une fois)
   let tokenPromise;
@@ -107,39 +136,42 @@ export async function middleware(req) {
 
   // 🚧 ÉCRAN "SITE EN CONSTRUCTION"
   // Uniquement sur le domaine pull-lover.com, jamais sur /admin (pour pouvoir
-  // désactiver le mode depuis les réglages) ni pour un admin déjà connecté.
-  if (!pathname.startsWith("/admin")) {
+  // désactiver le mode depuis les réglages), ni sur la connexion, ni pour un admin déjà connecté.
+  if (!isAdmin && !path.startsWith("/auth/login")) {
     const host = (req.headers.get("host") || "").split(":")[0].toLowerCase();
     if (MAINTENANCE_HOSTS.includes(host) && (await isMaintenanceModeOn()) && (await readToken())?.role !== "admin") {
       return maintenanceResponse();
     }
   }
 
-  const productId = pathname.match(PRODUCT_ID_PATH)?.[1];
+  const productId = path.match(PRODUCT_ID_PATH)?.[1];
   if (productId) {
     const slug = await productSlug(productId);
-    if (slug) return NextResponse.redirect(new URL(`/products/${encodeURIComponent(slug)}`, req.url), 308);
+    if (slug) return NextResponse.redirect(new URL(localePath(lang, `/products/${encodeURIComponent(slug)}`), req.url), 308);
   }
 
   // 🔒 PROTÉGER LES PAGES D'ADMINISTRATION
-  if (pathname.startsWith("/admin/")) {
-    const token = await readToken();
-    if (!token) {
-      return NextResponse.redirect(new URL("/auth/login", req.url));
-    }
+  if (isAdmin) {
+    if (path.startsWith("/admin/")) {
+      const token = await readToken();
+      if (!token) {
+        return NextResponse.redirect(new URL("/auth/login", req.url));
+      }
 
-    if (token.role !== "admin") {
-      return NextResponse.redirect(
-        new URL("/admin/unauthorized", req.url)
-      );
+      if (token.role !== "admin") {
+        return NextResponse.redirect(
+          new URL("/admin/unauthorized", req.url)
+        );
+      }
     }
+    return NextResponse.next();
   }
 
-  return NextResponse.next();
+  return localizedResponse(req, lang, path);
 }
 
 export const config = {
-  // Tourne sur toutes les pages (hors assets/_next/api) pour pouvoir
-  // appliquer l'écran de maintenance à l'ensemble du site public.
+  // Tourne sur toutes les pages (hors assets/_next/api) pour pouvoir localiser chaque URL
+  // et appliquer l'écran de maintenance à l'ensemble du site public.
   matcher: ["/((?!_next/static|_next/image|favicon.ico).*)"],
 };

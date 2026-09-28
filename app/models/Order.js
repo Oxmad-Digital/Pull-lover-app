@@ -11,6 +11,8 @@ const Order = createPostgresModel({
     stripePaymentId: null,
     payment: "cash",
     status: "pending",
+    // Langue du client au moment de la commande : langue des e-mails de suivi
+    locale: "fr",
     delivery: {
       method: null,
       methodId: null,

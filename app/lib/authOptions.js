@@ -5,6 +5,7 @@ import GoogleProvider from "next-auth/providers/google";
 import { connectDB } from "@/app/lib/db";
 import User from "@/app/models/User";
 import bcrypt from "bcryptjs";
+import { toLocale, tr } from "@/app/i18n/config.mjs";
 
 // Verrouillage après plusieurs mots de passe erronés
 const MAX_FAILED_ATTEMPTS = 5;
@@ -25,21 +26,25 @@ export const authOptions = {
       async authorize(credentials) {
         const email = typeof credentials?.email === "string" ? credentials.email.toLowerCase().trim() : "";
         const password = typeof credentials?.password === "string" ? credentials.password : "";
-        if (!email || !password) throw new Error("Email et mot de passe requis");
+        // Langue de la page de connexion : les erreurs ci-dessous sont affichées telles quelles
+        const lang = toLocale(credentials?.lang);
+        const t = (fr, en) => tr(lang, fr, en);
+        const invalid = t("Email ou mot de passe incorrect", "Incorrect email or password");
+        if (!email || !password) throw new Error(t("Email et mot de passe requis", "Email and password are required"));
 
         await connectDB();
 
         const user = await User.findOne({ email });
-        if (!user) throw new Error("Email ou mot de passe incorrect");
+        if (!user) throw new Error(invalid);
 
         // 🔒 VÉRIFICATION COMPTE VERROUILLÉ (avant tout test du mot de passe)
         if (user.accountLockedUntil && user.accountLockedUntil > new Date()) {
           const minutes = Math.ceil((user.accountLockedUntil - new Date()) / 60000);
-          throw new Error(`Compte verrouillé. Réessayez dans ${minutes} min.`);
+          throw new Error(t(`Compte verrouillé. Réessayez dans ${minutes} min.`, `Account locked. Try again in ${minutes} min.`));
         }
 
         // Compte créé via Google : pas de mot de passe local
-        if (!user.password) throw new Error("Ce compte utilise la connexion Google.");
+        if (!user.password) throw new Error(t("Ce compte utilise la connexion Google.", "This account uses Google sign-in."));
 
         const ok = await bcrypt.compare(password, user.password);
         if (!ok) {
@@ -49,12 +54,12 @@ export const authOptions = {
             user.failedLoginAttempts = 0;
           }
           await user.save();
-          throw new Error("Email ou mot de passe incorrect");
+          throw new Error(invalid);
         }
 
         // 🔒 VÉRIFICATION EMAIL OBLIGATOIRE
         if (!user.emailVerified) {
-          throw new Error("Email non vérifié. Consultez votre boîte mail.");
+          throw new Error(t("Email non vérifié. Consultez votre boîte mail.", "Email not verified. Please check your inbox."));
         }
 
         // ✅ Réinitialiser tentatives échouées

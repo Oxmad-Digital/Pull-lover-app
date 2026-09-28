@@ -1,6 +1,18 @@
 "use client";
 import { useState } from "react";
+import { cleanProductTranslations } from "@/app/i18n/product.mjs";
 import "./ProductForm.css";
+
+// Champs de la version anglaise du site (/en) : vides, ils reprennent le texte français
+const ENGLISH_FIELDS = [
+  { key: "name", label: "Nom du produit", placeholder: "Knit cardigan" },
+  { key: "description", label: "Description", placeholder: "Describe the product…", rows: 3 },
+  { key: "details", label: "Détails du produit", placeholder: "Composition, materials, fit…", rows: 3 },
+  { key: "careInstructions", label: "Entretien et lavage", placeholder: "Machine wash at 30°C, do not tumble dry…", rows: 3 },
+  { key: "fitInfo", label: "Coupe et taille", placeholder: "Straight cut, take your usual size…", rows: 3 },
+  { key: "shippingInfo", label: "Livraison et retours", placeholder: "Made after you order, 14-day returns…", rows: 3 },
+  { key: "color", label: "Couleur", placeholder: "Natural ecru" },
+];
 
 export default function ProductForm({
   onSave,
@@ -25,6 +37,7 @@ export default function ProductForm({
   const [price, setPrice] = useState(editingProduct?.price || "");
   const [weight, setWeight] = useState(editingProduct?.weight || "");
   const [promoPrice, setPromoPrice] = useState(editingProduct?.promoPrice || "");
+  const [english, setEnglish] = useState(() => cleanProductTranslations(editingProduct?.translations).en);
 
   const [uploadedUrls, setUploadedUrls] = useState(
     editingProduct?.images || (editingProduct?.image ? [editingProduct.image] : [])
@@ -135,6 +148,7 @@ export default function ProductForm({
         images: uploadedUrls,
         image: uploadedUrls[0] || "",
         imageKeys: uploadedKeys,
+        translations: cleanProductTranslations({ en: english }),
       };
 
       if (editingProduct?._id) body._id = editingProduct._id;
@@ -250,6 +264,32 @@ export default function ProductForm({
           onChange={(e) => setColor(e.target.value)}
         />
       </div>
+
+      <fieldset className="form-translation">
+        <legend className="form-label">Version anglaise</legend>
+        <small className="form-hint">Textes affichés sur le site en anglais (/en). Un champ laissé vide reprend le texte français.</small>
+        {ENGLISH_FIELDS.map(({ key, label, placeholder, rows }) => (
+          <div className="form-field" key={key}>
+            <label className="form-label" htmlFor={`product-en-${key}`}>{label} (EN)</label>
+            {rows ? (
+              <textarea
+                id={`product-en-${key}`}
+                placeholder={placeholder}
+                value={english[key]}
+                onChange={(e) => setEnglish((prev) => ({ ...prev, [key]: e.target.value }))}
+                rows={rows}
+              />
+            ) : (
+              <input
+                id={`product-en-${key}`}
+                placeholder={placeholder}
+                value={english[key]}
+                onChange={(e) => setEnglish((prev) => ({ ...prev, [key]: e.target.value }))}
+              />
+            )}
+          </div>
+        ))}
+      </fieldset>
 
       <div className="form-row">
         <div className="form-field">

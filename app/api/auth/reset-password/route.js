@@ -3,22 +3,25 @@ import User from "@/app/models/User";
 import bcrypt from "bcryptjs";
 import { NextResponse } from "next/server";
 import { validatePassword } from "@/app/lib/password";
+import { translator } from "@/app/i18n/server";
 
 export async function POST(req) {
+  let t = translator(req);
   try {
     await connectDB();
 
-    const { token, password } = await req.json();
+    const { token, password, locale } = await req.json();
+    t = translator(req, locale);
 
     // Types stricts : un objet ({"$ne": null}) serait interprété comme opérateur de filtre
     if (typeof token !== "string" || !/^[a-f0-9]{64}$/.test(token) || typeof password !== "string") {
-      return NextResponse.json({ message: "Données manquantes ou invalides" }, { status: 400 });
+      return NextResponse.json({ message: t("Données manquantes ou invalides", "Missing or invalid data") }, { status: 400 });
     }
 
-    const passwordCheck = validatePassword(password);
+    const passwordCheck = validatePassword(password, t.lang);
     if (!passwordCheck.isValid) {
       return NextResponse.json(
-        { message: "Mot de passe invalide : " + passwordCheck.errors.join(", ") },
+        { message: t("Mot de passe invalide : ", "Invalid password: ") + passwordCheck.errors.join(", ") },
         { status: 400 }
       );
     }
@@ -30,7 +33,7 @@ export async function POST(req) {
 
     if (!user) {
       return NextResponse.json(
-        { message: "Lien invalide ou expiré. Faites une nouvelle demande." },
+        { message: t("Lien invalide ou expiré. Faites une nouvelle demande.", "Invalid or expired link. Please make a new request.") },
         { status: 400 }
       );
     }
@@ -44,9 +47,9 @@ export async function POST(req) {
     user.accountLockedUntil = null;
     await user.save();
 
-    return NextResponse.json({ message: "Mot de passe réinitialisé avec succès." });
+    return NextResponse.json({ message: t("Mot de passe réinitialisé avec succès.", "Password reset successfully.") });
   } catch (error) {
     console.error("❌ Erreur reset-password:", error);
-    return NextResponse.json({ message: "Erreur serveur" }, { status: 500 });
+    return NextResponse.json({ message: t("Erreur serveur", "Server error") }, { status: 500 });
   }
 }
