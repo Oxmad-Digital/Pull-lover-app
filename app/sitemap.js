@@ -8,6 +8,7 @@ export const revalidate = 3600;
 const STATIC_PAGES = [
   ["/", 1, "weekly"],
   [FEATURED_PRODUCT_PATH, 0.9, "weekly"],
+  ["/contact", 0.6, "monthly"],
   ["/conditions-de-vente", 0.2, "yearly"],
   ["/mentions-legales", 0.1, "yearly"],
   ["/politique-de-confidentialite", 0.1, "yearly"],
