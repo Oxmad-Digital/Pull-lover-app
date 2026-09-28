@@ -9,6 +9,8 @@ import { createParcel } from "@/app/lib/sendcloud";
 import { sendEmail } from "@/app/lib/mailer";
 import { getOrderStatusUpdateEmailTemplate } from "@/app/lib/emailTemplates";
 import { uploadToR2 } from "@/app/lib/r2";
+import { localePath, toLocale, tr } from "@/app/i18n/config.mjs";
+import { orderStatusLabel } from "@/app/i18n/orders.mjs";
 
 export class ShipError extends Error {
   constructor(message, status = 400, extra = {}) {
@@ -143,21 +145,23 @@ export async function shipOrder(order, { force = false } = {}) {
   if (order.customer?.email) {
     try {
       const orderNumber = id.slice(-8).toUpperCase();
+      const lang = toLocale(order.locale);
       const html = getOrderStatusUpdateEmailTemplate({
-        firstname: order.customer.firstname || "Client",
+        firstname: order.customer.firstname || tr(lang, "Client", "Customer"),
         orderNumber,
-        statusInfo: { label: "Expédiée", icon: "🚚", color: "#06b6d4" },
-        statusMessage: `Votre commande a été expédiée ! Numéro de suivi : <strong>${trackingNumber}</strong>`,
+        statusInfo: { label: orderStatusLabel("shipped", lang), icon: "🚚", color: "#06b6d4" },
+        statusMessage: tr(lang, "Votre commande a été expédiée ! Numéro de suivi : ", "Your order has shipped! Tracking number: ") + `<strong>${trackingNumber}</strong>`,
         address: order.customer.address || "",
         city: order.customer.city || "",
         total: order.total,
-        orderUrl: `${process.env.NEXT_PUBLIC_APP_URL}/dashboard/orders`,
+        orderUrl: `${process.env.NEXT_PUBLIC_APP_URL}${localePath(lang, "/dashboard/orders")}`,
         trackingNumber,
         trackingUrl,
+        lang,
       });
       await sendEmail({
         to: order.customer.email,
-        subject: `🚚 Commande #${orderNumber} expédiée — Suivi ${trackingNumber}`,
+        subject: tr(lang, `🚚 Commande #${orderNumber} expédiée — Suivi ${trackingNumber}`, `🚚 Order #${orderNumber} shipped — Tracking ${trackingNumber}`),
         html,
       });
     } catch (err) {

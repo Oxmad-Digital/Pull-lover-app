@@ -1,12 +1,6 @@
-"use client";
-
-import { usePathname } from "next/navigation";
 import Footer from "./Footer";
 
+// Seul le site public (app/[lang]) affiche le footer : l'administration a son propre layout racine
 export default function FooterWrapper() {
-  const pathname = usePathname();
-
-  if (pathname.startsWith("/admin")) return null;
-
   return <Footer />;
 }

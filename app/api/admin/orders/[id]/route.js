@@ -7,6 +7,8 @@ import Order from "@/app/models/Order";
 import { requireAdmin } from "@/app/lib/auth";
 import { sendEmail } from "@/app/lib/mailer";
 import { getOrderStatusUpdateEmailTemplate } from "@/app/lib/emailTemplates";
+import { toLocale, tr } from "@/app/i18n/config.mjs";
+import { orderStatusLabel, orderStatusMessage } from "@/app/i18n/orders.mjs";
 
 // ✅ GET - Récupérer les détails d'une commande
 
@@ -80,43 +82,36 @@ export async function PATCH(req, { params }) {
     /* ======================
        📧 EMAIL AU CLIENT
     ====================== */
-    const statusLabels = {
-      pending: { label: "En attente", icon: "⏳", color: "#f59e0b" },
-      confirmed: { label: "Confirmée", icon: "✔️", color: "#3b82f6" },
-      processing: { label: "En préparation", icon: "📦", color: "#8b5cf6" },
-      paid: { label: "Payée", icon: "💰", color: "#10b981" },
-      shipped: { label: "Expédiée", icon: "🚚", color: "#06b6d4" },
-      delivered: { label: "Livrée", icon: "✅", color: "#22c55e" },
-      cancelled: { label: "Annulée", icon: "❌", color: "#ef4444" },
+    const statusStyles = {
+      pending: { icon: "⏳", color: "#f59e0b" },
+      confirmed: { icon: "✔️", color: "#3b82f6" },
+      processing: { icon: "📦", color: "#8b5cf6" },
+      paid: { icon: "💰", color: "#10b981" },
+      shipped: { icon: "🚚", color: "#06b6d4" },
+      delivered: { icon: "✅", color: "#22c55e" },
+      cancelled: { icon: "❌", color: "#ef4444" },
     };
 
-    const statusInfo = statusLabels[status];
+    // E-mail dans la langue de la commande (anciennes commandes : français)
+    const lang = toLocale(order.locale);
+    const statusInfo = { ...statusStyles[status], label: orderStatusLabel(status, lang) };
     const orderNumber = order._id.toString().slice(-8).toUpperCase();
 
-    const statusMessages = {
-      pending: "Votre commande est en attente de traitement.",
-      confirmed: "Bonne nouvelle ! Votre commande a été confirmée.",
-      processing: "Votre commande est en cours de préparation.",
-      paid: "Votre paiement a été reçu. Merci !",
-      shipped: "Votre commande a été expédiée ! Elle arrivera bientôt.",
-      delivered: "Votre commande a été livrée. Merci pour votre achat !",
-      cancelled: "Votre commande a été annulée. Contactez-nous pour plus d'informations.",
-    };
-
     const clientEmailHtml = getOrderStatusUpdateEmailTemplate({
-      firstname: order.customer?.firstname || "Client",
+      firstname: order.customer?.firstname || tr(lang, "Client", "Customer"),
       orderNumber,
       statusInfo,
-      statusMessage: statusMessages[status],
+      statusMessage: orderStatusMessage(status, lang),
       address: order.customer?.address || "",
       city: order.customer?.city || "",
       total: order.total,
+      lang,
     });
 
     if (order.customer?.email) {
       await sendEmail({
         to: order.customer.email,
-        subject: `${statusInfo.icon} Commande #${orderNumber} - ${statusInfo.label}`,
+        subject: `${statusInfo.icon} ${tr(lang, "Commande", "Order")} #${orderNumber} - ${statusInfo.label}`,
         html: clientEmailHtml,
       });
     }

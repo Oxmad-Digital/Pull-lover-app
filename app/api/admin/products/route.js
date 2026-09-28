@@ -9,6 +9,7 @@ import "@/app/models/Category";
 import { requireAdmin } from "@/app/lib/auth";
 import { escapeRegex } from "@/app/lib/text";
 import { deleteFromR2 } from "@/app/lib/r2";
+import { cleanProductTranslations } from "@/app/i18n/product.mjs";
 
 // Champs modifiables via PATCH (bascule rapide depuis la liste admin)
 const PATCHABLE_FIELDS = ["isAvailable"];
@@ -18,7 +19,7 @@ function productFields(body) {
   const {
     name, brand, size, sizes, condition, description, details, careInstructions, fitInfo, shippingInfo, color,
     price, promoPrice, stock, stocks, category, weight,
-    images, image, imageKeys,
+    images, image, imageKeys, translations,
   } = body;
 
   return {
@@ -44,6 +45,7 @@ function productFields(body) {
     images: images || [],
     image: image || images?.[0] || "",
     imageKeys: imageKeys || [],
+    translations: cleanProductTranslations(translations),
     isAvailable: Number(stock) > 0,
   };
 }

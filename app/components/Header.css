@@ -22,6 +22,8 @@
 .pl-icon-button::-webkit-details-marker { display: none; }
 .pl-bag-count { position: absolute; right: 0; top: 0; display: grid; place-items: center; min-width: 17px; height: 17px; border-radius: 50%; padding: 0 4px; background: var(--color-secondary); color: #111; font-size: 10px; line-height: 1; }
 .pl-header-home .pl-bag-count { background: var(--color-secondary); color: #111; }
+.pl-lang-switch { display: grid; place-items: center; min-width: 44px; height: 44px; font-size: 12px; font-weight: 600; letter-spacing: .09em; }
+.pl-lang-switch:hover { text-decoration: underline; text-decoration-color: var(--color-secondary); text-decoration-thickness: 2px; text-underline-offset: 7px; }
 .pl-account-menu { position: relative; }
 .pl-account-panel { position: absolute; top: 54px; right: 0; display: grid; min-width: 210px; padding: 16px 24px; background: var(--pl-paper); border: 1px solid var(--pl-line); color: var(--pl-ink); }
 .pl-account-panel a, .pl-account-panel button { padding: 12px 0; background: none; border: 0; font: 14px var(--pl-sans); text-align: left; color: inherit; cursor: pointer; }
@@ -50,6 +52,7 @@
   .pl-nav { padding-inline: 20px; }
   .pl-logo { width: 52px; height: 52px; }
   .pl-nav-actions { gap: 2px; }
+  .pl-lang-switch { min-width: 36px; }
 }
 @media (prefers-reduced-motion: reduce) { .pl-header.pl-header * { transition: none; animation: none; } }
 

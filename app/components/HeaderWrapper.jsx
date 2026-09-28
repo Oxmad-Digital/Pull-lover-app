@@ -1,12 +1,10 @@
 "use client";
 
 import { usePathname } from "next/navigation";
+import { splitLocale } from "@/app/i18n/config.mjs";
 import Header from "./Header";
 
 export default function HeaderWrapper() {
-    const pathname = usePathname();
-    const isHome = pathname === "/";
-    if (pathname.startsWith("/admin")) return null;
-
-    return <Header transparent={isHome} dashboard={pathname.startsWith("/dashboard")} />;
+    const { path } = splitLocale(usePathname());
+    return <Header transparent={path === "/"} dashboard={path.startsWith("/dashboard")} />;
 }

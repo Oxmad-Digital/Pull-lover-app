@@ -7,6 +7,8 @@ import { NextResponse } from "next/server";
 import { sendEmail } from "@/app/lib/mailer";
 import { getVerificationEmailTemplate } from "@/app/lib/emailTemplates";
 import { validatePassword } from "@/app/lib/password";
+import { translator } from "@/app/i18n/server";
+import { localePath } from "@/app/i18n/config.mjs";
 
 // Rate limiting
 const registrationAttempts = new Map();
@@ -56,6 +58,7 @@ function isValidEmail(email) {
 }
 
 export async function POST(req) {
+  let t = translator(req);
   try {
     await connectDB();
 
@@ -66,13 +69,16 @@ export async function POST(req) {
     const rateLimit = checkRateLimit(ip);
     if (!rateLimit.allowed) {
       return NextResponse.json(
-        { message: `Trop de tentatives. Réessayez dans ${rateLimit.retryAfter} secondes.` },
+        { message: t(`Trop de tentatives. Réessayez dans ${rateLimit.retryAfter} secondes.`, `Too many attempts. Try again in ${rateLimit.retryAfter} seconds.`) },
         { status: 429 }
       );
     }
 
     const body = await req.json();
+    t = translator(req, body?.locale);
     let { name, email, password } = body;
+    const verificationUrlFor = (token) => `${process.env.NEXT_PUBLIC_APP_URL}${localePath(t.lang, "/verify-email")}?token=${token}`;
+    const verifySubject = t("🔐 Vérifiez votre email", "🔐 Verify your email");
 
     // Sanitization
     name = sanitizeInput(name);
@@ -81,7 +87,7 @@ export async function POST(req) {
     // Validations de base
     if (typeof name !== "string" || typeof email !== "string" || typeof password !== "string" || !name || !email || !password) {
       return NextResponse.json(
-        { message: "Tous les champs sont obligatoires" },
+        { message: t("Tous les champs sont obligatoires", "All fields are required") },
         { status: 400 }
       );
     }
@@ -89,7 +95,7 @@ export async function POST(req) {
     // Validation nom
     if (name.length < 2 || name.length > 50) {
       return NextResponse.json(
-        { message: "Le nom doit contenir entre 2 et 50 caractères" },
+        { message: t("Le nom doit contenir entre 2 et 50 caractères", "Your name must be between 2 and 50 characters") },
         { status: 400 }
       );
     }
@@ -97,17 +103,17 @@ export async function POST(req) {
     // Validation email
     if (!isValidEmail(email)) {
       return NextResponse.json(
-        { message: "Adresse email invalide" },
+        { message: t("Adresse email invalide", "Invalid email address") },
         { status: 400 }
       );
     }
 
     // Validation password
-    const passwordCheck = validatePassword(password);
+    const passwordCheck = validatePassword(password, t.lang);
     if (!passwordCheck.isValid) {
       return NextResponse.json(
         {
-          message: "Mot de passe invalide: " + passwordCheck.errors.join(", "),
+          message: t("Mot de passe invalide : ", "Invalid password: ") + passwordCheck.errors.join(", "),
           errors: passwordCheck.errors,
         },
         { status: 400 }
@@ -126,13 +132,13 @@ export async function POST(req) {
         existingUser.verificationTokenExpiry = new Date(Date.now() + 24 * 60 * 60 * 1000);
         await existingUser.save();
 
-        const verificationUrl = `${process.env.NEXT_PUBLIC_APP_URL}/verify-email?token=${newToken}`;
-        const htmlContent = getVerificationEmailTemplate(existingUser.name, verificationUrl);
+        const verificationUrl = verificationUrlFor(newToken);
+        const htmlContent = getVerificationEmailTemplate(existingUser.name, verificationUrl, t.lang);
 
         try {
           await sendEmail({
             to: existingUser.email,
-            subject: "🔐 Vérifiez votre email",
+            subject: verifySubject,
             html: htmlContent,
           });
         } catch (emailErr) {
@@ -140,13 +146,13 @@ export async function POST(req) {
         }
 
         return NextResponse.json(
-          { message: "Email déjà inscrit mais non vérifié. Un nouveau lien de vérification a été envoyé." },
+          { message: t("Email déjà inscrit mais non vérifié. Un nouveau lien de vérification a été envoyé.", "This email is already registered but not verified. A new verification link has been sent.") },
           { status: 400 }
         );
       }
 
       return NextResponse.json(
-        { message: "Email déjà utilisé" },
+        { message: t("Email déjà utilisé", "This email is already in use") },
         { status: 400 }
       );
     }
@@ -195,13 +201,13 @@ export async function POST(req) {
     }
 
     // 📧 Envoyer email de vérification
-    const verificationUrl = `${process.env.NEXT_PUBLIC_APP_URL}/verify-email?token=${verificationToken}`;
-    const htmlContent = getVerificationEmailTemplate(name, verificationUrl);
+    const verificationUrl = verificationUrlFor(verificationToken);
+    const htmlContent = getVerificationEmailTemplate(name, verificationUrl, t.lang);
 
     try {
       await sendEmail({
         to: email,
-        subject: "🔐 Vérifiez votre email",
+        subject: verifySubject,
         html: htmlContent,
       });
       console.log(`✅ Email de vérification envoyé à: ${email}`);
@@ -214,7 +220,7 @@ export async function POST(req) {
 
     return NextResponse.json(
       {
-        message: "Compte créé ! Consultez votre email pour vérifier votre adresse.",
+        message: t("Compte créé ! Consultez votre email pour vérifier votre adresse.", "Account created! Check your email to verify your address."),
         requiresVerification: true,
       },
       { status: 201 }
@@ -230,7 +236,7 @@ export async function POST(req) {
     // Erreur de contrainte d'unicité PostgreSQL
     if (error.code === 11000) {
       return NextResponse.json(
-        { message: "Cet email est déjà utilisé" },
+        { message: t("Cet email est déjà utilisé", "This email is already in use") },
         { status: 400 }
       );
     }
@@ -245,7 +251,7 @@ export async function POST(req) {
     }
 
     return NextResponse.json(
-      { message: "Erreur serveur lors de l'inscription. Réessayez." },
+      { message: t("Erreur serveur lors de l'inscription. Réessayez.", "Server error during sign-up. Please try again.") },
       { status: 500 }
     );
   }

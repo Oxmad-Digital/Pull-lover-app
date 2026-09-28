@@ -2,17 +2,19 @@
 import { connectDB } from "@/app/lib/db";
 import User from "@/app/models/User";
 import { NextResponse } from "next/server";
+import { translator } from "@/app/i18n/server";
 
 export async function GET(req) {
+  const { searchParams } = new URL(req.url);
+  const t = translator(req, searchParams.get("locale"));
   try {
     await connectDB();
 
-    const { searchParams } = new URL(req.url);
     const token = searchParams.get("token");
 
     if (!token || !/^[a-f0-9]{64}$/.test(token)) {
       return NextResponse.json(
-        { message: "Token manquant" },
+        { message: t("Token manquant", "Missing token") },
         { status: 400 }
       );
     }
@@ -25,7 +27,7 @@ export async function GET(req) {
 
     if (!user) {
       return NextResponse.json(
-        { message: "Token invalide ou expiré" },
+        { message: t("Token invalide ou expiré", "Invalid or expired token") },
         { status: 400 }
       );
     }
@@ -40,7 +42,7 @@ export async function GET(req) {
 
     return NextResponse.json(
       { 
-        message: "Email vérifié avec succès ! Vous pouvez maintenant vous connecter.",
+        message: t("Email vérifié avec succès ! Vous pouvez maintenant vous connecter.", "Email verified! You can now sign in."),
         verified: true 
       },
       { status: 200 }
@@ -49,7 +51,7 @@ export async function GET(req) {
   } catch (error) {
     console.error("❌ Erreur vérification:", error);
     return NextResponse.json(
-      { message: "Erreur lors de la vérification" },
+      { message: t("Erreur lors de la vérification", "Something went wrong during verification") },
       { status: 500 }
     );
   }
