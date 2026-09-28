@@ -38,7 +38,6 @@ const nextConfig: NextConfig = {
       // Pages supprimées
       { source: "/NotreMarque", destination: "/", permanent: true },
       { source: "/notre-marque", destination: "/", permanent: true },
-      { source: "/contact", destination: "/", permanent: true },
       { source: "/favoris", destination: "/", permanent: true },
     ];
   },

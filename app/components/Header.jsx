@@ -12,6 +12,7 @@ const links = [
   { label: "La pièce", href: "/products/mantasoa" },
   { label: "L’atelier", href: "/#atelier" },
   { label: "Précommande", href: "/#precommande-info" },
+  { label: "Contact", href: "/contact" },
 ];
 
 function getRemainingTime(target) {

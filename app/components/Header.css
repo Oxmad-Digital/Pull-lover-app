@@ -38,7 +38,7 @@
   .pl-mobile-menu[open] .pl-menu-lines { transform: rotate(-45deg); }
   .pl-mobile-panel { position: absolute; top: 100%; left: 0; right: 0; display: grid; padding: 16px 24px 28px; background: var(--pl-paper); color: var(--pl-ink); border-bottom: 1px solid var(--pl-line); }
   .pl-mobile-panel a { display: flex; justify-content: space-between; padding: 18px 0; border-bottom: 1px solid var(--pl-line); font-size: 15px; }
-  .pl-mobile-panel a:nth-child(-n+3) { font-family: var(--pl-serif); font-size: 30px; }
+  .pl-mobile-panel a:nth-child(-n+4) { font-family: var(--pl-serif); font-size: 30px; }
 }
 @media (max-width: 599px) {
   .pl-announcement { min-height: 50px; font-size: 9px; padding: 7px 16px; }
