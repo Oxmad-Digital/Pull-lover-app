@@ -1,123 +1,60 @@
 // app/lib/mailer.js
+// Envoi des e-mails via l'API Plunk (https://useplunk.com). Remplace l'ancien SMTP Nodemailer.
 
-import nodemailer from "nodemailer";
+import { randomUUID } from "crypto";
+import { localePath } from "@/app/i18n/config.mjs";
 
-// ✅ Configuration du transporteur
-const EMAIL_PORT = Number(process.env.EMAIL_PORT) || 587;
+const PLUNK_ENDPOINT = "https://next-api.useplunk.com/v1/send";
+const EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
-const transporter = nodemailer.createTransport({
-  host: process.env.EMAIL_HOST,
-  port: EMAIL_PORT,
-  secure: EMAIL_PORT === 465, // TLS direct sur 465, STARTTLS sur 587
-  auth: {
-    user: process.env.EMAIL_USER,
-    pass: process.env.EMAIL_PASS,
-  },
-  tls: {
-    // Certificat du serveur SMTP vérifié ; EMAIL_TLS_INSECURE=true uniquement pour un
-    // serveur de test à certificat auto-signé.
-    rejectUnauthorized: process.env.EMAIL_TLS_INSECURE !== "true",
-  },
-  // ✅ Ajout de timeouts
-  connectionTimeout: 10000, // 10 secondes
-  greetingTimeout: 10000,
-  socketTimeout: 15000,
-});
+/** Destinataire des notifications internes (nouvelle commande, alertes, contact). */
+export function adminEmail() {
+  return process.env.ADMIN_EMAIL || process.env.CONTACT_EMAIL || process.env.PLUNK_FROM_EMAIL;
+}
 
-// Vérification SMTP au démarrage, en développement seulement : en production elle ouvrirait
-// une connexion SMTP à chaque démarrage à froid de toute route qui importe ce module.
-if (process.env.NODE_ENV !== "production") transporter.verify((error) => {
-  if (error) {
-    console.error("❌ SMTP ERROR:", error.message);
-    console.error("   → Host:", process.env.EMAIL_HOST);
-    console.error("   → Port:", process.env.EMAIL_PORT);
-    console.error("   → User:", process.env.EMAIL_USER);
-  } else {
-    console.log("✅ SMTP connecté et prêt");
-    console.log("   → Host:", process.env.EMAIL_HOST);
-    console.log("   → User:", process.env.EMAIL_USER);
-  }
-});
+/** URL publique du site, sans slash final. */
+export function siteUrl() {
+  return (process.env.NEXT_PUBLIC_APP_URL || process.env.NEXTAUTH_URL || "").replace(/\/$/, "");
+}
+
+/** Lien vers « Mes commandes » dans la langue du client. */
+export function ordersPageUrl(lang) {
+  return `${siteUrl()}${localePath(lang, "/dashboard/orders")}`;
+}
 
 /**
- * Envoie un email
+ * Envoie un e-mail HTML via Plunk. Lève une erreur si la configuration est incomplète
+ * ou si Plunk refuse l'envoi : aux appelants de décider si l'échec est bloquant.
  * @param {Object} options - { to, subject, html, replyTo? }
  */
 export async function sendEmail({ to, subject, html, replyTo }) {
-  // ✅ Validation
-  if (!to) {
-    console.error("❌ Destinataire email manquant");
-    throw new Error("Destinataire email manquant");
-  }
+  const secretKey = process.env.PLUNK_SECRET_KEY;
+  const fromEmail = process.env.PLUNK_FROM_EMAIL;
+  if (!secretKey || !fromEmail) throw new Error("Configuration Plunk incomplète (PLUNK_SECRET_KEY / PLUNK_FROM_EMAIL)");
 
-  // ✅ Nettoyage de l'email
-  const cleanEmail = to.trim().toLowerCase();
-  
-  // ✅ Validation format email
-  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-  if (!emailRegex.test(cleanEmail)) {
-    console.error("❌ Format email invalide:", cleanEmail);
-    throw new Error(`Format email invalide: ${cleanEmail}`);
-  }
+  const recipient = typeof to === "string" ? to.trim().toLowerCase() : "";
+  if (!recipient) throw new Error("Destinataire email manquant");
+  if (!EMAIL_PATTERN.test(recipient)) throw new Error(`Format email invalide: ${recipient}`);
 
-  // ✅ Version TEXT (obligatoire pour Gmail)
-  const text = html
-    .replace(/<style[^>]*>[\s\S]*?<\/style>/gi, "")
-    .replace(/<[^>]+>/g, " ")
-    .replace(/\s+/g, " ")
-    .trim();
-
-  // ✅ Configuration de l'email
-  const mailOptions = {
-    from: `"${process.env.EMAIL_FROM_NAME || "Mon Site"}" <${process.env.EMAIL_USER}>`,
-    to: cleanEmail,
-    subject,
-    text,
-    html,
-    // ✅ Headers pour améliorer la délivrabilité
-    headers: {
-      "X-Priority": "1",
-      "X-Mailer": "Nodemailer",
-    },
+  const payload = {
+    to: recipient,
+    from: { name: process.env.PLUNK_FROM_NAME || "Pull-Lover", email: fromEmail },
+    subject: String(subject).replace(/[\r\n]+/g, " "),
+    body: html,
   };
+  const reply = replyTo || process.env.CONTACT_EMAIL;
+  if (reply) payload.reply = reply;
 
-  // ✅ Ajouter replyTo si fourni
-  if (replyTo) {
-    mailOptions.replyTo = replyTo;
+  const response = await fetch(PLUNK_ENDPOINT, {
+    method: "POST",
+    headers: { Authorization: `Bearer ${secretKey}`, "Content-Type": "application/json", "Idempotency-Key": randomUUID() },
+    body: JSON.stringify(payload),
+    signal: AbortSignal.timeout(10000),
+  });
+  const result = await response.json().catch(() => null);
+  if (!response.ok || !result?.success) {
+    throw new Error(`Plunk a refusé l'envoi (${response.status} ${result?.error?.code || "UNKNOWN_ERROR"})`);
   }
 
-  console.log("📧 ═══════════════════════════════════════");
-  console.log("📧 ENVOI EMAIL EN COURS...");
-  console.log("📧 De:", mailOptions.from);
-  console.log("📧 À:", cleanEmail);
-  console.log("📧 Sujet:", subject);
-  console.log("📧 ═══════════════════════════════════════");
-
-  try {
-    const info = await transporter.sendMail(mailOptions);
-
-    console.log("✅ ═══════════════════════════════════════");
-    console.log("✅ EMAIL ENVOYÉ AVEC SUCCÈS !");
-    console.log("✅ Message ID:", info.messageId);
-    console.log("✅ Destinataire:", cleanEmail);
-    console.log("✅ Réponse SMTP:", info.response);
-    console.log("✅ ═══════════════════════════════════════");
-
-    return {
-      success: true,
-      messageId: info.messageId,
-      to: cleanEmail,
-    };
-
-  } catch (error) {
-    console.error("❌ ═══════════════════════════════════════");
-    console.error("❌ ÉCHEC ENVOI EMAIL");
-    console.error("❌ Destinataire:", cleanEmail);
-    console.error("❌ Erreur:", error.message);
-    console.error("❌ Code:", error.code);
-    console.error("❌ Stack:", error.stack);
-    console.error("❌ ═══════════════════════════════════════");
-
-    throw error;
-  }
+  return { success: true, to: recipient };
 }

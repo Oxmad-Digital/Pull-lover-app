@@ -36,11 +36,16 @@ export async function POST(req) {
 
     const resetUrl = `${process.env.NEXTAUTH_URL}${localePath(t.lang, "/auth/reset-password")}?token=${token}`;
 
-    await sendEmail({
-      to: user.email,
-      subject: t("Réinitialisation de votre mot de passe — Pull-Lover", "Reset your password — Pull-Lover"),
-      html: getResetPasswordEmailTemplate(user.name, resetUrl, t.lang),
-    });
+    // Échec d'envoi silencieux côté client : une erreur ici révélerait que le compte existe
+    try {
+      await sendEmail({
+        to: user.email,
+        subject: t("Réinitialisation de votre mot de passe — Pull-Lover", "Reset your password — Pull-Lover"),
+        html: getResetPasswordEmailTemplate(user.name, resetUrl, t.lang),
+      });
+    } catch (emailError) {
+      console.error("❌ Email reset mot de passe:", emailError.message);
+    }
 
     return NextResponse.json({ message: sent });
   } catch (error) {

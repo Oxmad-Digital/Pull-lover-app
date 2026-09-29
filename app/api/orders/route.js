@@ -3,7 +3,7 @@
 import { NextResponse, after } from "next/server";
 import { connectDB } from "@/app/lib/db";
 import Order from "@/app/models/Order";
-import { sendEmail } from "@/app/lib/mailer";
+import { sendEmail, adminEmail, ordersPageUrl } from "@/app/lib/mailer";
 import { getOrderConfirmationEmailTemplate, getAdminNewOrderEmailTemplate, orderItemsHtml } from "@/app/lib/emailTemplates";
 import Customer from "@/app/models/Customer";
 import Settings from "@/app/models/Settings";
@@ -281,10 +281,6 @@ export async function POST(req) {
     });
 
     const deliveryLabel = `📦 ${shippingMethod.carrierLabel} — ${shippingMethod.name}`;
-    const shortageHtml = totals.shortages.length
-      ? `<p style="margin:16px 0;padding:12px;background:#fef2f2;color:#991b1b;border-radius:8px;font-size:14px"><strong>⚠️ Rupture de stock au moment de l'enregistrement :</strong><br>${totals.shortages.map(escapeHtml).join("<br>")}</p>`
-      : "";
-
     // Articles : en français pour l'admin, dans la langue du client pour sa confirmation
     const clientLines = lang === "en" ? lines.map((line) => ({ ...line, name: line.nameEn || line.name })) : lines;
 
@@ -304,6 +300,9 @@ export async function POST(req) {
       deliveryLabel,
       paymentLabel: `💳 ${paymentLabel("card", "fr")}`,
       total,
+      notice: totals.shortages.length
+        ? `<strong>⚠️ Rupture de stock au moment de l'enregistrement :</strong><br>${totals.shortages.map(escapeHtml).join("<br>")}`
+        : "",
     });
 
     const clientEmailHtml = getOrderConfirmationEmailTemplate({
@@ -316,6 +315,7 @@ export async function POST(req) {
       deliveryLabel,
       paymentLabel: `💳 ${paymentLabel("card", lang)}`,
       total,
+      orderUrl: ordersPageUrl(lang),
       lang,
     });
 
@@ -323,12 +323,11 @@ export async function POST(req) {
        📧 ENVOI DES EMAILS (après la réponse : le client n'attend pas le SMTP)
     ====================== */
     after(async () => {
-      const adminEmail = process.env.ADMIN_EMAIL || process.env.EMAIL_USER;
       const [adminResult, clientResult] = await Promise.allSettled([
         sendEmail({
-          to: adminEmail,
+          to: adminEmail(),
           subject: `🛒 Nouvelle commande #${orderNumber} - ${firstname} ${lastname}`,
-          html: shortageHtml ? adminEmailHtml.replace(/<body[^>]*>/, (tag) => tag + shortageHtml) : adminEmailHtml,
+          html: adminEmailHtml,
         }),
         sendEmail({
           to: email,
