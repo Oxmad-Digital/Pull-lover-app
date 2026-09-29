@@ -13,8 +13,41 @@ import { localizeProduct } from "@/app/i18n/product.mjs";
 
 const SIZE_ORDER = ["XS", "S", "M", "L", "XL", "XXL"];
 
-// Couleur affichée quand la fiche n'en précise pas (la valeur française part avec la commande)
-const DEFAULT_COLOR = { fr: "Écru naturel", en: "Natural ecru" };
+const CARDIGAN_VARIANTS = [
+  {
+    id: "vert-foret",
+    code: "#284a37",
+    name: { fr: "Vert forêt", en: "Forest green" },
+    images: [
+      "/products/cardigan/cardigan-vert-mannequin.webp",
+      "/products/cardigan/cardigan-vert-face.webp",
+      "/products/cardigan/cardigan-vert-dos.webp",
+      "/products/cardigan/cardigan-vert-coeur.webp",
+    ],
+  },
+  {
+    id: "bleu-ciel",
+    code: "#a9c7e8",
+    name: { fr: "Bleu ciel", en: "Sky blue" },
+    images: [
+      "/products/cardigan/cardigan-bleu-mannequin.webp",
+      "/products/cardigan/cardigan-bleu-face.webp",
+      "/products/cardigan/cardigan-bleu-dos.webp",
+      "/products/cardigan/cardigan-bleu-coeur.webp",
+    ],
+  },
+  {
+    id: "gris-anthracite",
+    code: "#3d3d3f",
+    name: { fr: "Gris anthracite", en: "Anthracite grey" },
+    images: [
+      "/products/cardigan/cardigan-anthracite-mannequin.webp",
+      "/products/cardigan/cardigan-anthracite-face.webp",
+      "/products/cardigan/cardigan-anthracite-dos.webp",
+      "/products/cardigan/cardigan-anthracite-coeur.webp",
+    ],
+  },
+];
 
 const TEXT = {
   fr: {
@@ -147,25 +180,6 @@ const TEXT = {
   },
 };
 
-const FALLBACK_IMAGE_SOURCES = [
-  "/api/media/site/mantasoa-hero.webp",
-  "/api/media/site/mantasoa-studio.png",
-  "/api/media/site/mantasoa-detail.png",
-];
-
-function normalizeImages(product, t) {
-  const remoteImages = [product?.image, ...(product?.images || [])].filter(Boolean);
-  const seen = new Set();
-  return [
-    { src: "/api/media/pull-lover-manequin-cardigan-3.webp", alt: t.mainAlt },
-    ...remoteImages.map((src, index) => ({ src, alt: t.view(product?.name || t.fallbackName, index + 1) })),
-    ...FALLBACK_IMAGE_SOURCES.map((src, index) => ({ src, alt: t.fallbackAlts[index] })),
-  ].filter((image) => {
-    if (seen.has(image.src)) return false;
-    seen.add(image.src);
-    return true;
-  });
-}
 
 // initialState : calculé au rendu serveur ; absent (base injoignable), le produit est chargé ici.
 export default function MantasoaProductPage({ initialState = null }) {
@@ -177,6 +191,7 @@ export default function MantasoaProductPage({ initialState = null }) {
   const [status, setStatus] = useState(initialState?.status ?? "loading");
   const [product, setProduct] = useState(initialState?.product ?? null);
   const [activeImage, setActiveImage] = useState(0);
+  const [selectedColor, setSelectedColor] = useState(CARDIGAN_VARIANTS[0].id);
   const [selectedSize, setSelectedSize] = useState("");
   const [quantity, setQuantity] = useState(1);
   const [sizeError, setSizeError] = useState(false);
@@ -201,7 +216,20 @@ export default function MantasoaProductPage({ initialState = null }) {
 
   // Textes affichés dans la langue de la page ; `product` garde les valeurs françaises envoyées à la commande
   const display = useMemo(() => localizeProduct(product, lang), [product, lang]);
-  const images = useMemo(() => normalizeImages(display, t), [display, t]);
+  const selectedVariant = useMemo(
+    () => CARDIGAN_VARIANTS.find((variant) => variant.id === selectedColor) || CARDIGAN_VARIANTS[0],
+    [selectedColor],
+  );
+  const images = useMemo(
+    () => selectedVariant.images.map((src, index) => ({
+      src,
+      alt: index === 0
+        ? `${t.mainAlt} — ${selectedVariant.name[lang]}`
+        : t.view(`${display?.name || t.fallbackName} — ${selectedVariant.name[lang]}`, index + 1),
+      contain: index > 0,
+    })),
+    [display?.name, lang, selectedVariant, t],
+  );
   const sizes = useMemo(() => {
     const variants = product ? productSizes(product) : [];
     return [...variants].sort((a, b) => {
@@ -234,13 +262,13 @@ export default function MantasoaProductPage({ initialState = null }) {
       addToCart({
         _id: product._id, name: product.name, price: product.price,
         promoPrice: product.promoPrice || null,
-        image: product.image || images[0].src,
-        quantity: 1, size: selectedSize, color: product.color || DEFAULT_COLOR.fr, stock: product.stock,
+        image: images[0].src,
+        quantity: 1, size: selectedSize, color: selectedVariant.name.fr, stock: product.stock,
         // Nom et couleur en anglais pour l'affichage du panier (le panier survit aux changements de langue)
         translations: {
           en: {
             name: product.translations?.en?.name || "",
-            color: product.translations?.en?.color || (product.color ? "" : DEFAULT_COLOR.en),
+            color: selectedVariant.name.en,
           },
         },
       });
@@ -271,7 +299,7 @@ export default function MantasoaProductPage({ initialState = null }) {
             ))}
           </div>
           <div className="mp-main-image">
-            <Image src={images[activeImage].src} alt={images[activeImage].alt} fill priority={activeImage === 0} sizes="(max-width: 900px) 100vw, 56vw" />
+            <Image className={images[activeImage].contain ? "is-contain" : ""} src={images[activeImage].src} alt={images[activeImage].alt} fill priority={activeImage === 0} sizes="(max-width: 900px) 100vw, 56vw" />
             <span className="mp-image-count">{activeImage + 1} / {images.length}</span>
             {images.length > 1 && <div className="mp-image-arrows">
               <button type="button" aria-label={t.previous} onClick={() => setActiveImage((activeImage - 1 + images.length) % images.length)}>←</button>
@@ -294,7 +322,27 @@ export default function MantasoaProductPage({ initialState = null }) {
           </div>
           <p className="mp-lead">{display?.description || t.fallbackDescription}</p>
 
-          <div className="mp-color"><div><strong>{t.color}</strong><span>{display?.color || DEFAULT_COLOR[lang]}</span></div><span className="mp-swatch" aria-label={t.colorLabel(display?.color || DEFAULT_COLOR[lang])} /></div>
+          <div className="mp-color">
+            <div className="mp-color-copy"><strong>{t.color}</strong><span>{selectedVariant.name[lang]}</span></div>
+            <div className="mp-swatches" aria-label={t.color}>
+              {CARDIGAN_VARIANTS.map((variant) => (
+                <button
+                  type="button"
+                  key={variant.id}
+                  className={`mp-swatch${selectedColor === variant.id ? " is-selected" : ""}`}
+                  style={{ "--swatch-color": variant.code }}
+                  aria-label={t.colorLabel(variant.name[lang])}
+                  aria-pressed={selectedColor === variant.id}
+                  title={variant.name[lang]}
+                  onClick={() => {
+                    setSelectedColor(variant.id);
+                    setActiveImage(0);
+                    setConfirmation(false);
+                  }}
+                />
+              ))}
+            </div>
+          </div>
 
           <fieldset className={`mp-size-picker${sizeError ? " has-error" : ""}`} id="mantasoa-sizes">
             <legend><strong>{t.chooseSize}</strong><button type="button" onClick={() => document.getElementById("size-guide")?.showModal()}>{t.sizeGuide}</button></legend>
