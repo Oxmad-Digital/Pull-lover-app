@@ -1,4 +1,5 @@
 import Image from "next/image";
+import { notFound } from "next/navigation";
 import MantasoaProduct from "@/app/components/home/MantasoaProduct";
 import HomeCinematic from "@/app/components/home/HomeCinematic";
 import JsonLd from "@/app/components/JsonLd";
@@ -111,6 +112,8 @@ function splitChars(text) {
 export async function generateMetadata({ params }) {
   const { lang } = await params;
   const t = TEXT[lang];
+  // Les bots qui sondent /xmlrpc.php, /wp-login.php… atterrissent ici avec un « lang » inconnu
+  if (!t) notFound();
   return {
     title: { absolute: t.title },
     description: t.description,
@@ -127,6 +130,8 @@ export async function generateMetadata({ params }) {
 export default async function HomePage({ params }) {
   const { lang } = await params;
   const t = TEXT[lang];
+  // Les bots qui sondent /xmlrpc.php, /wp-login.php… atterrissent ici avec un « lang » inconnu
+  if (!t) notFound();
   const featured = await getFeaturedProductState();
   return (
     <div className="pl-home" id="accueil">
