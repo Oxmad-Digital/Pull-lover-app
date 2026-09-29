@@ -1,5 +1,5 @@
 // app/lib/emailTemplates.js
-// Tous les templates email Pull-Lover — palette harmonisée avec le site
+// Tous les templates e-mail Pull-Lover — charte du site (vert #243b3b, corail #c75c5c, papier #fff9f6, titres Georgia)
 
 import { escapeHtml } from "./text.js";
 import { INTL_LOCALE, toLocale } from "../i18n/config.mjs";
@@ -9,7 +9,7 @@ import { INTL_LOCALE, toLocale } from "../i18n/config.mjs";
 const TEXT = {
   fr: {
     rights: "Tous droits réservés",
-    auto: "Email envoyé automatiquement, merci de ne pas y répondre",
+    auto: "Email envoyé automatiquement suite à votre activité sur pull-lover",
     copyLink: "Ou copiez ce lien dans votre navigateur :",
     welcome: (name) => `Bienvenue, ${name} !`,
     verifyIntro: "Merci de rejoindre la communauté Pull-Lover.<br>Confirmez votre adresse email pour activer votre compte.",
@@ -56,7 +56,7 @@ const TEXT = {
   },
   en: {
     rights: "All rights reserved",
-    auto: "This email was sent automatically, please do not reply",
+    auto: "This email was sent automatically following your activity on pull-lover",
     copyLink: "Or copy this link into your browser:",
     welcome: (name) => `Welcome, ${name}!`,
     verifyIntro: "Thank you for joining the Pull-Lover community.<br>Confirm your email address to activate your account.",
@@ -116,6 +116,20 @@ export function emailMoney(value, lang = "fr") {
   }).format(amount);
 }
 
+// ── Charte (alignée sur app/globals.css) ────────────────────────────────────
+const ink = "#243b3b";       // --color-primary
+const accent = "#c75c5c";    // --color-secondary
+const accentDark = "#ad4646"; // --color-secondary-hover (boutons et liens : contraste AA)
+const paper = "#fff9f6";     // --color-background
+const mist = "#f3eae7";      // --pl-mist
+const line = "#e8dad6";      // --color-border
+const text = "#252323";      // --color-text
+const muted = "#706666";     // --color-text-muted
+const serif = "Georgia,'Times New Roman',serif";
+const sans = "Arial,Helvetica,sans-serif";
+
+const stripTags = (html) => String(html ?? "").replace(/<[^>]+>/g, "").replace(/\s+/g, " ").trim();
+
 /**
  * Lignes <tr> des articles d'une commande (confirmation client, renvoi, notification admin).
  * @param {Array<{ name: string, image?: string, size?: string, quantity: number, unitPrice?: number }>} items
@@ -123,47 +137,86 @@ export function emailMoney(value, lang = "fr") {
 export function orderItemsHtml(items, lang = "fr") {
   const t = textFor(lang);
   return items.map((item) => `
-      <tr style="border-bottom:1px solid #e2e8f0">
-        <td style="padding:12px 8px 12px 0;vertical-align:top">
+      <tr style="border-bottom:1px solid ${line}">
+        <td style="padding:14px 8px 14px 0;vertical-align:top">
           <table role="presentation" cellpadding="0" cellspacing="0">
             <tr>
               ${item.image ? `<td style="padding-right:12px;vertical-align:top">
-                <img src="${escapeHtml(item.image)}" width="48" height="60" alt="${escapeHtml(item.name)}" style="display:block;border-radius:4px;object-fit:cover;border:1px solid #e2e8f0">
+                <img src="${escapeHtml(item.image)}" width="48" height="60" alt="${escapeHtml(item.name)}" style="display:block;object-fit:cover;border:1px solid ${line}">
               </td>` : ""}
               <td style="vertical-align:top">
-                <p style="margin:0;font-size:14px;font-weight:600;color:#0f172a">${escapeHtml(item.name || t.unknownProduct)}</p>
-                ${item.size ? `<p style="margin:3px 0 0;font-size:12px;color:#94a3b8">${t.size} ${escapeHtml(item.size)}</p>` : ""}
+                <p style="margin:0;font:600 14px ${sans};color:${text}">${escapeHtml(item.name || t.unknownProduct)}</p>
+                ${item.size ? `<p style="margin:3px 0 0;font:12px ${sans};color:${muted}">${t.size} ${escapeHtml(item.size)}</p>` : ""}
               </td>
             </tr>
           </table>
         </td>
-        <td style="padding:12px 0;font-size:14px;color:#475569;text-align:center;vertical-align:top">${Number(item.quantity) || 1}</td>
-        <td style="padding:12px 0;font-size:14px;color:#475569;text-align:right;font-weight:600;vertical-align:top">${item.unitPrice != null ? emailMoney(item.unitPrice, lang) : "-"}</td>
+        <td style="padding:14px 0;font:14px ${sans};color:${text};text-align:center;vertical-align:top">${Number(item.quantity) || 1}</td>
+        <td style="padding:14px 0;font:600 14px ${sans};color:${text};text-align:right;vertical-align:top">${item.unitPrice != null ? emailMoney(item.unitPrice, lang) : "-"}</td>
       </tr>
     `).join("");
 }
 
-const coral = "#C95D5D";
-const dark = "#0f172a";
-const gray100 = "#f8fafc";
-const gray200 = "#e2e8f0";
-const gray400 = "#94a3b8";
-const gray600 = "#475569";
+// Les clients mail n'affichent que des images en URL absolue : logo servi depuis public/email/
+const logoUrl = () => `${(process.env.NEXT_PUBLIC_APP_URL || process.env.NEXTAUTH_URL || "https://pull-lover.com").replace(/\/$/, "")}/email/logo-coeur.png`;
 
-function logoHtml(size = 22, light = false) {
-  const color = light ? "#ffffff" : dark;
-  const scriptColor = light ? "rgba(255,255,255,0.9)" : dark;
-  return `<span style="font-family:'Helvetica Neue',Arial,sans-serif;font-weight:800;font-size:${size}px;color:${color};letter-spacing:-0.5px">Pull</span><span style="font-family:Georgia,'Times New Roman',serif;font-size:${size + 2}px;color:${scriptColor};font-style:italic">Lover</span>`;
+function logoHtml(size = 26) {
+  return `<table role="presentation" cellpadding="0" cellspacing="0" align="center"><tr>
+            <td style="padding-right:12px;vertical-align:middle"><img src="${logoUrl()}" width="44" alt="" style="display:block;width:44px;height:auto;border:0"></td>
+            <td style="vertical-align:middle"><span style="font-family:${serif};font-size:${size}px;color:#ffffff;letter-spacing:.01em">Pull<span style="color:#f2c1bd">·</span>Lover</span></td>
+          </tr></table>`;
+}
+
+function eyebrow(label, color = accent) {
+  return `<p style="margin:0 0 10px;font:700 11px ${sans};letter-spacing:.12em;text-transform:uppercase;color:${color}">${label}</p>`;
+}
+
+function heading(label) {
+  return `<h1 class="email-h1" style="margin:0 0 14px;font:normal 30px/1.2 ${serif};color:${ink}">${label}</h1>`;
+}
+
+function sectionLabel(label) {
+  return `<p style="margin:0 0 10px;font:700 11px ${sans};letter-spacing:.12em;text-transform:uppercase;color:${muted}">${label}</p>`;
+}
+
+/** Bloc encadré sur fond papier. */
+function panel(inner, { background = paper, border = line } = {}) {
+  return `<table role="presentation" width="100%" cellpadding="0" cellspacing="0"><tr><td style="background:${background};border:1px solid ${border};padding:18px 20px">${inner}</td></tr></table>`;
 }
 
 // Bouton CTA générique
 function ctaButton(url, label) {
   return `
     <table role="presentation" cellpadding="0" cellspacing="0" style="margin:0 auto">
-      <tr><td style="border-radius:8px;background:${coral}">
-        <a href="${url}" style="display:inline-block;padding:14px 36px;color:#fff;text-decoration:none;font-weight:700;font-size:15px;border-radius:8px;font-family:'Helvetica Neue',Arial,sans-serif">${label}</a>
+      <tr><td style="background:${accentDark}">
+        <a href="${url}" style="display:inline-block;padding:15px 38px;color:#fff;text-decoration:none;font:700 14px ${sans};letter-spacing:.06em;text-transform:uppercase">${label}</a>
       </td></tr>
     </table>`;
+}
+
+/** Bouton centré dans sa propre ligne, avec l'espacement standard. */
+function ctaRow(url, label, marginBottom = 32) {
+  return `
+      <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="margin-bottom:${marginBottom}px">
+        <tr><td align="center">${ctaButton(url, label)}</td></tr>
+      </table>`;
+}
+
+/** Lien avec repli « copiez ce lien » (vérification, réinitialisation). */
+function fallbackLink(url, t) {
+  return `
+      <p style="margin:0 0 6px;font:13px ${sans};color:${muted}">${t.copyLink}</p>
+      <p style="margin:0 0 28px;font:12px ${sans};color:${accentDark};word-break:break-all">${url}</p>`;
+}
+
+/** Encart d'avertissement (expiration d'un lien). */
+function noticeBox(inner) {
+  return `
+      <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="margin-bottom:28px">
+        <tr><td style="background:${mist};border-left:3px solid ${accent};padding:16px 18px">
+          <p style="margin:0;font:14px/1.6 ${sans};color:${ink}">${inner}</p>
+        </td></tr>
+      </table>`;
 }
 
 function wrap(title, preheader, bodyRows, lang = "fr") {
@@ -173,38 +226,35 @@ function wrap(title, preheader, bodyRows, lang = "fr") {
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width,initial-scale=1.0">
-  <title>${title}</title>
+  <title>${stripTags(title)}</title>
   <style>
     @media only screen and (max-width: 600px) {
-      .ep-header  { padding: 20px 20px 16px !important; }
+      .ep-header  { padding: 22px 20px !important; }
       .ep-body    { padding: 28px 20px !important; }
       .ep-section { padding: 28px 20px 0 !important; }
       .ep-last    { padding: 0 20px 28px !important; }
       .ep-footer  { padding: 24px 20px !important; }
       .ep-banner  { padding: 24px 20px !important; }
-      h1.email-h1 { font-size: 20px !important; }
-      .ep-hide    { display: none !important; }
+      h1.email-h1 { font-size: 24px !important; }
     }
   </style>
 </head>
-<body style="margin:0;padding:0;background:#f1f5f9;font-family:'Helvetica Neue',Arial,sans-serif;">
-  <div style="display:none;max-height:0;overflow:hidden;font-size:1px;line-height:1px;color:#f1f5f9">${preheader}&nbsp;</div>
-  <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background:#f1f5f9;padding:32px 16px">
+<body style="margin:0;padding:0;background:${paper};font-family:${sans};color:${text}">
+  <div style="display:none;max-height:0;overflow:hidden;font-size:1px;line-height:1px;color:${paper}">${stripTags(preheader)}&nbsp;</div>
+  <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background:${paper};padding:32px 16px">
     <tr><td align="center">
-      <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="max-width:580px;background:#fff;border-radius:12px;overflow:hidden;box-shadow:0 4px 20px rgba(0,0,0,.08)">
+      <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="max-width:600px;background:#fff;border:1px solid ${line}">
 
-        <tr><td style="height:4px;background:${coral};font-size:4px;line-height:4px">&nbsp;</td></tr>
-
-        <tr><td class="ep-header" style="padding:24px 40px 20px;text-align:center;border-bottom:1px solid ${gray200}">
-          ${logoHtml(22)}
+        <tr><td class="ep-header" style="padding:28px 40px;background:${ink};text-align:center;border-bottom:3px solid ${accent}">
+          ${logoHtml()}
         </td></tr>
 
         ${bodyRows}
 
-        <tr><td class="ep-footer" style="background:${dark};padding:28px 40px;text-align:center">
-          <p style="margin:0 0 8px">${logoHtml(14, true)}</p>
-          <p style="margin:0;color:rgba(255,255,255,.45);font-size:12px">© ${new Date().getFullYear()} Pull-Lover — ${t.rights}</p>
-          <p style="margin:6px 0 0;color:rgba(255,255,255,.3);font-size:11px">${t.auto}</p>
+        <tr><td class="ep-footer" style="background:${mist};padding:26px 40px;text-align:center;border-top:1px solid ${line}">
+          <p style="margin:0 0 8px;font:normal 16px ${serif};color:${ink}">Pull<span style="color:${accent}">·</span>Lover</p>
+          <p style="margin:0;font:12px ${sans};color:${muted}">© ${new Date().getFullYear()} Pull-Lover — ${t.rights}</p>
+          <p style="margin:6px 0 0;font:11px ${sans};color:${muted}">${t.auto}</p>
         </td></tr>
 
       </table>
@@ -220,28 +270,13 @@ export function getVerificationEmailTemplate(name, verificationUrl, lang = "fr")
   const t = textFor(lang);
   name = escapeHtml(name);
   const body = `
-    <tr><td class="ep-body" style="padding:36px 40px">
-      <h1 class="email-h1" style="margin:0 0 12px;font-size:22px;font-weight:800;color:${dark}">${t.welcome(name)}</h1>
-      <p style="margin:0 0 28px;font-size:15px;color:${gray600};line-height:1.7">
-        ${t.verifyIntro}
-      </p>
-
-      <table role="presentation" width="100%" cellpadding="0" cellspacing="0">
-        <tr><td align="center" style="padding:0 0 32px">
-          ${ctaButton(verificationUrl, t.verifyCta)}
-        </td></tr>
-      </table>
-
-      <p style="margin:0 0 6px;font-size:13px;color:${gray400}">Ou copiez ce lien dans votre navigateur :</p>
-      <p style="margin:0 0 28px;font-size:12px;color:${coral};word-break:break-all">${verificationUrl}</p>
-
-      <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="margin-bottom:28px">
-        <tr><td style="background:#fffbeb;border:1px solid #fde68a;border-radius:8px;padding:16px 18px">
-          <p style="margin:0;font-size:14px;color:#92400e">⏱ ${t.verifyExpiry}</p>
-        </td></tr>
-      </table>
-
-      <p style="margin:0;font-size:13px;color:${gray400}">${t.verifyIgnore}</p>
+    <tr><td class="ep-body" style="padding:40px">
+      ${heading(t.welcome(name))}
+      <p style="margin:0 0 28px;font:15px/1.7 ${sans};color:${text}">${t.verifyIntro}</p>
+      ${ctaRow(verificationUrl, t.verifyCta)}
+      ${fallbackLink(verificationUrl, t)}
+      ${noticeBox(`⏱ ${t.verifyExpiry}`)}
+      <p style="margin:0;font:13px ${sans};color:${muted}">${t.verifyIgnore}</p>
     </td></tr>
   `;
   return wrap(t.verifyTitle, t.verifyPreheader(name), body, lang);
@@ -253,34 +288,40 @@ export function getResetPasswordEmailTemplate(name, resetUrl, lang = "fr") {
   const t = textFor(lang);
   name = escapeHtml(name);
   const body = `
-    <tr><td class="ep-body" style="padding:36px 40px">
-      <h1 class="email-h1" style="margin:0 0 12px;font-size:22px;font-weight:800;color:${dark}">${t.resetHeading}</h1>
-      <p style="margin:0 0 28px;font-size:15px;color:${gray600};line-height:1.7">
-        ${t.resetIntro(name)}
-      </p>
-
-      <table role="presentation" width="100%" cellpadding="0" cellspacing="0">
-        <tr><td align="center" style="padding:0 0 32px">
-          ${ctaButton(resetUrl, t.resetCta)}
-        </td></tr>
-      </table>
-
-      <p style="margin:0 0 6px;font-size:13px;color:${gray400}">Ou copiez ce lien dans votre navigateur :</p>
-      <p style="margin:0 0 28px;font-size:12px;color:${coral};word-break:break-all">${resetUrl}</p>
-
-      <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="margin-bottom:28px">
-        <tr><td style="background:#fffbeb;border:1px solid #fde68a;border-radius:8px;padding:16px 18px">
-          <p style="margin:0;font-size:14px;color:#92400e">⏱ ${t.resetExpiry}</p>
-        </td></tr>
-      </table>
-
-      <p style="margin:0;font-size:13px;color:${gray400}">${t.resetIgnore}</p>
+    <tr><td class="ep-body" style="padding:40px">
+      ${heading(t.resetHeading)}
+      <p style="margin:0 0 28px;font:15px/1.7 ${sans};color:${text}">${t.resetIntro(name)}</p>
+      ${ctaRow(resetUrl, t.resetCta)}
+      ${fallbackLink(resetUrl, t)}
+      ${noticeBox(`⏱ ${t.resetExpiry}`)}
+      <p style="margin:0;font:13px ${sans};color:${muted}">${t.resetIgnore}</p>
     </td></tr>
   `;
   return wrap(t.resetTitle, t.resetPreheader(name), body, lang);
 }
 
 // ── 3. Confirmation de commande (client) ────────────────────────────────────
+
+function orderTable({ t, productListHtml, total, lang, totalSize = 20 }) {
+  const th = `padding:10px 0;font:700 11px ${sans};color:${muted};text-transform:uppercase;letter-spacing:.08em`;
+  return `
+      <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="margin-bottom:28px;border-collapse:collapse">
+        <thead>
+          <tr style="border-bottom:2px solid ${ink}">
+            <th style="${th};text-align:left">${t.product}</th>
+            <th style="${th};text-align:center;width:40px">${t.qty}</th>
+            <th style="${th};text-align:right">${t.price}</th>
+          </tr>
+        </thead>
+        <tbody>${productListHtml}</tbody>
+        <tfoot>
+          <tr>
+            <td colspan="2" style="padding:16px 0;font:700 14px ${sans};color:${ink}">${t.total}</td>
+            <td style="padding:16px 0;text-align:right;font:normal ${totalSize}px ${serif};color:${ink}">${emailMoney(total, lang)}</td>
+          </tr>
+        </tfoot>
+      </table>`;
+}
 
 export function getOrderConfirmationEmailTemplate({
   firstname,
@@ -299,74 +340,49 @@ export function getOrderConfirmationEmailTemplate({
   // Données saisies par le client : échappées avant insertion dans le HTML
   [firstname, address, city, deliveryLabel, paymentLabel] = [firstname, address, city, deliveryLabel, paymentLabel].map(escapeHtml);
   const body = `
-    <tr><td class="ep-banner" style="background:${gray100};padding:28px 40px;text-align:center;border-bottom:1px solid ${gray200}">
-      <p style="margin:0 0 4px;font-size:11px;font-weight:700;color:${gray400};letter-spacing:1.2px;text-transform:uppercase">${t.orderConfirmed}</p>
-      <h1 class="email-h1" style="margin:0 0 8px;font-size:24px;font-weight:800;color:${dark}">${t.thanks(firstname)}</h1>
-      <p style="margin:0;font-size:14px;color:${gray600}">${t.orderReceived}</p>
+    <tr><td class="ep-banner" style="background:${paper};padding:36px 40px 30px;text-align:center;border-bottom:1px solid ${line}">
+      ${eyebrow(t.orderConfirmed)}
+      ${heading(t.thanks(firstname))}
+      <p style="margin:0;font:14px/1.6 ${sans};color:${muted}">${t.orderReceived}</p>
     </td></tr>
 
     <tr><td class="ep-section" style="padding:28px 40px 0">
 
       <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="margin-bottom:28px">
-        <tr><td style="background:${gray100};border:1px solid ${gray200};border-radius:8px;padding:16px 20px">
+        <tr><td style="background:${paper};border:1px solid ${line};padding:16px 20px">
           <table role="presentation" width="100%" cellpadding="0" cellspacing="0">
             <tr>
               <td>
-                <p style="margin:0 0 3px;font-size:10px;font-weight:700;color:${gray400};letter-spacing:1px;text-transform:uppercase">${t.orderNumber}</p>
-                <p style="margin:0;font-size:20px;font-weight:800;color:${coral};letter-spacing:1px">#${orderNumber}</p>
+                ${sectionLabel(t.orderNumber)}
+                <p style="margin:0;font:normal 22px ${serif};color:${accentDark};letter-spacing:.04em">#${orderNumber}</p>
               </td>
-              <td style="text-align:right">
-                <p style="margin:0 0 3px;font-size:10px;font-weight:700;color:${gray400};letter-spacing:1px;text-transform:uppercase">${t.date}</p>
-                <p style="margin:0;font-size:13px;font-weight:600;color:${dark}">${orderDate}</p>
+              <td style="text-align:right;vertical-align:top">
+                ${sectionLabel(t.date)}
+                <p style="margin:0;font:600 13px ${sans};color:${text}">${orderDate}</p>
               </td>
             </tr>
           </table>
         </td></tr>
       </table>
 
-      <p style="margin:0 0 10px;font-size:10px;font-weight:700;color:${gray400};letter-spacing:1.2px;text-transform:uppercase">${t.itemsOrdered}</p>
-      <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="margin-bottom:28px;border-collapse:collapse">
-        <thead>
-          <tr style="border-bottom:2px solid ${gray200}">
-            <th style="padding:10px 0;text-align:left;font-size:11px;font-weight:700;color:${gray400};text-transform:uppercase;letter-spacing:.5px">${t.product}</th>
-            <th style="padding:10px 0;text-align:center;font-size:11px;font-weight:700;color:${gray400};text-transform:uppercase;letter-spacing:.5px;width:40px">${t.qty}</th>
-            <th style="padding:10px 0;text-align:right;font-size:11px;font-weight:700;color:${gray400};text-transform:uppercase;letter-spacing:.5px">${t.price}</th>
-          </tr>
-        </thead>
-        <tbody>${productListHtml}</tbody>
-        <tfoot>
-          <tr style="border-top:2px solid ${gray200}">
-            <td colspan="2" style="padding:14px 0;font-size:14px;font-weight:700;color:${dark}">${t.total}</td>
-            <td style="padding:14px 0;text-align:right;font-size:18px;font-weight:800;color:${coral}">${emailMoney(total, lang)}</td>
-          </tr>
-        </tfoot>
-      </table>
+      ${sectionLabel(t.itemsOrdered)}
+      ${orderTable({ t, productListHtml, total, lang })}
 
-      <p style="margin:0 0 10px;font-size:10px;font-weight:700;color:${gray400};letter-spacing:1.2px;text-transform:uppercase">${t.deliveryDetails}</p>
-      <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="margin-bottom:32px">
-        <tr><td style="background:${gray100};border:1px solid ${gray200};border-radius:8px;padding:18px 20px">
-          <p style="margin:0 0 10px;font-size:14px;color:${dark}"><strong>${t.address}</strong> ${address}, ${city}</p>
-          <p style="margin:0 0 10px;font-size:14px;color:${dark}"><strong>${t.delivery}</strong> ${deliveryLabel}</p>
-          <p style="margin:0;font-size:14px;color:${dark}"><strong>${t.payment}</strong> ${paymentLabel}</p>
-        </td></tr>
-      </table>
+      ${sectionLabel(t.deliveryDetails)}
+      <div style="margin-bottom:32px">${panel(`
+          <p style="margin:0 0 10px;font:14px/1.5 ${sans};color:${text}"><strong>${t.address}</strong> ${address}, ${city}</p>
+          <p style="margin:0 0 10px;font:14px/1.5 ${sans};color:${text}"><strong>${t.delivery}</strong> ${deliveryLabel}</p>
+          <p style="margin:0;font:14px/1.5 ${sans};color:${text}"><strong>${t.payment}</strong> ${paymentLabel}</p>`)}</div>
 
-      ${orderUrl ? `
-      <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="margin-bottom:32px">
-        <tr><td align="center">
-          ${ctaButton(orderUrl, t.viewOrder)}
-        </td></tr>
-      </table>` : ""}
+      ${orderUrl ? ctaRow(orderUrl, t.viewOrder) : ""}
 
-      <p style="margin:0 0 36px;font-size:13px;color:${gray400};line-height:1.6">
-        ${t.question}
-      </p>
+      <p style="margin:0 0 36px;font:13px/1.6 ${sans};color:${muted}">${t.question}</p>
     </td></tr>
   `;
   return wrap(t.confirmationTitle(orderNumber), t.confirmationPreheader(firstname, orderNumber), body, lang);
 }
 
-// ── 3. Notification nouvelle commande (admin) ───────────────────────────────
+// ── 4. Notification nouvelle commande (admin, en français) ──────────────────
 
 export function getAdminNewOrderEmailTemplate({
   firstname,
@@ -381,54 +397,37 @@ export function getAdminNewOrderEmailTemplate({
   deliveryLabel,
   paymentLabel,
   total,
+  notice = "",
 }) {
+  const t = textFor("fr");
   // Données saisies par le client : échappées avant insertion dans le HTML
   [firstname, lastname, email, phone, address, city, deliveryLabel, paymentLabel] =
     [firstname, lastname, email, phone, address, city, deliveryLabel, paymentLabel].map(escapeHtml);
   const body = `
-    <tr><td class="ep-banner" style="background:${dark};padding:24px 40px;text-align:center">
-      <p style="margin:0 0 4px;font-size:10px;font-weight:700;color:rgba(255,255,255,.5);letter-spacing:1.5px;text-transform:uppercase">Nouvelle commande reçue</p>
-      <h1 class="email-h1" style="margin:0 0 4px;font-size:22px;font-weight:800;color:#fff">Commande #${orderNumber}</h1>
-      <p style="margin:0;font-size:13px;color:rgba(255,255,255,.55)">${orderDate}</p>
+    <tr><td class="ep-banner" style="background:${paper};padding:32px 40px 26px;text-align:center;border-bottom:1px solid ${line}">
+      ${eyebrow("Nouvelle commande reçue")}
+      ${heading(`Commande #${orderNumber}`)}
+      <p style="margin:0;font:13px ${sans};color:${muted}">${orderDate}</p>
     </td></tr>
 
     <tr><td class="ep-section" style="padding:28px 40px 0">
 
-      <p style="margin:0 0 10px;font-size:10px;font-weight:700;color:${gray400};letter-spacing:1.2px;text-transform:uppercase">Client</p>
-      <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="margin-bottom:24px">
-        <tr><td style="background:${gray100};border:1px solid ${gray200};border-radius:8px;padding:18px 20px">
-          <p style="margin:0 0 8px;font-size:16px;font-weight:700;color:${dark}">${firstname} ${lastname}</p>
-          <p style="margin:0 0 6px;font-size:14px;color:${gray600}">📧 <a href="mailto:${email}" style="color:${coral};text-decoration:none">${email}</a></p>
-          <p style="margin:0 0 6px;font-size:14px;color:${gray600}">📞 ${phone || "Non renseigné"}</p>
-          <p style="margin:0;font-size:14px;color:${gray600}">📍 ${address}, ${city}</p>
-        </td></tr>
-      </table>
+      ${notice ? `<div style="margin-bottom:24px"><table role="presentation" width="100%" cellpadding="0" cellspacing="0"><tr><td style="background:#fbeaea;border-left:3px solid #be123c;padding:14px 18px;font:14px/1.6 ${sans};color:#7f1d1d">${notice}</td></tr></table></div>` : ""}
 
-      <p style="margin:0 0 10px;font-size:10px;font-weight:700;color:${gray400};letter-spacing:1.2px;text-transform:uppercase">Articles commandés</p>
-      <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="margin-bottom:24px;border-collapse:collapse">
-        <thead>
-          <tr style="border-bottom:2px solid ${gray200}">
-            <th style="padding:10px 0;text-align:left;font-size:11px;font-weight:700;color:${gray400};text-transform:uppercase;letter-spacing:.5px">Produit</th>
-            <th style="padding:10px 0;text-align:center;font-size:11px;font-weight:700;color:${gray400};text-transform:uppercase;letter-spacing:.5px;width:40px">Qté</th>
-            <th style="padding:10px 0;text-align:right;font-size:11px;font-weight:700;color:${gray400};text-transform:uppercase;letter-spacing:.5px">Prix</th>
-          </tr>
-        </thead>
-        <tbody>${productListHtml}</tbody>
-        <tfoot>
-          <tr style="border-top:2px solid ${gray200}">
-            <td colspan="2" style="padding:14px 0;font-size:14px;font-weight:700;color:${dark}">Total</td>
-            <td style="padding:14px 0;text-align:right;font-size:20px;font-weight:800;color:${coral}">${emailMoney(total)}</td>
-          </tr>
-        </tfoot>
-      </table>
+      ${sectionLabel("Client")}
+      <div style="margin-bottom:24px">${panel(`
+          <p style="margin:0 0 8px;font:normal 20px ${serif};color:${ink}">${firstname} ${lastname}</p>
+          <p style="margin:0 0 6px;font:14px ${sans};color:${muted}">📧 <a href="mailto:${email}" style="color:${accentDark};text-decoration:none">${email}</a></p>
+          <p style="margin:0 0 6px;font:14px ${sans};color:${muted}">📞 ${phone || "Non renseigné"}</p>
+          <p style="margin:0;font:14px ${sans};color:${muted}">📍 ${address}, ${city}</p>`)}</div>
 
-      <p style="margin:0 0 10px;font-size:10px;font-weight:700;color:${gray400};letter-spacing:1.2px;text-transform:uppercase">Détails</p>
-      <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="margin-bottom:32px">
-        <tr><td style="background:${gray100};border:1px solid ${gray200};border-radius:8px;padding:18px 20px">
-          <p style="margin:0 0 8px;font-size:14px;color:${dark}"><strong>Livraison :</strong> ${deliveryLabel}</p>
-          <p style="margin:0;font-size:14px;color:${dark}"><strong>Paiement :</strong> ${paymentLabel}</p>
-        </td></tr>
-      </table>
+      ${sectionLabel("Articles commandés")}
+      ${orderTable({ t, productListHtml, total, lang: "fr", totalSize: 22 })}
+
+      ${sectionLabel("Détails")}
+      <div style="margin-bottom:36px">${panel(`
+          <p style="margin:0 0 8px;font:14px ${sans};color:${text}"><strong>Livraison :</strong> ${deliveryLabel}</p>
+          <p style="margin:0;font:14px ${sans};color:${text}"><strong>Paiement :</strong> ${paymentLabel}</p>`)}</div>
 
     </td></tr>
   `;
@@ -439,7 +438,7 @@ export function getAdminNewOrderEmailTemplate({
   );
 }
 
-// ── 4. Mise à jour du statut de commande (client) ──────────────────────────
+// ── 5. Mise à jour du statut de commande (client) ──────────────────────────
 
 export function getOrderStatusUpdateEmailTemplate({
   firstname,
@@ -460,58 +459,50 @@ export function getOrderStatusUpdateEmailTemplate({
   trackingNumber = trackingNumber ? escapeHtml(trackingNumber) : trackingNumber;
   trackingUrl = /^https?:\/\//i.test(trackingUrl || "") ? escapeHtml(trackingUrl) : null;
   const body = `
-    <tr><td class="ep-body" style="padding:36px 40px 0;text-align:center">
-      <p style="margin:0 0 8px;font-size:11px;font-weight:700;color:${gray400};letter-spacing:1.2px;text-transform:uppercase">${t.orderUpdate}</p>
-      <h1 class="email-h1" style="margin:0 0 20px;font-size:22px;font-weight:800;color:${dark}">${t.hello(firstname)}</h1>
+    <tr><td class="ep-body" style="padding:40px 40px 0;text-align:center">
+      ${eyebrow(t.orderUpdate)}
+      ${heading(t.hello(firstname))}
 
-      <table role="presentation" cellpadding="0" cellspacing="0" style="margin:0 auto 20px">
-        <tr><td style="background:${statusInfo.color}1a;border:1px solid ${statusInfo.color}55;border-radius:24px;padding:10px 26px">
+      <table role="presentation" cellpadding="0" cellspacing="0" style="margin:0 auto 22px">
+        <tr><td style="background:${paper};border:1px solid ${line};border-left:4px solid ${statusInfo.color};padding:10px 24px">
           <span style="font-size:18px">${statusInfo.icon}</span>
-          <span style="margin-left:8px;font-size:15px;font-weight:700;color:${statusInfo.color};vertical-align:middle">${statusInfo.label}</span>
+          <span style="margin-left:8px;font:700 15px ${sans};color:${ink};vertical-align:middle">${statusInfo.label}</span>
         </td></tr>
       </table>
 
-      <p style="margin:0 0 28px;font-size:15px;color:${gray600};line-height:1.7">${statusMessage}</p>
+      <p style="margin:0 0 28px;font:15px/1.7 ${sans};color:${text}">${statusMessage}</p>
 
       ${trackingNumber ? `
-      <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="margin-bottom:20px">
-        <tr><td style="background:#f0fafe;border:1px solid #bae6fd;border-radius:8px;padding:16px 20px;text-align:center">
-          <p style="margin:0 0 4px;font-size:11px;font-weight:700;color:#0369a1;letter-spacing:1px;text-transform:uppercase">${t.trackingNumber}</p>
-          <p style="margin:0 0 12px;font-size:20px;font-weight:800;color:#0c4a6e;letter-spacing:1.5px">${trackingNumber}</p>
-          ${trackingUrl ? `<a href="${trackingUrl}" style="display:inline-block;padding:8px 20px;background:#0ea5e9;color:#fff;text-decoration:none;font-weight:700;font-size:13px;border-radius:6px">${t.trackParcel}</a>` : ""}
+      <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="margin-bottom:24px">
+        <tr><td style="background:${mist};border:1px solid ${line};padding:18px 20px;text-align:center">
+          ${sectionLabel(t.trackingNumber)}
+          <p style="margin:0 0 ${trackingUrl ? 14 : 0}px;font:normal 22px ${serif};color:${ink};letter-spacing:.08em">${trackingNumber}</p>
+          ${trackingUrl ? `<a href="${trackingUrl}" style="display:inline-block;padding:10px 22px;background:${ink};color:#fff;text-decoration:none;font:700 12px ${sans};letter-spacing:.08em;text-transform:uppercase">${t.trackParcel}</a>` : ""}
         </td></tr>
       </table>` : ""}
 
-      ${orderUrl ? `
-      <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="margin-bottom:36px">
-        <tr><td align="center">
-          ${ctaButton(orderUrl, t.viewOrder)}
-        </td></tr>
-      </table>` : `<div style="margin-bottom:36px"></div>`}
+      ${orderUrl ? ctaRow(orderUrl, t.viewOrder, 36) : `<div style="margin-bottom:36px"></div>`}
     </td></tr>
 
     <tr><td class="ep-last" style="padding:0 40px 36px">
-      <p style="margin:0 0 10px;font-size:10px;font-weight:700;color:${gray400};letter-spacing:1.2px;text-transform:uppercase">${t.summary}</p>
-      <table role="presentation" width="100%" cellpadding="0" cellspacing="0">
-        <tr><td style="background:${gray100};border:1px solid ${gray200};border-radius:8px;padding:18px 20px">
+      ${sectionLabel(t.summary)}
+      ${panel(`
           <table role="presentation" width="100%" cellpadding="0" cellspacing="0">
-            <tr><td style="padding:0 0 12px">
-              <p style="margin:0 0 3px;font-size:10px;font-weight:700;color:${gray400};letter-spacing:1px;text-transform:uppercase">${t.order}</p>
-              <p style="margin:0;font-size:18px;font-weight:800;color:${coral}">#${orderNumber}</p>
+            <tr><td style="padding:0 0 14px">
+              ${sectionLabel(t.order)}
+              <p style="margin:0;font:normal 20px ${serif};color:${accentDark}">#${orderNumber}</p>
             </td></tr>
-            <tr><td style="padding:0 0 12px">
-              <p style="margin:0 0 3px;font-size:10px;font-weight:700;color:${gray400};letter-spacing:1px;text-transform:uppercase">${t.shippingAddress}</p>
-              <p style="margin:0;font-size:14px;font-weight:600;color:${dark}">${address}, ${city}</p>
+            <tr><td style="padding:0 0 14px">
+              ${sectionLabel(t.shippingAddress)}
+              <p style="margin:0;font:600 14px ${sans};color:${text}">${address}, ${city}</p>
             </td></tr>
             <tr><td>
-              <p style="margin:0 0 3px;font-size:10px;font-weight:700;color:${gray400};letter-spacing:1px;text-transform:uppercase">${t.total}</p>
-              <p style="margin:0;font-size:16px;font-weight:800;color:${dark}">${emailMoney(total, lang)}</p>
+              ${sectionLabel(t.total)}
+              <p style="margin:0;font:normal 18px ${serif};color:${ink}">${emailMoney(total, lang)}</p>
             </td></tr>
-          </table>
-        </td></tr>
-      </table>
+          </table>`)}
 
-      <p style="margin:20px 0 0;font-size:13px;color:${gray400};line-height:1.6">${t.replyQuestion}</p>
+      <p style="margin:20px 0 0;font:13px/1.6 ${sans};color:${muted}">${t.replyQuestion}</p>
     </td></tr>
   `;
   return wrap(
@@ -520,4 +511,40 @@ export function getOrderStatusUpdateEmailTemplate({
     body,
     lang
   );
+}
+
+// ── 6. Message du formulaire de contact (vers l'équipe, en français) ────────
+
+export function getContactEmailTemplate({ firstName, lastName, email, subjectLabel, orderNumber, message, lang = "fr" }) {
+  [firstName, lastName, email, subjectLabel, orderNumber] = [firstName, lastName, email, subjectLabel, orderNumber].map(escapeHtml);
+  const row = (label, value) => `<tr><td style="padding:8px 16px 8px 0;font:14px ${sans};color:${muted};vertical-align:top">${label}</td><td style="padding:8px 0;font:14px ${sans};color:${text}">${value}</td></tr>`;
+  const body = `
+    <tr><td class="ep-body" style="padding:40px">
+      ${eyebrow("Nouveau message")}
+      ${heading("Contact Pull-Lover")}
+      <table role="presentation" style="width:100%;border-collapse:collapse;margin-top:12px">
+        ${row("De", `<strong>${firstName} ${lastName}</strong>`)}
+        ${row("E-mail", `<a href="mailto:${email}" style="color:${accentDark}">${email}</a>`)}
+        ${row("Sujet", subjectLabel)}
+        ${orderNumber ? row("Commande", `<strong>${orderNumber}</strong>`) : ""}
+        ${row("Langue", lang === "en" ? "Anglais — répondre en anglais" : "Français")}
+      </table>
+      <div style="margin-top:26px;padding-top:24px;border-top:1px solid ${line};font:16px/1.7 ${sans};color:${text}">${escapeHtml(message).replaceAll("\n", "<br>")}</div>
+    </td></tr>
+  `;
+  return wrap(`Contact — ${subjectLabel}`, `Message de ${firstName} ${lastName}`, body);
+}
+
+// ── 7. Alerte : paiement encaissé sans commande (admin, en français) ───────
+
+export function getPaymentAlertEmailTemplate({ amount, customerEmail, paymentIntentId }) {
+  const body = `
+    <tr><td class="ep-body" style="padding:40px">
+      ${eyebrow("Action requise", "#be123c")}
+      ${heading("Paiement sans commande")}
+      <p style="margin:0 0 22px;font:15px/1.7 ${sans};color:${text}">Un paiement de <strong>${escapeHtml(emailMoney(amount))}</strong> (${escapeHtml(customerEmail || "email inconnu")}) a été encaissé, mais aucune commande n'est enregistrée.</p>
+      ${panel(`${sectionLabel("PaymentIntent Stripe")}<p style="margin:0;font:600 14px ${sans};color:${ink};word-break:break-all">${escapeHtml(paymentIntentId)}</p>`)}
+    </td></tr>
+  `;
+  return wrap("Paiement Stripe sans commande", `Paiement de ${emailMoney(amount)} sans commande enregistrée`, body);
 }

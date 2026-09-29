@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import { connectDB, isValidId } from "@/app/lib/db";
 import Order from "@/app/models/Order";
-import { sendEmail } from "@/app/lib/mailer";
+import { sendEmail, ordersPageUrl } from "@/app/lib/mailer";
 import { getOrderConfirmationEmailTemplate, orderItemsHtml } from "@/app/lib/emailTemplates";
 import { carrierLabel } from "@/app/lib/sendcloud";
 import { requireAdmin } from "@/app/lib/auth";
@@ -73,6 +73,7 @@ export async function POST(req, { params }) {
       deliveryLabel,
       paymentLabel: paymentIcons[payment] ? `${paymentIcons[payment]} ${paymentLabel(payment, lang)}` : payment,
       total,
+      orderUrl: ordersPageUrl(lang),
       lang,
     });
 

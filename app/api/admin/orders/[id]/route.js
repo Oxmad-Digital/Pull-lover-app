@@ -5,7 +5,7 @@ import { NextResponse } from "next/server";
 import { connectDB, isValidId } from "@/app/lib/db";
 import Order from "@/app/models/Order";
 import { requireAdmin } from "@/app/lib/auth";
-import { sendEmail } from "@/app/lib/mailer";
+import { sendEmail, ordersPageUrl } from "@/app/lib/mailer";
 import { getOrderStatusUpdateEmailTemplate } from "@/app/lib/emailTemplates";
 import { toLocale, tr } from "@/app/i18n/config.mjs";
 import { orderStatusLabel, orderStatusMessage } from "@/app/i18n/orders.mjs";
@@ -69,6 +69,7 @@ export async function PATCH(req, { params }) {
       return NextResponse.json({ message: "Statut invalide" }, { status: 400 });
     }
 
+    const previousStatus = (await Order.findById(id))?.status;
     const order = await Order.findByIdAndUpdate(
       id,
       { status },
@@ -105,15 +106,21 @@ export async function PATCH(req, { params }) {
       address: order.customer?.address || "",
       city: order.customer?.city || "",
       total: order.total,
+      orderUrl: ordersPageUrl(lang),
       lang,
     });
 
-    if (order.customer?.email) {
-      await sendEmail({
-        to: order.customer.email,
-        subject: `${statusInfo.icon} ${tr(lang, "Commande", "Order")} #${orderNumber} - ${statusInfo.label}`,
-        html: clientEmailHtml,
-      });
+    // Le statut est déjà enregistré : un échec d'envoi ne doit pas faire échouer la requête
+    if (order.customer?.email && previousStatus !== status) {
+      try {
+        await sendEmail({
+          to: order.customer.email,
+          subject: `${statusInfo.icon} ${tr(lang, "Commande", "Order")} #${orderNumber} - ${statusInfo.label}`,
+          html: clientEmailHtml,
+        });
+      } catch (emailError) {
+        console.error("❌ Email statut commande:", emailError.message);
+      }
     }
 
     return NextResponse.json(order);

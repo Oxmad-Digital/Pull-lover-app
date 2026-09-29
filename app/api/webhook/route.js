@@ -2,7 +2,8 @@ import { NextResponse } from "next/server";
 import Stripe from "stripe";
 import { connectDB } from "@/app/lib/db";
 import Order from "@/app/models/Order";
-import { sendEmail } from "@/app/lib/mailer";
+import { sendEmail, adminEmail } from "@/app/lib/mailer";
+import { getPaymentAlertEmailTemplate } from "@/app/lib/emailTemplates";
 
 export async function POST(req) {
   const stripe = new Stripe(process.env.STRIPE_SECRET_KEY);
@@ -32,9 +33,13 @@ export async function POST(req) {
         if (!order) {
           if (ageSec < 60) return NextResponse.json({ message: "Commande pas encore créée" }, { status: 503 });
           await sendEmail({
-            to: process.env.ADMIN_EMAIL || process.env.EMAIL_USER,
+            to: adminEmail(),
             subject: `⚠️ Paiement Stripe sans commande — ${paymentIntent.id}`,
-            html: `<p>Un paiement de ${(paymentIntent.amount_received / 100).toFixed(2)} € (${paymentIntent.receipt_email || "email inconnu"}) a été encaissé mais aucune commande n'est enregistrée.</p><p>PaymentIntent : <strong>${paymentIntent.id}</strong></p>`,
+            html: getPaymentAlertEmailTemplate({
+              amount: paymentIntent.amount_received / 100,
+              customerEmail: paymentIntent.receipt_email,
+              paymentIntentId: paymentIntent.id,
+            }),
           });
         }
       } catch (err) {
