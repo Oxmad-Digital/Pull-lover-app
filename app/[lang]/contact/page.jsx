@@ -1,4 +1,5 @@
 import Image from "next/image";
+import { notFound } from "next/navigation";
 import ContactForm from "./ContactForm";
 import { openGraphBase, pageAlternates } from "@/app/lib/seo";
 import "./contact.css";
@@ -37,6 +38,7 @@ const TEXT = {
 export async function generateMetadata({ params }) {
   const { lang } = await params;
   const t = TEXT[lang];
+  if (!t) notFound();
   return {
     title: "Contact",
     description: t.description,
@@ -48,6 +50,7 @@ export async function generateMetadata({ params }) {
 export default async function ContactPage({ params }) {
   const { lang } = await params;
   const t = TEXT[lang];
+  if (!t) notFound();
   return <div className="pl-contact">
     <section className="pl-contact-hero" aria-labelledby="contact-title">
       <Image src="/api/media/pull-lover-vue-de-haut-sur-le-lac.webp" alt={t.heroAlt} fill sizes="100vw" priority className="pl-contact-hero-image" />
