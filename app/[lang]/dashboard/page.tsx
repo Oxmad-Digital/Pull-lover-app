@@ -144,7 +144,7 @@ export default async function DashboardOverview({ params }: { params: Promise<{ 
                 return (
                   <div key={order._id.toString()} className="db-recent-order-row">
                     <span className="db-order-num">
-                      #{order._id.toString().slice(-6).toUpperCase()}
+                      #{order._id.toString().slice(-8).toUpperCase()}
                     </span>
                     <span className="db-recent-order-date">
                       {new Date(order.createdAt).toLocaleDateString(INTL_LOCALE[lang])}

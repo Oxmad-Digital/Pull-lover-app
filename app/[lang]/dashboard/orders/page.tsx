@@ -129,7 +129,7 @@ export default async function OrdersPage({ params }: { params: Promise<{ lang: s
                   <div className="order-card-header">
                     <div>
                       <span className="order-card-id">
-                        #{order._id.toString().slice(-6).toUpperCase()}
+                        #{order._id.toString().slice(-8).toUpperCase()}
                       </span>
                       <span className="order-card-date">
                         {new Date(order.createdAt).toLocaleDateString(intl, {
