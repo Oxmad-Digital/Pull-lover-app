@@ -535,3 +535,17 @@
   .ao-toolbar-top .ap-search-input { flex: 1; width: auto; min-width: 0; }
   .ao-toolbar-top .ap-sort-wrap:last-child .ap-sort-dropdown { left: auto; right: 0; }
 }
+
+.ao-order-id {
+  font-family: 'Courier New', monospace;
+  font-size: 13px;
+  font-weight: 700;
+  color: #252323;
+  letter-spacing: 0.05em;
+  white-space: nowrap;
+  text-decoration: none;
+}
+
+.ao-order-id:hover {
+  text-decoration: underline;
+}
