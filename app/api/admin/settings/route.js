@@ -15,7 +15,6 @@ export async function GET() {
     shippingReleaseDate: settings?.shippingReleaseDate ?? null,
     startDate:       settings?.updatedAt       ?? null,
     bandeauText:     settings?.bandeauText     ?? "",
-    badgeText:       settings?.badgeText       ?? "",
     maintenanceMode: settings?.maintenanceMode ?? false,
   });
 }
@@ -29,7 +28,6 @@ export async function PATCH(req) {
   if ("dropDate" in body)        update.dropDate        = body.dropDate ? new Date(body.dropDate) : null;
   if ("shippingReleaseDate" in body) update.shippingReleaseDate = body.shippingReleaseDate ? new Date(body.shippingReleaseDate) : null;
   if ("bandeauText" in body)     update.bandeauText     = body.bandeauText ?? "";
-  if ("badgeText" in body)       update.badgeText       = body.badgeText   ?? "";
   if ("maintenanceMode" in body) update.maintenanceMode = !!body.maintenanceMode;
 
   if (Object.keys(update).length === 0) {
@@ -47,7 +45,6 @@ export async function PATCH(req) {
     shippingReleaseDate: settings.shippingReleaseDate ?? null,
     startDate:       settings.updatedAt,
     bandeauText:     settings.bandeauText,
-    badgeText:       settings.badgeText,
     maintenanceMode: settings.maintenanceMode,
   });
 }

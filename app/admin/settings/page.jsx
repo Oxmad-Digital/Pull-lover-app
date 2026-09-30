@@ -45,7 +45,6 @@ export default function AdminSettingsPage() {
   const [due, setDue]                 = useState(null);
   const [releasing, setReleasing]     = useState(false);
   const [bandeauText, setBandeauText] = useState("");
-  const [badgeText, setBadgeText]     = useState("");
   const [current, setCurrent]         = useState(null);
   const [loading, setLoading]         = useState(true);
   const [saving, setSaving]           = useState(null);
@@ -62,7 +61,6 @@ export default function AdminSettingsPage() {
     setDropDate(toLocalDatetimeValue(data.dropDate));
     setReleaseDate(toLocalDatetimeValue(data.shippingReleaseDate));
     setBandeauText(data.bandeauText ?? "");
-    setBadgeText(data.badgeText ?? "");
     setLoading(false);
   }
 
@@ -339,43 +337,6 @@ export default function AdminSettingsPage() {
               {bandeauText && (
                 <button type="button" disabled={saving === "bandeauText"}
                   onClick={() => { setBandeauText(""); patch("bandeauText", "", "Bandeau"); }}
-                  style={{ padding: "10px 16px", background: "#fff", border: "1.5px solid #e7e5e4", borderRadius: 6, fontSize: 13, fontWeight: 600, cursor: "pointer", color: "#C75C5C" }}>
-                  Masquer
-                </button>
-              )}
-            </div>
-          </form>
-        </div>
-
-        {/* ── Badge / notif hero ── */}
-        <div className="admin-content-card">
-          <p style={{ fontSize: 12, fontWeight: 700, color: "#78716c", textTransform: "uppercase", letterSpacing: "0.05em", marginBottom: 14 }}>
-            Notification hero (page d’accueil)
-          </p>
-          <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 16, flexWrap: "wrap" }}>
-            <span style={{ fontSize: 13, color: "#57534e", fontStyle: current?.badgeText ? "normal" : "italic" }}>
-              {current?.badgeText || "Aucun texte — notification masquée"}
-            </span>
-            <StatusBadge active={!!current?.badgeText} activeLabel="Visible" inactiveLabel="Masquée" />
-          </div>
-          <form onSubmit={(e) => { e.preventDefault(); patch("badgeText", badgeText, "Notification hero"); }}
-            style={{ display: "flex", flexDirection: "column", gap: 12 }}>
-            <div>
-              <label style={labelStyle}>Texte de la notification</label>
-              <input type="text" placeholder="Nouvel arrivage le 01/09/2026 à 19H" value={badgeText}
-                onChange={(e) => setBadgeText(e.target.value)} />
-              <p style={{ fontSize: 11, color: "#a8a29e", marginTop: 5 }}>
-                Badge clochette affiché sur la page d’accueil. Laisser vide pour masquer.
-              </p>
-            </div>
-            {errors.badgeText && <p style={{ fontSize: 13, color: "#C75C5C" }}>{errors.badgeText}</p>}
-            <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
-              <button type="submit" className="ap-btn-add" style={{ alignSelf: "flex-start" }} disabled={saving === "badgeText"}>
-                {saving === "badgeText" ? "Sauvegarde…" : "Enregistrer"}
-              </button>
-              {badgeText && (
-                <button type="button" disabled={saving === "badgeText"}
-                  onClick={() => { setBadgeText(""); patch("badgeText", "", "Notification hero"); }}
                   style={{ padding: "10px 16px", background: "#fff", border: "1.5px solid #e7e5e4", borderRadius: 6, fontSize: 13, fontWeight: 600, cursor: "pointer", color: "#C75C5C" }}>
                   Masquer
                 </button>
