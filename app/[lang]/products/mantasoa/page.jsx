@@ -14,7 +14,7 @@ const TEXT = {
   fr: {
     title: "Cardigan en maille de Madagascar",
     description:
-      "Découvrez notre cardigan en maille de Madagascar, choisissez votre taille et commandez cette pièce essentielle fabriquée à la demande dans notre atelier familial à Antananarivo.",
+      "Découvrez notre cardigan en maille de Madagascar, choisissez votre taille et commandez cette pièce fabriquée à la demande dans notre atelier familial.",
     ogTitle: "Cardigan en maille de Madagascar — Pull-Lover",
     ogDescription: "Une maille essentielle, imaginée et fabriquée à Madagascar.",
     ogAlt: "Cardigan en maille porté au bord du lac",
