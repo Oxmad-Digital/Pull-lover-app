@@ -1,6 +1,7 @@
-﻿/* =============================================
+/* =============================================
    Admin — Détail client
-   Palette : #C75C5C | #252323 | #f5f5f4
+   Même structure que le détail commande (order-detail.css) :
+   topbar, colonne principale + colonne latérale fixe.
    ============================================= */
 
 .acd-page {
@@ -13,7 +14,7 @@
 .acd-state {
   padding: 80px 24px;
   text-align: center;
-  color: #a8a29e;
+  color: var(--admin-muted, #a8a29e);
   font-size: 15px;
 }
 
@@ -22,7 +23,7 @@
   display: flex;
   align-items: center;
   gap: 16px;
-  margin-bottom: 24px;
+  margin-bottom: 20px;
   flex-wrap: wrap;
 }
 
@@ -31,414 +32,308 @@
   align-items: center;
   gap: 6px;
   padding: 7px 14px;
-  background: #fff;
-  color: #57534e;
-  border: 1.5px solid #e7e5e4;
-  border-radius: var(--radius-sm);
   font-size: 13px;
-  font-weight: 600;
   font-family: inherit;
-  cursor: pointer;
   text-decoration: none;
   transition: all 0.15s;
   white-space: nowrap;
   flex-shrink: 0;
 }
-.acd-back-btn:hover { background: #252323; color: #fff; border-color: #252323; }
 
-/* ── Profil dans la topbar ── */
-.acd-profile {
-  display: flex;
-  align-items: center;
-  gap: 14px;
-  flex: 1;
-  min-width: 0;
-}
-.acd-avatar {
-  width: 48px;
-  height: 48px;
-  background: #252323;
-  color: #fff;
-  border-radius: var(--radius-md);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 16px;
-  font-weight: 700;
-  letter-spacing: 0.5px;
-  flex-shrink: 0;
-}
-.acd-profile-info { min-width: 0; }
-.acd-name-row {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  flex-wrap: wrap;
-}
+.acd-topbar-center { flex: 1; min-width: 0; }
+
 .acd-fullname {
-  font-size: 20px;
-  font-weight: 700;
-  color: #252323;
-  letter-spacing: -0.3px;
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin: 0 0 6px;
 }
+
 .acd-vip {
   display: inline-flex;
-  align-items: center;
-  padding: 1px 7px;
-  background: #fef9c3;
-  color: #854d0e;
-  border: 1px solid #fde68a;
-  border-radius: var(--radius-sm);
+  padding: 4px 10px;
+  color: var(--admin-accent-dark, #AD4646);
+  border: 1px solid currentColor;
+  font-family: var(--font-montserrat), 'Montserrat', sans-serif;
   font-size: 10px;
-  font-weight: 700;
-  letter-spacing: 0.05em;
+  font-weight: 600;
+  letter-spacing: .12em;
+  line-height: 1;
 }
+
+.acd-subtitle {
+  font-size: 13px;
+  color: var(--admin-muted, #78716c);
+}
+
+/* Badge statut client (même forme que le badge de commande) */
 .acd-status-badge {
   display: inline-flex;
-  align-items: center;
-  padding: 3px 10px;
+  padding: 6px 14px;
   border-radius: var(--radius-lg);
-  font-size: 11px;
+  font-size: 12px;
   font-weight: 700;
-  letter-spacing: 0.04em;
+  letter-spacing: 0.03em;
+  white-space: nowrap;
+  flex-shrink: 0;
 }
 .acd-status-badge.ok      { background: #f0fdf4; color: #15803d; }
 .acd-status-badge.blocked { background: #fff1f2; color: #be123c; }
-.acd-status-badge.anon    { background: #f5f5f4; color: #a8a29e; }
+.acd-status-badge.anon    { background: #f5f5f4; color: #78716c; }
 
-.acd-email-sub {
-  font-size: 13px;
-  color: #57534e;
-  text-decoration: none;
-  margin-top: 3px;
-  display: block;
-  transition: color 0.15s;
-}
-.acd-email-sub:hover { color: #C75C5C; }
-
-/* ── Boutons header ── */
-.acd-header-btns {
-  display: flex;
-  gap: 8px;
-  flex-shrink: 0;
-  flex-wrap: wrap;
-}
-
-.acd-btn-primary {
-  padding: 8px 18px;
-  background: #C75C5C;
-  color: #fff;
-  border: none;
-  border-radius: var(--radius-sm);
-  font-size: 13px;
-  font-weight: 700;
-  font-family: inherit;
-  cursor: pointer;
-  transition: background 0.15s;
-  white-space: nowrap;
-}
-.acd-btn-primary:hover:not(:disabled)  { background: #AD4646; color: #fff; }
-.acd-btn-primary:disabled { background: #e8a0a0; cursor: not-allowed; }
-
-.acd-btn-ghost {
-  padding: 8px 16px;
-  background: #fff;
-  color: #57534e;
-  border: 1.5px solid #e7e5e4;
-  border-radius: var(--radius-sm);
-  font-size: 13px;
-  font-weight: 600;
-  font-family: inherit;
-  cursor: pointer;
-  transition: all 0.15s;
-  white-space: nowrap;
-}
-.acd-btn-ghost:hover { background: #252323; color: #fff; border-color: #252323; }
-
-.acd-btn-warn {
-  padding: 8px 16px;
-  background: #fff1f2;
-  color: #be123c;
-  border: 1.5px solid #fecdd3;
-  border-radius: var(--radius-sm);
-  font-size: 13px;
-  font-weight: 600;
-  font-family: inherit;
-  cursor: pointer;
-  transition: all 0.15s;
-  white-space: nowrap;
-}
-.acd-btn-warn:hover { background: #be123c; color: #fff; border-color: #be123c; }
-
-.acd-btn-success {
-  padding: 8px 16px;
-  background: #f0fdf4;
-  color: #15803d;
-  border: 1.5px solid #bbf7d0;
-  border-radius: var(--radius-sm);
-  font-size: 13px;
-  font-weight: 600;
-  font-family: inherit;
-  cursor: pointer;
-  transition: all 0.15s;
-  white-space: nowrap;
-}
-.acd-btn-success:hover { background: #15803d; color: #fff; border-color: #15803d; }
-
-.acd-btn-danger {
-  padding: 8px 16px;
-  background: #fff1f2;
-  color: #be123c;
-  border: 1.5px solid #fecdd3;
-  border-radius: var(--radius-sm);
-  font-size: 13px;
-  font-weight: 600;
-  font-family: inherit;
-  cursor: pointer;
-  transition: all 0.15s;
-  white-space: nowrap;
-}
-.acd-btn-danger:hover { background: #be123c; color: #fff; border-color: #be123c; }
-
-/* ── Grille cards ── */
-.acd-grid {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 16px;
-  margin-bottom: 16px;
-}
-
+/* ── Cards ── */
 .acd-card {
   background: #fff;
   border: 1px solid #e7e5e4;
-  border-radius: var(--radius-md);
-  padding: 24px;
+  padding: 20px 22px;
 }
-.acd-card--full { margin-bottom: 0; }
 
 .acd-card-title {
-  font-size: 13px;
-  font-weight: 700;
-  text-transform: uppercase;
-  letter-spacing: 0.08em;
-  color: #a8a29e;
-  margin: 0 0 20px;
   display: flex;
   align-items: center;
   gap: 10px;
+  margin: 0 0 16px;
+  text-transform: uppercase;
 }
+
+.acd-card-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 16px;
+}
+.acd-card-head .acd-card-title { margin: 0; }
+
+.acd-edit-link {
+  background: none;
+  border: none;
+  padding: 4px 2px;
+  cursor: pointer;
+  font-family: inherit;
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--admin-accent-dark, #AD4646);
+}
+.acd-edit-link:hover { text-decoration: underline; }
 
 .acd-count {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  background: #f0f9ff;
-  color: #0369a1;
-  border: 1px solid #bae6fd;
-  border-radius: var(--radius-lg);
-  font-size: 12px;
-  font-weight: 700;
-  padding: 1px 10px;
+  min-width: 22px;
+  padding: 2px 7px;
+  color: var(--pl-white, #fff);
+  background: var(--admin-accent, #C75C5C);
+  font-size: 11px;
+  font-weight: 600;
   letter-spacing: 0;
-  text-transform: none;
 }
 
-/* ── Info list (mode lecture) ── */
-.acd-info-list {
+/* ── Two-column layout ── */
+.acd-layout {
+  display: grid;
+  grid-template-columns: minmax(0, 2fr) minmax(260px, 1fr);
+  gap: 16px;
+  align-items: start;
+}
+
+.acd-main-col,
+.acd-side-col {
   display: flex;
   flex-direction: column;
-  gap: 0;
-  margin: 0;
+  gap: 16px;
+  min-width: 0;
 }
-.acd-info-row {
-  display: flex;
-  align-items: baseline;
-  gap: 12px;
-  padding: 10px 0;
-  border-bottom: 1px solid #f5f5f4;
+
+.acd-side-col {
+  position: sticky;
+  top: 20px;
 }
-.acd-info-row:last-child { border-bottom: none; }
-.acd-info-row dt {
-  font-size: 12px;
-  font-weight: 600;
-  color: #a8a29e;
+
+/* ── Informations (lecture) ── */
+.acd-info-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+  gap: 16px;
+}
+.acd-info-wide { grid-column: 1 / -1; }
+
+.acd-field-label {
+  display: block;
+  font-size: 11px;
+  font-weight: 700;
   text-transform: uppercase;
   letter-spacing: 0.06em;
-  min-width: 80px;
-  flex-shrink: 0;
+  color: var(--admin-muted, #a8a29e);
+  margin-bottom: 5px;
 }
-.acd-info-row dd {
-  margin: 0;
-  font-size: 14px;
-  color: #252323;
-  word-break: break-word;
-}
-.acd-info-notes { align-items: flex-start; }
-.acd-info-notes dd { color: #57534e; font-style: italic; }
+
+.acd-field-value { font-size: 13px; color: var(--admin-ink, #252323); word-break: break-word; }
+.acd-notes { font-style: italic; white-space: pre-line; }
 
 .acd-link {
-  color: #0369a1;
+  font-size: 13px;
+  color: var(--admin-accent-dark, #AD4646);
   text-decoration: none;
-  transition: color 0.15s;
+  word-break: break-all;
 }
-.acd-link:hover { color: #C75C5C; text-decoration: underline; }
+.acd-link:hover { text-decoration: underline; }
 
-/* ── Formulaire d'édition ── */
-.acd-form { display: flex; flex-direction: column; gap: 12px; }
+/* ── Informations (édition) ── */
+.acd-form { display: flex; flex-direction: column; gap: 14px; }
 .acd-form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
 
-.acd-field { display: flex; flex-direction: column; gap: 5px; }
-.acd-field-label {
-  font-size: 11px;
-  font-weight: 700;
-  text-transform: uppercase;
-  letter-spacing: 0.06em;
-  color: #a8a29e;
-}
+.acd-field { display: flex; flex-direction: column; }
 .acd-field-input {
-  padding: 8px 12px;
-  border: 1.5px solid #e7e5e4;
-  border-radius: var(--radius-sm);
+  min-height: 42px;
+  box-sizing: border-box;
+  padding: 0 14px;
+  color: var(--admin-ink, #252323);
+  background: var(--admin-surface, #fff);
+  border: 1px solid var(--admin-line, #e7e5e4);
+  border-radius: 0;
   font-size: 13px;
   font-family: inherit;
-  color: #252323;
-  background: #fafaf9;
   outline: none;
-  transition: border-color 0.2s;
 }
-.acd-field-input:focus { border-color: #C75C5C; background: #fff; }
-.acd-textarea { resize: vertical; min-height: 72px; }
+.acd-field-input:focus {
+  border-color: var(--admin-accent, #C75C5C);
+  box-shadow: 0 0 0 1px var(--admin-accent, #C75C5C);
+}
+.acd-textarea { padding: 10px 14px; resize: vertical; min-height: 84px; }
 
-/* ── Statistiques ── */
-.acd-stats {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
-  gap: 12px;
-}
-.acd-stat {
-  background: #fafaf9;
-  border: 1px solid #e7e5e4;
-  border-radius: var(--radius-md);
-  padding: 16px;
-  display: flex;
-  flex-direction: column;
+.acd-form-actions { display: flex; gap: 10px; flex-wrap: wrap; }
+
+/* ── Boutons ── */
+.acd-btn-primary,
+.acd-btn-ghost,
+.acd-btn-danger {
+  display: inline-flex;
   align-items: center;
-  gap: 4px;
-}
-.acd-stat--green .acd-stat-val { color: #15803d; }
-.acd-stat-val {
-  font-size: 22px;
-  font-weight: 700;
-  color: #252323;
-  line-height: 1.1;
-}
-.acd-stat-val--sm { font-size: 16px; }
-.acd-stat-lbl {
+  justify-content: center;
+  min-height: 44px;
+  padding: 11px 18px;
+  font-family: inherit;
   font-size: 11px;
-  font-weight: 600;
+  letter-spacing: .08em;
   text-transform: uppercase;
-  letter-spacing: 0.07em;
-  color: #a8a29e;
-  text-align: center;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: background 0.15s, color 0.15s, border-color 0.15s;
+}
+.acd-btn-primary:disabled { opacity: .6; cursor: not-allowed; }
+
+.acd-btn-danger {
+  color: var(--color-danger, #be123c);
+  background: var(--admin-surface, #fff);
+  border: 1px solid currentColor;
+  border-radius: 0;
+  font-weight: 500;
+}
+.acd-btn-danger:hover {
+  color: var(--pl-white, #fff);
+  background: var(--color-danger, #be123c);
+  border-color: var(--color-danger, #be123c);
 }
 
-/* ── Table commandes ── */
-.acd-table-wrap { overflow-x: auto; margin-top: 4px; }
-.acd-empty { padding: 32px 0; text-align: center; color: #a8a29e; font-size: 14px; }
+.acd-btn-sm {
+  min-height: 34px;
+  padding: 7px 12px;
+  font-size: 10px;
+}
+.acd-btn-ghost.acd-btn-sm:disabled { opacity: .6; cursor: not-allowed; }
+
+/* ── Colonne latérale ── */
+.acd-summary-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 8px 0;
+  border-bottom: 1px solid var(--admin-line, #f5f5f4);
+}
+.acd-summary-row:last-child { border-bottom: none; }
+.acd-summary-total { padding-top: 12px; }
+
+.acd-summary-label { font-size: 13px; color: var(--admin-muted, #78716c); font-weight: 500; }
+.acd-summary-value { font-size: 14px; font-weight: 600; color: var(--admin-ink, #252323); }
+.acd-total-value   { font-size: 18px; font-weight: 700; color: var(--admin-accent-dark, #AD4646); }
+
+.acd-side-actions { display: flex; flex-direction: column; gap: 10px; }
+
+.acd-hint {
+  margin: 14px 0 0;
+  font-size: 12px;
+  font-style: italic;
+  color: var(--admin-muted, #78716c);
+}
+
+/* ── Historique des commandes ── */
+.acd-table-wrap { overflow-x: auto; }
+.acd-empty { padding: 24px 0; text-align: center; color: var(--admin-muted, #a8a29e); font-size: 13px; }
 
 .acd-table { width: 100%; border-collapse: collapse; }
-.acd-table thead tr { border-bottom: 1px solid #e7e5e4; }
 .acd-table th {
-  padding: 10px 16px;
+  padding: 10px 12px;
   text-align: left;
-  font-size: 11px;
-  font-weight: 700;
+  font-size: 10px;
+  font-weight: 500;
   text-transform: uppercase;
-  letter-spacing: 0.08em;
-  color: #a8a29e;
-  background: #fafaf9;
+  letter-spacing: .12em;
+  color: var(--admin-muted, #a8a29e);
+  border-bottom: 1px solid var(--admin-line, #e7e5e4);
   white-space: nowrap;
 }
+.acd-table th:nth-child(4) { text-align: right; }
 .acd-table td {
-  padding: 13px 16px;
-  border-bottom: 1px solid #f5f5f4;
+  padding: 12px;
+  border-bottom: 1px solid rgba(23, 25, 24, .08);
   vertical-align: middle;
-  font-size: 14px;
-  color: #252323;
+  font-size: 13px;
+  color: var(--admin-ink, #252323);
+  white-space: nowrap;
 }
 .acd-table tbody tr:last-child td { border-bottom: none; }
-.acd-table tbody tr:hover { background: #fafaf9; }
+.acd-table tbody tr:hover { background: var(--admin-accent-soft, #fafaf9); }
 
 .acd-order-id {
   font-family: 'Courier New', monospace;
-  font-size: 13px;
   font-weight: 700;
-  color: #252323;
   letter-spacing: 0.05em;
+  color: var(--admin-ink, #252323);
+  text-decoration: none;
 }
-.acd-order-total {
-  font-weight: 700;
-  color: #15803d;
-  white-space: nowrap;
-}
+.acd-order-id:hover { color: var(--admin-accent-dark, #AD4646); text-decoration: underline; }
 
-/* ── Badges statut commandes ── */
+.acd-order-total { text-align: right; font-weight: 700; }
+.acd-actions { text-align: right; }
+
+/* Statuts de commande : mêmes couleurs que la liste et le détail commande */
 .acd-order-badge {
   display: inline-flex;
-  align-items: center;
-  padding: 3px 10px;
+  padding: 4px 10px;
   border-radius: var(--radius-lg);
   font-size: 11px;
   font-weight: 700;
   letter-spacing: 0.03em;
   white-space: nowrap;
 }
-.s-pending    { background: #fef3c7; color: #92400e; }
-.s-confirmed  { background: #d1fae5; color: #065f46; }
-.s-processing { background: #dbeafe; color: #1e40af; }
-.s-paid       { background: #dcfce7; color: #166534; }
-.s-shipped    { background: #f0f9ff; color: #0c4a6e; }
-.s-delivered  { background: #f0fdf4; color: #14532d; }
-.s-cancelled  { background: #fee2e2; color: #991b1b; }
-
-/* ── Actions table ── */
-.acd-actions { display: flex; gap: 6px; align-items: center; }
-
-.acd-btn-view {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  padding: 6px 10px;
-  background: #f5f5f4;
-  color: #57534e;
-  border: 1.5px solid #e7e5e4;
-  border-radius: var(--radius-sm);
-  font-size: 14px;
-  font-weight: 600;
-  text-decoration: none;
-  cursor: pointer;
-  transition: all 0.15s;
-  line-height: 1;
-}
-.acd-btn-view:hover { background: #252323; color: #fff; border-color: #252323; }
-
-.acd-btn-sm {
-  padding: 6px 12px;
-  font-size: 12px;
-}
-.acd-btn-ghost.acd-btn-sm:disabled { color: #a8a29e; cursor: not-allowed; }
+.s-pending    { background: #fffbeb; color: #b45309; }
+.s-confirmed  { background: #fef2f2; color: var(--color-secondary); }
+.s-processing { background: #f5f3ff; color: #6d28d9; }
+.s-paid       { background: #f0fdf4; color: #15803d; }
+.s-shipped    { background: #ecfeff; color: #0e7490; }
+.s-delivered  { background: #dcfce7; color: #15803d; }
+.s-cancelled  { background: #fff1f2; color: #be123c; }
 
 /* ── Responsive ── */
 @media (max-width: 900px) {
-  .acd-page  { padding: 16px; }
-  .acd-grid  { grid-template-columns: 1fr; }
+  .acd-page     { padding: 16px; }
+  .acd-layout   { grid-template-columns: 1fr; }
+  .acd-side-col { position: static; }
 }
 
-@media (max-width: 767px) {
-  .acd-page { padding-top: 40px; }
-}
 @media (max-width: 640px) {
-  .acd-topbar     { flex-wrap: wrap; }
-  .acd-header-btns { width: 100%; }
-  .acd-fullname   { font-size: 17px; }
+  .acd-form-row { grid-template-columns: 1fr; }
 }

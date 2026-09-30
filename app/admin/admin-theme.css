@@ -135,6 +135,14 @@
   border-color: var(--admin-accent-dark);
 }
 .admin-layout .ap-btn-delete { border-radius: 0; }
+/* Export CSV : mêmes dimensions que le bouton principal voisin */
+.admin-layout .ac-btn-export {
+  min-height: 44px;
+  padding: 11px 18px;
+  font-size: 11px;
+  letter-spacing: .08em;
+  text-transform: uppercase;
+}
 .admin-layout :is(.ap-back-btn, .ac-btn-export, .ap-page-btn, .ap-btn-view, .ap-btn-edit, .acd-back-btn, .acd-btn-ghost, .ac-page-btn, .ac-page-num) {
   border: 1px solid var(--admin-line);
   border-radius: 0;
