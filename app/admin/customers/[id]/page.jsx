@@ -169,7 +169,8 @@ export default function CustomerDetailPage() {
 
   const isAnonymized = customer.status === "deleted";
   const isVip        = (customer.totalSpent || 0) >= VIP_THRESHOLD;
-  const initials     = `${customer.firstname?.charAt(0) || ""}${customer.lastname?.charAt(0) || ""}`;
+  const status       = customer.status === "active" ? "ok" : customer.status === "blocked" ? "blocked" : "anon";
+  const address      = [customer.address, customer.city].filter(Boolean).join(" · ");
 
   return (
     <div className="acd-page">
@@ -179,189 +180,190 @@ export default function CustomerDetailPage() {
 
       {/* Topbar */}
       <div className="acd-topbar">
-        <Link href="/admin/customers" className="acd-back-btn">Retour</Link>
+        <Link href="/admin/customers" className="acd-back-btn">← Retour</Link>
+        <div className="acd-topbar-center">
+          <h1 className="acd-fullname">
+            {customer.firstname} {customer.lastname}
+            {isVip && <span className="acd-vip">VIP</span>}
+          </h1>
+          <span className="acd-subtitle">
+            Client depuis le {new Date(customer.createdAt).toLocaleDateString("fr-FR", { dateStyle: "long" })}
+          </span>
+        </div>
+        <span className={`acd-status-badge ${status}`}>
+          {status === "ok" ? "Actif" : status === "blocked" ? "Bloqué" : "Anonymisé"}
+        </span>
+      </div>
 
-        <div className="acd-profile">
-          <div className="acd-avatar">{initials}</div>
-          <div className="acd-profile-info">
-            <div className="acd-name-row">
-              <span className="acd-fullname">{customer.firstname} {customer.lastname}</span>
-              {isVip && <span className="acd-vip">VIP</span>}
-              <span className={`acd-status-badge ${customer.status === "active" ? "ok" : customer.status === "blocked" ? "blocked" : "anon"}`}>
-                {customer.status === "active" ? "Actif" : customer.status === "blocked" ? "Bloqué" : "Anonymisé"}
+      <div className="acd-layout">
+
+        {/* ── Colonne principale ── */}
+        <div className="acd-main-col">
+
+          {/* Informations */}
+          <div className="acd-card">
+            <div className="acd-card-head">
+              <h2 className="acd-card-title">Informations</h2>
+              {!isAnonymized && !editing && (
+                <button className="acd-edit-link" onClick={() => setEditing(true)}>Modifier</button>
+              )}
+            </div>
+
+            {editing ? (
+              <div className="acd-form">
+                <div className="acd-form-row">
+                  {field("firstname", "Prénom")}
+                  {field("lastname",  "Nom")}
+                </div>
+                <div className="acd-form-row">
+                  {field("email", "Email",     "email")}
+                  {field("phone", "Téléphone", "tel")}
+                </div>
+                <div className="acd-form-row">
+                  {field("address", "Adresse")}
+                  {field("city",    "Ville")}
+                </div>
+                <div className="acd-field">
+                  <label className="acd-field-label">Notes admin</label>
+                  <textarea
+                    className="acd-field-input acd-textarea"
+                    rows={3}
+                    value={form.notes}
+                    onChange={e => setForm(f => ({ ...f, notes: e.target.value }))}
+                  />
+                </div>
+                <div className="acd-form-actions">
+                  <button className="acd-btn-primary" onClick={handleSave} disabled={saving}>
+                    {saving ? "Enregistrement…" : "Enregistrer"}
+                  </button>
+                  <button className="acd-btn-ghost" onClick={() => setEditing(false)}>Annuler</button>
+                </div>
+              </div>
+            ) : (
+              <div className="acd-info-grid">
+                <div>
+                  <span className="acd-field-label">Email</span>
+                  {customer.email
+                    ? <a href={`mailto:${customer.email}`} className="acd-link">{customer.email}</a>
+                    : <span className="acd-field-value">—</span>}
+                </div>
+                <div>
+                  <span className="acd-field-label">Téléphone</span>
+                  <span className="acd-field-value">{customer.phone || "—"}</span>
+                </div>
+                <div className="acd-info-wide">
+                  <span className="acd-field-label">Adresse</span>
+                  <span className="acd-field-value">{address || "—"}</span>
+                </div>
+                {customer.notes && (
+                  <div className="acd-info-wide">
+                    <span className="acd-field-label">Notes admin</span>
+                    <span className="acd-field-value acd-notes">{customer.notes}</span>
+                  </div>
+                )}
+              </div>
+            )}
+          </div>
+
+          {/* Historique des commandes */}
+          <div className="acd-card">
+            <h2 className="acd-card-title">
+              Historique des commandes
+              {orders.length > 0 && <span className="acd-count">{orders.length}</span>}
+            </h2>
+            {orders.length === 0 ? (
+              <div className="acd-empty">Aucune commande enregistrée</div>
+            ) : (
+              <div className="acd-table-wrap">
+                <table className="acd-table">
+                  <thead>
+                    <tr>
+                      <th>N°</th>
+                      <th>Date</th>
+                      <th>Statut</th>
+                      <th>Total</th>
+                      <th aria-label="Actions" />
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {orders.map(order => {
+                      const s = ORDER_STATUS[order.status] || { label: order.status, cls: "s-pending" };
+                      return (
+                        <tr key={order._id}>
+                          <td>
+                            <Link href={`/admin/orders/${order._id}`} className="acd-order-id">
+                              #{order._id.slice(-8).toUpperCase()}
+                            </Link>
+                          </td>
+                          <td>{new Date(order.createdAt).toLocaleDateString("fr-FR")}</td>
+                          <td><span className={`acd-order-badge ${s.cls}`}>{s.label}</span></td>
+                          <td className="acd-order-total">{(order.total || 0).toLocaleString()} €</td>
+                          <td className="acd-actions">
+                            <button
+                              className="acd-btn-ghost acd-btn-sm"
+                              onClick={() => handleResendEmail(order._id)}
+                              disabled={sendingEmail === order._id}
+                              title="Renvoyer la facture par email"
+                            >
+                              {sendingEmail === order._id ? "Envoi…" : "Renvoyer la facture"}
+                            </button>
+                          </td>
+                        </tr>
+                      );
+                    })}
+                  </tbody>
+                </table>
+              </div>
+            )}
+          </div>
+        </div>
+
+        {/* ── Colonne latérale ── */}
+        <div className="acd-side-col">
+
+          {/* Statistiques */}
+          <div className="acd-card">
+            <h2 className="acd-card-title">Statistiques</h2>
+            <div className="acd-summary-row">
+              <span className="acd-summary-label">Commandes</span>
+              <span className="acd-summary-value">{customer.totalOrders || 0}</span>
+            </div>
+            <div className="acd-summary-row">
+              <span className="acd-summary-label">Dernière commande</span>
+              <span
+                className="acd-summary-value"
+                title={customer.lastOrderAt ? new Date(customer.lastOrderAt).toLocaleDateString("fr-FR") : undefined}
+              >
+                {formatLastOrder(customer.lastOrderAt) || "—"}
               </span>
             </div>
-            <a href={`mailto:${customer.email}`} className="acd-email-sub">{customer.email}</a>
-          </div>
-        </div>
-
-        {!isAnonymized && (
-          <div className="acd-header-btns">
-            {editing ? (
-              <>
-                <button className="acd-btn-primary" onClick={handleSave} disabled={saving}>
-                  {saving ? "Enregistrement…" : "Enregistrer"}
-                </button>
-                <button className="acd-btn-ghost" onClick={() => setEditing(false)}>Annuler</button>
-              </>
-            ) : (
-              <>
-                <button className="acd-btn-ghost" onClick={() => setEditing(true)}>Modifier</button>
-                <button
-                  className={customer.status === "active" ? "acd-btn-warn" : "acd-btn-success"}
-                  onClick={toggleStatus}
-                >
-                  {customer.status === "active" ? "Bloquer" : "Débloquer"}
-                </button>
-                <button className="acd-btn-danger" onClick={handleDelete}>Supprimer</button>
-              </>
-            )}
-          </div>
-        )}
-      </div>
-
-      {/* Grille info + stats */}
-      <div className="acd-grid">
-
-        {/* Informations */}
-        <div className="acd-card">
-          <h2 className="acd-card-title">Informations</h2>
-          {editing ? (
-            <div className="acd-form">
-              <div className="acd-form-row">
-                {field("firstname", "Prénom")}
-                {field("lastname",  "Nom")}
-              </div>
-              {field("email",   "Email",      "email")}
-              {field("phone",   "Téléphone",  "tel")}
-              {field("city",    "Ville")}
-              {field("address", "Adresse")}
-              <div className="acd-field">
-                <label className="acd-field-label">Notes admin</label>
-                <textarea
-                  className="acd-field-input acd-textarea"
-                  rows={3}
-                  value={form.notes}
-                  onChange={e => setForm(f => ({ ...f, notes: e.target.value }))}
-                />
-              </div>
+            <div className="acd-summary-row acd-summary-total">
+              <span className="acd-summary-label">Total dépensé</span>
+              <span className="acd-total-value">{(customer.totalSpent || 0).toLocaleString()} €</span>
             </div>
-          ) : (
-            <dl className="acd-info-list">
-              <div className="acd-info-row">
-                <dt>Email</dt>
-                <dd><a href={`mailto:${customer.email}`} className="acd-link">{customer.email}</a></dd>
+          </div>
+
+          {/* Actions */}
+          {!isAnonymized && (
+            <div className="acd-card">
+              <h2 className="acd-card-title">Actions</h2>
+              <div className="acd-side-actions">
+                <button className="acd-btn-ghost" onClick={toggleStatus}>
+                  {customer.status === "active" ? "Bloquer le client" : "Débloquer le client"}
+                </button>
+                <button className="acd-btn-danger" onClick={handleDelete}>
+                  {orders.length > 0 ? "Anonymiser le client" : "Supprimer le client"}
+                </button>
               </div>
-              {customer.phone && (
-                <div className="acd-info-row">
-                  <dt>Téléphone</dt>
-                  <dd>{customer.phone}</dd>
-                </div>
-              )}
-              {customer.city && (
-                <div className="acd-info-row">
-                  <dt>Ville</dt>
-                  <dd>{customer.city}</dd>
-                </div>
-              )}
-              {customer.address && (
-                <div className="acd-info-row">
-                  <dt>Adresse</dt>
-                  <dd>{customer.address}</dd>
-                </div>
-              )}
-              <div className="acd-info-row">
-                <dt>Inscrit le</dt>
-                <dd>{new Date(customer.createdAt).toLocaleDateString("fr-FR")}</dd>
-              </div>
-              {customer.notes && (
-                <div className="acd-info-row acd-info-notes">
-                  <dt>Notes</dt>
-                  <dd>{customer.notes}</dd>
-                </div>
-              )}
-            </dl>
+              <p className="acd-hint">
+                {orders.length > 0
+                  ? "Un client ayant des commandes est anonymisé (RGPD) plutôt que supprimé."
+                  : "La suppression est définitive."}
+              </p>
+            </div>
           )}
         </div>
-
-        {/* Statistiques */}
-        <div className="acd-card">
-          <h2 className="acd-card-title">Statistiques</h2>
-          <div className="acd-stats">
-            <div className="acd-stat">
-              <span className="acd-stat-val">{customer.totalOrders || 0}</span>
-              <span className="acd-stat-lbl">Commandes</span>
-            </div>
-            <div className="acd-stat acd-stat--green">
-              <span className="acd-stat-val">{(customer.totalSpent || 0).toLocaleString()} €</span>
-              <span className="acd-stat-lbl">Total dépensé</span>
-            </div>
-            {customer.lastOrderAt && (
-              <div className="acd-stat">
-                <span
-                  className="acd-stat-val acd-stat-val--sm"
-                  title={new Date(customer.lastOrderAt).toLocaleDateString("fr-FR")}
-                >
-                  {formatLastOrder(customer.lastOrderAt)}
-                </span>
-                <span className="acd-stat-lbl">Dernière commande</span>
-              </div>
-            )}
-          </div>
-        </div>
       </div>
-
-      {/* Historique des commandes */}
-      <div className="acd-card acd-card--full">
-        <h2 className="acd-card-title">
-          Historique des commandes
-          {orders.length > 0 && <span className="acd-count">{orders.length}</span>}
-        </h2>
-        {orders.length === 0 ? (
-          <div className="acd-empty">Aucune commande enregistrée</div>
-        ) : (
-          <div className="acd-table-wrap">
-            <table className="acd-table">
-              <thead>
-                <tr>
-                  <th>N° commande</th>
-                  <th>Date</th>
-                  <th>Total</th>
-                  <th>Statut</th>
-                  <th>Actions</th>
-                </tr>
-              </thead>
-              <tbody>
-                {orders.map(order => {
-                  const s = ORDER_STATUS[order.status] || { label: order.status, cls: "s-pending" };
-                  return (
-                    <tr key={order._id}>
-                      <td><span className="acd-order-id">#{order._id.slice(-8).toUpperCase()}</span></td>
-                      <td>{new Date(order.createdAt).toLocaleDateString("fr-FR")}</td>
-                      <td><span className="acd-order-total">{(order.total || 0).toLocaleString()} €</span></td>
-                      <td><span className={`acd-order-badge ${s.cls}`}>{s.label}</span></td>
-                      <td>
-                        <div className="acd-actions">
-                          <Link href={`/admin/orders/${order._id}`} className="acd-btn-view" title="Voir la commande">↗</Link>
-                          <button
-                            className="acd-btn-ghost acd-btn-sm"
-                            onClick={() => handleResendEmail(order._id)}
-                            disabled={sendingEmail === order._id}
-                            title="Renvoyer la facture par email"
-                          >
-                            {sendingEmail === order._id ? "Envoi…" : "Email"}
-                          </button>
-                        </div>
-                      </td>
-                    </tr>
-                  );
-                })}
-              </tbody>
-            </table>
-          </div>
-        )}
-      </div>
-
     </div>
   );
 }
