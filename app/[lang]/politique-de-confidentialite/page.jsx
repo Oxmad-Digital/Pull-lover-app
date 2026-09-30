@@ -33,7 +33,7 @@ function PrivacyFr() {
           <li>Adresse e-mail</li>
           <li>Adresse de livraison</li>
           <li>Historique de commandes</li>
-          <li>Données de connexion (via e-mail, Google ou Facebook)</li>
+          <li>Données de connexion (adresse e-mail et mot de passe chiffré)</li>
         </ul>
       </Section>
 
@@ -48,15 +48,12 @@ function PrivacyFr() {
         </ul>
       </Section>
 
-      <Section title="4. Connexion via réseaux sociaux (Google, Facebook)">
-        Si vous choisissez de vous connecter via Google ou Facebook, nous recevons uniquement votre nom et votre adresse e-mail depuis ces plateformes. Nous ne publions rien sur votre profil social et n’accédons pas à vos contacts. Ces données sont traitées conformément à la présente politique.
+
+      <Section title="4. Conservation des données">
+        Vos données personnelles sont conservées pendant toute la durée de votre relation commerciale avec nous, puis archivées pendant 3 ans à des fins légales. Vous pouvez demander leur suppression à tout moment (voir section 6).
       </Section>
 
-      <Section title="5. Conservation des données">
-        Vos données personnelles sont conservées pendant toute la durée de votre relation commerciale avec nous, puis archivées pendant 3 ans à des fins légales. Vous pouvez demander leur suppression à tout moment (voir section 7).
-      </Section>
-
-      <Section title="6. Partage des données">
+      <Section title="5. Partage des données">
         Nous ne vendons pas vos données. Elles peuvent être partagées uniquement avec :
         <ul>
           <li>Nos prestataires de paiement et de livraison</li>
@@ -65,7 +62,7 @@ function PrivacyFr() {
         Tous nos prestataires sont soumis à des obligations de confidentialité strictes.
       </Section>
 
-      <Section title="7. Vos droits (RGPD)">
+      <Section title="6. Vos droits (RGPD)">
         Conformément au Règlement Général sur la Protection des Données (RGPD), vous disposez des droits suivants :
         <ul>
           <li><strong>Droit d’accès</strong> : obtenir une copie de vos données</li>
@@ -79,15 +76,15 @@ function PrivacyFr() {
         </p>
       </Section>
 
-      <Section title="8. Cookies">
+      <Section title="7. Cookies">
         Nous utilisons des cookies techniques nécessaires au fonctionnement du site (session, panier, langue). Aucun cookie publicitaire tiers n’est utilisé sans votre consentement.
       </Section>
 
-      <Section title="9. Sécurité">
+      <Section title="8. Sécurité">
         Vos mots de passe sont chiffrés (bcrypt). Les communications sont sécurisées via HTTPS. Nous mettons en place des mécanismes de protection contre les tentatives de connexion abusives.
       </Section>
 
-      <Section title="10. Contact">
+      <Section title="9. Contact">
         Pour toute question relative à vos données personnelles : <a href="mailto:tom.wybo@yahoo.fr">tom.wybo@yahoo.fr</a>
       </Section>
     </LegalPage>
@@ -109,7 +106,7 @@ function PrivacyEn() {
           <li>Email address</li>
           <li>Delivery address</li>
           <li>Order history</li>
-          <li>Login data (via email, Google or Facebook)</li>
+          <li>Login data (email address and encrypted password)</li>
         </ul>
       </Section>
 
@@ -124,15 +121,12 @@ function PrivacyEn() {
         </ul>
       </Section>
 
-      <Section title="4. Social login (Google, Facebook)">
-        If you choose to sign in with Google or Facebook, we only receive your name and email address from these platforms. We never post anything to your social profile and do not access your contacts. This data is processed in accordance with this policy.
+
+      <Section title="4. Data retention">
+        Your personal data is kept for the duration of our business relationship, then archived for 3 years for legal purposes. You can request its deletion at any time (see section 6).
       </Section>
 
-      <Section title="5. Data retention">
-        Your personal data is kept for the duration of our business relationship, then archived for 3 years for legal purposes. You can request its deletion at any time (see section 7).
-      </Section>
-
-      <Section title="6. Data sharing">
+      <Section title="5. Data sharing">
         We do not sell your data. It may only be shared with:
         <ul>
           <li>Our payment and delivery providers</li>
@@ -141,7 +135,7 @@ function PrivacyEn() {
         All our providers are bound by strict confidentiality obligations.
       </Section>
 
-      <Section title="7. Your rights (GDPR)">
+      <Section title="6. Your rights (GDPR)">
         Under the General Data Protection Regulation (GDPR), you have the following rights:
         <ul>
           <li><strong>Right of access</strong>: obtain a copy of your data</li>
@@ -155,15 +149,15 @@ function PrivacyEn() {
         </p>
       </Section>
 
-      <Section title="8. Cookies">
+      <Section title="7. Cookies">
         We use technical cookies required for the website to work (session, cart, language). No third-party advertising cookies are used without your consent.
       </Section>
 
-      <Section title="9. Security">
+      <Section title="8. Security">
         Your passwords are encrypted (bcrypt). Communications are secured via HTTPS. We have protections in place against abusive login attempts.
       </Section>
 
-      <Section title="10. Contact">
+      <Section title="9. Contact">
         For any question about your personal data: <a href="mailto:tom.wybo@yahoo.fr">tom.wybo@yahoo.fr</a>
       </Section>
     </LegalPage>
