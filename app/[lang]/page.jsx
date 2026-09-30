@@ -12,10 +12,10 @@ export const revalidate = 60;
 
 const TEXT = {
   fr: {
-    title: `${SITE_NAME} — Cardigan en maille de Madagascar, fait à la demande`,
-    description: "Notre cardigan en maille de Madagascar, une pièce essentielle fabriquée à la demande dans notre atelier familial à Antananarivo, Madagascar.",
-    ogTitle: "Pull-Lover — Le pull qui prend son temps",
-    ogDescription: "Une seule pièce, fabriquée à la demande dans notre atelier familial à Madagascar.",
+    title: `${SITE_NAME} | La passion de la maille`,
+    description: "Mailles artisanales imaginées et fabriquées à la demande dans notre atelier familial à Antananarivo, Madagascar. Découvrez la collection du moment.",
+    ogTitle: `${SITE_NAME} | La passion de la maille`,
+    ogDescription: "Mailles artisanales imaginées et fabriquées à la demande dans notre atelier familial à Madagascar.",
     ogAlt: "Le cardigan, au bord du lac",
     manifesto: [
       { text: "Produire uniquement ce que vous commandez." },
@@ -54,10 +54,10 @@ const TEXT = {
     chooseSize: "Choisir ma taille",
   },
   en: {
-    title: `${SITE_NAME} — Knit cardigan from Madagascar, made to order`,
-    description: "Our knit cardigan from Madagascar, an essential piece made to order in our family workshop in Antananarivo, Madagascar.",
-    ogTitle: "Pull-Lover — The sweater that takes its time",
-    ogDescription: "A single piece, made to order in our family workshop in Madagascar.",
+    title: `${SITE_NAME} | The love of knitwear`,
+    description: "Handcrafted knitwear designed and made to order in our family workshop in Antananarivo, Madagascar. Discover the current collection.",
+    ogTitle: `${SITE_NAME} | The love of knitwear`,
+    ogDescription: "Handcrafted knitwear designed and made to order in our family workshop in Madagascar.",
     ogAlt: "The cardigan, by the lake",
     manifesto: [
       { text: "We only make what you order." },
