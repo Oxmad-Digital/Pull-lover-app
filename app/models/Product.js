@@ -1,5 +1,4 @@
 import { createPostgresModel } from "@/app/lib/postgres-model";
-import "./Category";
 
 function createSlug(name) {
   return `${String(name || "produit")
@@ -12,7 +11,6 @@ function createSlug(name) {
 
 const Product = createPostgresModel({
   table: "products",
-  references: { category: "categories" },
   defaults: {
     description: "",
     image: "",
@@ -22,7 +20,6 @@ const Product = createPostgresModel({
     promoPrice: null,
     stock: 0,
     stocks: {},
-    category: null,
     brand: "",
     size: "",
     condition: "",

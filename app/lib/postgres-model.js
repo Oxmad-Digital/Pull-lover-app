@@ -338,7 +338,7 @@ export function createPostgresModel({ table, defaults = {}, normalize, reference
   });
 
   // Champs couverts par un index unique lower(data->>champ) (voir db.js)
-  const lowerIndexed = { categories: ["name"], customers: ["email"], newsletter_subscribers: ["email"], products: ["slug"], promos: ["code"], users: ["email"] }[table] || [];
+  const lowerIndexed = { customers: ["email"], newsletter_subscribers: ["email"], products: ["slug"], promos: ["code"], users: ["email"] }[table] || [];
 
   class Model {
     static table = table;

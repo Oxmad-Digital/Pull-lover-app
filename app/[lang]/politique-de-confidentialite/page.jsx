@@ -43,7 +43,6 @@ function PrivacyFr() {
           <li>Gérer votre compte et vos commandes</li>
           <li>Assurer la livraison de vos achats</li>
           <li>Vous envoyer des confirmations de commande par e-mail</li>
-          <li>Vous envoyer notre newsletter si vous y avez consenti</li>
           <li>Améliorer nos services et la sécurité du site</li>
         </ul>
       </Section>
@@ -116,7 +115,6 @@ function PrivacyEn() {
           <li>Manage your account and your orders</li>
           <li>Deliver your purchases</li>
           <li>Send you order confirmations by email</li>
-          <li>Send you our newsletter if you have agreed to it</li>
           <li>Improve our services and the security of the website</li>
         </ul>
       </Section>

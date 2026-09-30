@@ -5,17 +5,15 @@ import { usePathname } from "next/navigation";
 import { useState } from "react";
 import { signOut } from "next-auth/react";
 import {
-  DashboardIcon, ProductsIcon, CategoriesIcon, UsersIcon, AdminOrdersIcon,
-  NewsletterIcon, PromoIcon, LogoutIcon, PlusIcon, CloseIcon, SettingsIcon,
+  DashboardIcon, ProductsIcon, UsersIcon, AdminOrdersIcon,
+  PromoIcon, LogoutIcon, PlusIcon, CloseIcon, SettingsIcon,
 } from "@/app/components/icons";
 
 const NAV_ITEMS = [
   { href: "/admin/dashboard",  label: "Dashboard",      short: "Dashboard",  icon: <DashboardIcon /> },
   { href: "/admin/products",   label: "Produits & Stock", short: "Produits",  icon: <ProductsIcon /> },
-  { href: "/admin/categories", label: "Catégories",     short: "Catégories", icon: <CategoriesIcon /> },
   { href: "/admin/customers",  label: "Utilisateurs",   short: "Users",      icon: <UsersIcon /> },
   { href: "/admin/orders",     label: "Commandes",      short: "Commandes",  icon: <AdminOrdersIcon /> },
-  { href: "/admin/newsletter", label: "Newsletter",     short: "News",       icon: <NewsletterIcon /> },
   { href: "/admin/promos",    label: "Codes promo",    short: "Promos",     icon: <PromoIcon /> },
   { href: "/admin/settings", label: "Gestion du contenu", short: "Contenu",  icon: <SettingsIcon /> },
 ];

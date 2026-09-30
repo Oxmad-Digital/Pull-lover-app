@@ -5,7 +5,6 @@ export const runtime = "nodejs";
 import { NextResponse } from "next/server";
 import { connectDB } from "@/app/lib/db";
 import Product from "@/app/models/Product";
-import "@/app/models/Category";
 import { requireAdmin } from "@/app/lib/auth";
 import { escapeRegex } from "@/app/lib/text";
 import { deleteFromR2 } from "@/app/lib/r2";
@@ -18,7 +17,7 @@ const PATCHABLE_FIELDS = ["isAvailable"];
 function productFields(body) {
   const {
     name, brand, size, sizes, condition, description, details, careInstructions, fitInfo, shippingInfo, color,
-    price, promoPrice, stock, stocks, category, weight,
+    price, promoPrice, stock, stocks, weight,
     images, image, imageKeys, translations,
   } = body;
 
@@ -39,9 +38,6 @@ function productFields(body) {
     promoPrice: promoPrice || null,
     stock: Number(stock) || 0,
     stocks: stocks || {},
-    category: category && category !== "null" && category !== ""
-      ? category
-      : undefined,
     images: images || [],
     image: image || images?.[0] || "",
     imageKeys: imageKeys || [],
@@ -72,7 +68,6 @@ export async function GET(request) {
     const search   = searchParams.get("search");
     const sort     = searchParams.get("sort") || "createdAt";
     const order    = searchParams.get("order") || "desc";
-    const category = searchParams.get("category");
     const isExport = searchParams.get("export") === "true";
     const page     = Math.max(1, parseInt(searchParams.get("page") || "1"));
     const limit    = isExport
@@ -96,13 +91,11 @@ export async function GET(request) {
     if (filter === "out") query.stock = 0;
     if (filter === "low") query.stock = { $gt: 0, $lt: 5 };
     if (search)           query.name = { $regex: escapeRegex(search), $options: "i" };
-    if (category)         query.category = category;
 
     const sortOptions = { [sort]: order === "asc" ? 1 : -1 };
 
     const [products, filteredTotal] = await Promise.all([
       Product.find(query)
-        .populate("category", "name")
         .sort(sortOptions)
         .skip((page - 1) * limit)
         .limit(limit)

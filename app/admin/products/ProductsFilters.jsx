@@ -26,21 +26,16 @@ const ChevronIcon = ({ open }) => (
 export function ProductsFilters({
   search, onSearchChange,
   filter, onFilterChange,
-  categoryFilter, onCategoryChange,
   sort, onSortChange,
-  categories,
   stats,
 }) {
   const [filterOpen, setFilterOpen] = useState(false);
-  const [catOpen,    setCatOpen]    = useState(false);
   const [sortOpen,   setSortOpen]   = useState(false);
   const filterRef = useRef(null);
-  const catRef    = useRef(null);
   const sortRef   = useRef(null);
 
   useClickOutside([
     [filterRef, () => setFilterOpen(false)],
-    [catRef,    () => setCatOpen(false)],
     [sortRef,   () => setSortOpen(false)],
   ]);
 
@@ -81,35 +76,6 @@ export function ProductsFilters({
                 </li>
               );
             })}
-          </ul>
-        )}
-      </div>
-
-      {/* Filtre catégorie */}
-      <div className="ap-sort-wrap" ref={catRef}>
-        <button className="ap-sort-trigger" onClick={() => setCatOpen(o => !o)}>
-          {categories.find(c => c._id === categoryFilter)?.name || "Catégories"}
-          <ChevronIcon open={catOpen} />
-        </button>
-        {catOpen && (
-          <ul className="ap-sort-dropdown">
-            <li
-              className={`ap-sort-option ${categoryFilter === "" ? "selected" : ""}`}
-              onClick={() => { onCategoryChange(""); setCatOpen(false); }}
-            >
-              Toutes catégories
-              {categoryFilter === "" && <span className="ap-sort-check">✓</span>}
-            </li>
-            {categories.map(c => (
-              <li
-                key={c._id}
-                className={`ap-sort-option ${categoryFilter === c._id ? "selected" : ""}`}
-                onClick={() => { onCategoryChange(c._id); setCatOpen(false); }}
-              >
-                {c.name}
-                {categoryFilter === c._id && <span className="ap-sort-check">✓</span>}
-              </li>
-            ))}
           </ul>
         )}
       </div>
