@@ -3,7 +3,6 @@
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic"; // dépend de la query ; cache géré par Cache-Control
 
-import "@/app/models/Category";
 
 import { connectDB } from "@/app/lib/db";
 import Product from "@/app/models/Product";
@@ -21,15 +20,11 @@ export async function GET(req) {
     const page = Number(searchParams.get("page")) || 1;
     const limit = Number(searchParams.get("limit")) || 5;
     const search = searchParams.get("search") || "";
-    const category = searchParams.get("category");
 
     const skip = (page - 1) * limit;
     const filter = {};
 
     if (search) filter.name = { $regex: escapeRegex(search), $options: "i" };
-    if (category && category !== "") {
-      filter.category = category;
-    }
 
     const [result] = await Product.aggregate([
       { $match: filter },
@@ -42,11 +37,7 @@ export async function GET(req) {
     ]);
 
     const total = result.total[0]?.count ?? 0;
-    const products = await Product.populate(result.data, {
-      path: "category",
-      select: "name",
-      options: { strictPopulate: false },
-    });
+    const products = result.data;
 
     return NextResponse.json(
       {

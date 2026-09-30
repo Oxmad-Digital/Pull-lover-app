@@ -4,7 +4,6 @@
 import { cache } from "react";
 import Product from "@/app/models/Product";
 import Review from "@/app/models/Review";
-import "@/app/models/Category";
 import { isValidId } from "@/app/lib/db";
 import { selectFeaturedProduct } from "@/app/lib/featured-product.mjs";
 
@@ -36,32 +35,23 @@ export const findProductByParam = cache(async (id) => {
       ? Product.findById(id)
       : Product.findOne({ slug: id });
 
-  return query
-    .populate({ path: "category", select: "name slug" })
-    .lean();
+  return query.lean();
 });
 
 /**
  * Tout ce qu'affiche /products/[id], lu en parallèle au rendu serveur
- * (mêmes requêtes que GET /api/reviews et GET /api/products?category=…&limit=4).
- * @returns {Promise<{ product: object, reviews: object[], relatedProducts: object[] } | null>}
+ * (même requête que GET /api/reviews).
+ * @returns {Promise<{ product: object, reviews: object[] } | null>}
  */
 export async function getProductPageData(id) {
   const product = await findProductByParam(id);
   if (!product) return null;
 
-  const categoryId = product.category?._id || product.category;
-  const [reviews, related] = await Promise.all([
-    Review.find({ productId: product._id }).sort({ date: -1 }).lean(),
-    categoryId
-      ? Product.find({ category: categoryId }).sort({ createdAt: -1 }).limit(4).lean()
-      : [],
-  ]);
+  const reviews = await Review.find({ productId: product._id }).sort({ date: -1 }).lean();
 
   return asJson({
     product,
     reviews: publicReviews(reviews),
-    relatedProducts: related.filter((item) => item._id !== product._id),
   });
 }
 
@@ -73,8 +63,7 @@ export async function getProductPageData(id) {
 export async function getFeaturedProductState() {
   try {
     const products = await Product.find({}).sort({ createdAt: -1 }).limit(20).lean();
-    const populated = await Product.populate(products, { path: "category", select: "name" });
-    const product = selectFeaturedProduct(populated);
+    const product = selectFeaturedProduct(products);
     return { status: product ? "ready" : "empty", product: product ? asJson(product) : null };
   } catch (error) {
     console.error("Produit mis en avant indisponible au rendu serveur:", error.message);

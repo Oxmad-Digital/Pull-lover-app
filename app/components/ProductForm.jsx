@@ -144,7 +144,6 @@ export default function ProductForm({
         price: Number(price),
         promoPrice: promoPrice ? Number(promoPrice) : null,
         weight: weight ? Number(weight) : 0,
-        category: editingProduct?.category?._id || null,
         images: uploadedUrls,
         image: uploadedUrls[0] || "",
         imageKeys: uploadedKeys,

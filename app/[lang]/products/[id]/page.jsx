@@ -39,7 +39,6 @@ export default async function ProductPage({ params }) {
       <ProductDetail
         product={data.product}
         initialReviews={data.reviews}
-        relatedProducts={data.relatedProducts}
       />
     </>
   );

@@ -12,10 +12,8 @@ import { ProductsTable } from "./ProductsTable";
 import "./products-admin.css";
 
 export default function ProductsManagement() {
-  const [categories, setCategories]         = useState([]);
   const [stats, setStats]                   = useState(null);
   const [filter, setFilter]                 = useState("all");
-  const [categoryFilter, setCategoryFilter] = useState("");
   const [sort, setSort]                     = useState("createdAt");
   const [order]                             = useState("desc");
   const [search, setSearch]                 = useState("");
@@ -28,13 +26,6 @@ export default function ProductsManagement() {
   const { confirmModal, askConfirm, closeConfirm } = useConfirmDialog();
 
   useEffect(() => {
-    fetch("/api/categories")
-      .then(r => r.json())
-      .then(d => setCategories(d.categories || d || []))
-      .catch(() => {});
-  }, []);
-
-  useEffect(() => {
     const t = setTimeout(() => setDebouncedSearch(search), 400);
     return () => clearTimeout(t);
   }, [search]);
@@ -42,7 +33,6 @@ export default function ProductsManagement() {
   const queryParams = {
     filter, sort, order,
     ...(debouncedSearch  && { search: debouncedSearch }),
-    ...(categoryFilter   && { category: categoryFilter }),
   };
 
   const { items: products, pagination, loading, error, page, setPage } =
@@ -121,18 +111,17 @@ export default function ProductsManagement() {
     try {
       const p = new URLSearchParams({ filter, sort, order, export: "true" });
       if (debouncedSearch) p.set("search", debouncedSearch);
-      if (categoryFilter)  p.set("category", categoryFilter);
 
       const res  = await fetch(`/api/admin/products?${p}`);
       const data = await res.json();
       if (!data.success) return;
 
       const headers = [
-        "Nom", "Marque", "Catégorie", "Prix (€)", "Prix promo (€)",
+        "Nom", "Marque", "Prix (€)", "Prix promo (€)",
         "XS", "S", "M", "L", "XL", "Stock total", "Visible", "Ajouté le",
       ];
       const rows = data.products.map(p => [
-        p.name, p.brand || "", p.category?.name || "",
+        p.name, p.brand || "",
         p.price, p.promoPrice || "",
         p.stocks?.XS ?? 0, p.stocks?.S ?? 0, p.stocks?.M ?? 0,
         p.stocks?.L ?? 0, p.stocks?.XL ?? 0,
@@ -167,7 +156,7 @@ export default function ProductsManagement() {
           {exporting ? "Export…" : "Export CSV"}
         </button>
         {/* Mode mono-produit : on ne crée la fiche que si elle n'existe pas encore */}
-        {!loading && localProducts.length === 0 && !debouncedSearch && !categoryFilter && filter === "all" && (
+        {!loading && localProducts.length === 0 && !debouncedSearch && filter === "all" && (
           <button className="ap-btn-add" onClick={() => { setEditingProduct(null); setShowForm(true); }}>
             Créer la fiche produit
           </button>
@@ -177,9 +166,7 @@ export default function ProductsManagement() {
       <ProductsFilters
         search={search}         onSearchChange={setSearch}
         filter={filter}         onFilterChange={setFilter}
-        categoryFilter={categoryFilter} onCategoryChange={setCategoryFilter}
         sort={sort}             onSortChange={setSort}
-        categories={categories}
         stats={stats}
       />
 

@@ -53,11 +53,6 @@ const COLUMNS = (onEdit, onDelete, onToggle) => [
     ),
   },
   {
-    key: "category",
-    label: "Catégorie",
-    render: (p) => p.category?.name || <span style={{ color: "#a8a29e" }}>—</span>,
-  },
-  {
     key: "price",
     label: "Prix",
     render: (p) => p.promoPrice ? (

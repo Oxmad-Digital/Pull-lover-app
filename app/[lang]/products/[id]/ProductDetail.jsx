@@ -2,13 +2,11 @@
 
 import { useState } from "react";
 import Image from "next/image";
-import Link from "next/link";
-import { productPath } from "@/app/lib/seo";
 import { useCart } from "@/app/components/CartContext";
 import { ButtonPrimary, ButtonSecondary } from "@/app/components/ui/Button";
 import { BadgePromo } from "@/app/components/ui/Tag";
 import { useLang } from "@/app/i18n/I18nProvider";
-import { INTL_LOCALE, localePath } from "@/app/i18n/config.mjs";
+import { INTL_LOCALE } from "@/app/i18n/config.mjs";
 import { formatMoney } from "@/app/i18n/format.mjs";
 import { localizeProduct } from "@/app/i18n/product.mjs";
 import "./product-detail.css";
@@ -44,7 +42,6 @@ const TEXT = {
     reviewError: "Votre avis n'a pas pu être envoyé.",
     seeLess: "Voir moins",
     seeMore: "Voir plus",
-    related: "Produits similaires",
   },
   en: {
     view: (name, index) => `${name} — view ${index}`,
@@ -76,12 +73,11 @@ const TEXT = {
     reviewError: "Your review could not be sent.",
     seeLess: "See less",
     seeMore: "See more",
-    related: "Similar products",
   },
 };
 
 // Partie interactive de la fiche : les données arrivent déjà rendues par page.jsx (serveur)
-export default function ProductDetail({ product: baseProduct, initialReviews, relatedProducts }) {
+export default function ProductDetail({ product: baseProduct, initialReviews }) {
   const lang = useLang();
   const t = TEXT[lang];
   const product = localizeProduct(baseProduct, lang);
@@ -474,24 +470,6 @@ export default function ProductDetail({ product: baseProduct, initialReviews, re
 
           </div>
         </div>
-
-        {/* Produits similaires */}
-        {relatedProducts.length > 0 && (
-          <div className="related-products">
-            <h2 data-reveal>{t.related}</h2>
-            <div className="related-grid" data-reveal-stagger>
-              {relatedProducts.map((relatedProduct) => localizeProduct(relatedProduct, lang)).map((item) => (
-                <Link key={item._id} href={localePath(lang, productPath(item))} className="related-card">
-                  <div className="related-image">
-                    <Image src={item.image || "/no-image.svg"} alt={item.name} width={200} height={200} />
-                  </div>
-                  <h3>{item.name}</h3>
-                  <p className="related-price">{formatMoney(item.promoPrice || item.price, lang)}</p>
-                </Link>
-              ))}
-            </div>
-          </div>
-        )}
 
       </div>
     </div>

@@ -3,7 +3,6 @@ import { neon } from "@neondatabase/serverless";
 const DATABASE_URL = process.env.DATABASE_URL || process.env.POSTGRES_URL;
 
 const TABLES = [
-  "categories",
   "customers",
   "newsletter_subscribers",
   "orders",
@@ -15,7 +14,6 @@ const TABLES = [
 ];
 
 const UNIQUE_INDEXES = [
-  ["categories", "name"],
   ["customers", "email"],
   ["newsletter_subscribers", "email"],
   ["products", "slug"],
@@ -119,6 +117,10 @@ export async function initializeSchema(sql = getClient()) {
   for (const [indexName, table, expression] of LOOKUP_INDEXES) {
     await sql.query(`CREATE INDEX IF NOT EXISTS "${indexName}" ON "${table}" ${expression}`);
   }
+
+  // Catégories retirées du site : table et champ produit supprimés
+  await sql.query(`DROP TABLE IF EXISTS categories`);
+  await sql.query(`UPDATE products SET data = data - 'category' WHERE data ? 'category'`);
 
   // Compteurs de limitation de débit (voir rateLimit.js)
   await sql.query(`
