@@ -2,6 +2,7 @@ import React from "react";
 import "../globals.css";
 import "../mantasoa-product.css";
 import { notFound } from "next/navigation";
+import Script from "next/script";
 import { montserrat } from "../fonts";
 import HeaderWrapper from "@/app/components/HeaderWrapper";
 import FooterWrapper from "@/app/components/FooterWrapper";
@@ -47,10 +48,10 @@ export default async function RootLayout({ children, params }: { children: React
   if (!isLocale(lang)) notFound();
   return (
     <html lang={lang} className={montserrat.variable} suppressHydrationWarning>
-      <head>
-        <script dangerouslySetInnerHTML={{ __html: revealBootstrap }} />
-      </head>
       <body className={montserrat.className}>
+        <Script id="pl-reveal-bootstrap" strategy="beforeInteractive">
+          {revealBootstrap}
+        </Script>
         <SiteReveal />
         <I18nProvider lang={lang}>
           <Providers>
