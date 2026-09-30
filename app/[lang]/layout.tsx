@@ -8,6 +8,7 @@ import HeaderWrapper from "@/app/components/HeaderWrapper";
 import FooterWrapper from "@/app/components/FooterWrapper";
 import Providers from "@/app/components/Providers";
 import SiteReveal from "@/app/components/SiteReveal";
+import Tracker from "@/app/components/Tracker";
 import { I18nProvider } from "@/app/i18n/I18nProvider";
 import { LOCALES, isLocale, toLocale } from "@/app/i18n/config.mjs";
 import { SITE_DESCRIPTION, SITE_NAME, SITE_URL, openGraphBase } from "@/app/lib/seo";
@@ -53,6 +54,7 @@ export default async function RootLayout({ children, params }: { children: React
           {revealBootstrap}
         </Script>
         <SiteReveal />
+        <Tracker />
         <I18nProvider lang={lang}>
           <Providers>
             <HeaderWrapper />

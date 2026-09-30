@@ -76,7 +76,7 @@ function PrivacyFr() {
       </Section>
 
       <Section title="7. Cookies">
-        Nous utilisons des cookies techniques nécessaires au fonctionnement du site (session, panier, langue). Aucun cookie publicitaire tiers n’est utilisé sans votre consentement.
+        Nous utilisons des cookies techniques nécessaires au fonctionnement du site (session, panier, langue). Aucun cookie publicitaire tiers n’est utilisé sans votre consentement. La mesure d’audience du site est réalisée par nos soins, sans cookie ni service tiers : nous enregistrons la page consultée, le site de provenance, le type d’appareil, le pays et le temps passé, avec un identifiant anonyme renouvelé chaque jour (votre adresse IP n’est pas conservée). Ces données sont supprimées après 13 mois.
       </Section>
 
       <Section title="8. Sécurité">
@@ -148,7 +148,7 @@ function PrivacyEn() {
       </Section>
 
       <Section title="7. Cookies">
-        We use technical cookies required for the website to work (session, cart, language). No third-party advertising cookies are used without your consent.
+        We use technical cookies required for the website to work (session, cart, language). No third-party advertising cookies are used without your consent. We measure the site’s audience ourselves, without cookies or third-party services: we record the page viewed, the referring website, the device type, the country and the time spent, with an anonymous identifier renewed every day (your IP address is not stored). This data is deleted after 13 months.
       </Section>
 
       <Section title="8. Security">
