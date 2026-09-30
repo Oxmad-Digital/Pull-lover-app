@@ -130,6 +130,22 @@ export async function initializeSchema(sql = getClient()) {
       reset_at timestamptz NOT NULL
     )
   `);
+
+  // Mesure d'audience (voir app/api/track) : une ligne par page vue, sans IP ni cookie
+  await sql.query(`
+    CREATE TABLE IF NOT EXISTS page_views (
+      id uuid PRIMARY KEY,
+      day date NOT NULL,
+      path text NOT NULL,
+      referrer text NOT NULL DEFAULT '',
+      device_type text NOT NULL DEFAULT 'desktop',
+      country text NOT NULL DEFAULT '',
+      visitor_hash text NOT NULL,
+      duration_ms integer,
+      created_at timestamptz NOT NULL DEFAULT now()
+    )
+  `);
+  await sql.query(`CREATE INDEX IF NOT EXISTS "page_views_day_idx" ON "page_views" (day)`);
 }
 
 // Le schéma est créé par `npm run migrate` : plus de DDL au démarrage à froid.
