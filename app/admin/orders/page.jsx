@@ -141,10 +141,11 @@ export default function AdminOrdersPage() {
       const data = await res.json();
       if (!data.orders) return;
 
-      const headers = ["Prénom","Nom","Email","Téléphone","Adresse","Ville","Total (€)","Paiement","Statut","Date"];
+      const headers = ["N° commande","Prénom","Nom","Email","Téléphone","Adresse","Ville","Total (€)","Paiement","Statut","Date"];
       const rows = data.orders.map(o => {
         const c = o.customer || {};
         return [
+          "#" + String(o._id).slice(-8).toUpperCase(),
           c.firstname || "", c.lastname || "", c.email || "",
           c.phone || "", c.address || "", c.city || "",
           o.total || 0,
@@ -256,6 +257,7 @@ export default function AdminOrdersPage() {
           <table className="ap-table">
             <thead>
               <tr>
+                <th>N°</th>
                 <th>Client</th>
                 <th>Contact</th>
                 <th>Localisation</th>
@@ -274,6 +276,11 @@ export default function AdminOrdersPage() {
 
                 return (
                   <tr key={o._id}>
+                    <td>
+                      <Link href={`/admin/orders/${o._id}`} className="ao-order-id">
+                        #{String(o._id).slice(-8).toUpperCase()}
+                      </Link>
+                    </td>
                     <td>
                       <div className="ao-client-cell">
                         <div className="ao-avatar">{initials}</div>
