@@ -3,6 +3,7 @@ import { connectDB } from "@/app/lib/db";
 import User from "@/app/models/User";
 import { NextResponse } from "next/server";
 import { translator } from "@/app/i18n/server";
+import { hashToken, TOKEN_PATTERN } from "@/app/lib/tokens";
 
 export async function GET(req) {
   const { searchParams } = new URL(req.url);
@@ -12,7 +13,7 @@ export async function GET(req) {
 
     const token = searchParams.get("token");
 
-    if (!token || !/^[a-f0-9]{64}$/.test(token)) {
+    if (!token || !TOKEN_PATTERN.test(token)) {
       return NextResponse.json(
         { message: t("Token manquant", "Missing token") },
         { status: 400 }
@@ -21,7 +22,7 @@ export async function GET(req) {
 
     // Chercher l'utilisateur avec ce token
     const user = await User.findOne({
-      verificationToken: token,
+      verificationToken: hashToken(token),
       verificationTokenExpiry: { $gt: new Date() }, // Token non expiré
     });
 

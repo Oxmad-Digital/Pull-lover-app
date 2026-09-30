@@ -119,6 +119,15 @@ export async function initializeSchema(sql = getClient()) {
   for (const [indexName, table, expression] of LOOKUP_INDEXES) {
     await sql.query(`CREATE INDEX IF NOT EXISTS "${indexName}" ON "${table}" ${expression}`);
   }
+
+  // Compteurs de limitation de débit (voir rateLimit.js)
+  await sql.query(`
+    CREATE TABLE IF NOT EXISTS rate_limits (
+      key text PRIMARY KEY,
+      count integer NOT NULL,
+      reset_at timestamptz NOT NULL
+    )
+  `);
 }
 
 // Le schéma est créé par `npm run migrate` : plus de DDL au démarrage à froid.

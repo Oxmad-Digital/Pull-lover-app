@@ -4,14 +4,7 @@ export const revalidate = 3600;
 import { NextResponse } from "next/server";
 import { connectDB } from "@/app/lib/db";
 import Category from "@/app/models/Category";
-import { getToken } from "next-auth/jwt";
-
-async function requireAdmin(req) {
-  const token = await getToken({ req, secret: process.env.NEXTAUTH_SECRET });
-  if (!token || token.role !== "admin")
-    return NextResponse.json({ message: "Non autorisé" }, { status: 401 });
-  return null;
-}
+import { requireAdmin } from "@/app/lib/auth";
 
 export async function GET() {
   try {
@@ -26,7 +19,7 @@ export async function GET() {
 }
 
 export async function POST(req) {
-  const denied = await requireAdmin(req);
+  const denied = await requireAdmin();
   if (denied) return denied;
   try {
     await connectDB();
@@ -44,7 +37,7 @@ export async function POST(req) {
 }
 
 export async function PATCH(req) {
-  const denied = await requireAdmin(req);
+  const denied = await requireAdmin();
   if (denied) return denied;
   try {
     await connectDB();
@@ -64,7 +57,7 @@ export async function PATCH(req) {
 }
 
 export async function DELETE(req) {
-  const denied = await requireAdmin(req);
+  const denied = await requireAdmin();
   if (denied) return denied;
   try {
     await connectDB();

@@ -25,7 +25,8 @@ export async function PATCH(request) {
     if (typeof phone === "string") user.phone = phone.trim() || null;
 
     let previousAvatarKey = null;
-    if (avatar !== undefined && session.user.role === "admin") {
+    // Seules des clés du dossier avatars/ sont acceptées : l'ancienne clé est supprimée de R2 ensuite
+    if (avatar !== undefined && session.user.role === "admin" && (avatarKey == null || avatarKey === "" || (typeof avatarKey === "string" && avatarKey.startsWith("avatars/") && !avatarKey.includes("..")))) {
       previousAvatarKey = user.avatarKey;
       user.avatar = avatar || null;
       if (avatarKey !== undefined) user.avatarKey = avatarKey || null;
@@ -35,10 +36,7 @@ export async function PATCH(request) {
       if (typeof currentPassword !== "string" || !currentPassword) {
         return NextResponse.json({ message: t("Mot de passe actuel requis", "Current password is required") }, { status: 400 });
       }
-      if (!user.password) {
-        return NextResponse.json({ message: t("Ce compte utilise la connexion Google : aucun mot de passe à modifier", "This account uses Google sign-in: there is no password to change") }, { status: 400 });
-      }
-      const valid = await bcrypt.compare(currentPassword, user.password);
+      const valid = user.password ? await bcrypt.compare(currentPassword, user.password) : false;
       if (!valid) {
         return NextResponse.json({ message: t("Mot de passe actuel incorrect", "Current password is incorrect") }, { status: 400 });
       }
@@ -47,6 +45,8 @@ export async function PATCH(request) {
         return NextResponse.json({ message: t("Mot de passe invalide : ", "Invalid password: ") + passwordCheck.errors.join(", ") }, { status: 400 });
       }
       user.password = await bcrypt.hash(newPassword, 12);
+      // Déconnecte les autres appareils ; la session courante est rouverte par le client
+      user.passwordChangedAt = new Date();
     }
 
     await user.save();

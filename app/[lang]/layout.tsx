@@ -16,7 +16,7 @@ import { SITE_DESCRIPTION, SITE_NAME, SITE_URL, openGraphBase } from "@/app/lib/
 const revealBootstrap = `(function(){try{if(matchMedia("(prefers-reduced-motion: reduce)").matches)return;var d=document.documentElement;d.classList.add("pl-motion");setTimeout(function(){if(!window.__plReveal)d.classList.remove("pl-motion")},4000)}catch(e){}})()`;
 
 // Les deux langues sont pré-rendues. Pas de dynamicParams = false : il s'appliquerait aussi aux
-// segments enfants (fiches produit, 404). Le middleware ne réécrit de toute façon que vers /fr ou /en.
+// segments enfants (fiches produit, 404). Le proxy ne réécrit de toute façon que vers /fr ou /en.
 export function generateStaticParams() {
   return LOCALES.map((lang) => ({ lang }));
 }

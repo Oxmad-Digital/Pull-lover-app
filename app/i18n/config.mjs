@@ -1,7 +1,7 @@
 // app/i18n/config.mjs
 // Langues du site. Le français est servi à la racine (/panier), l'anglais sous /en (/en/panier) :
-// le middleware réécrit en interne chaque URL publique vers app/[lang]/…
-// Sans dépendance : importable depuis le middleware, le serveur, les composants client et les tests.
+// le proxy (proxy.js) réécrit en interne chaque URL publique vers app/[lang]/…
+// Sans dépendance : importable depuis le proxy, le serveur, les composants client et les tests.
 
 export const LOCALES = ["fr", "en"];
 export const DEFAULT_LOCALE = "fr";

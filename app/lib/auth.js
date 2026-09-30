@@ -1,5 +1,5 @@
 // app/lib/auth.js
-// Contrôles d'accès communs aux routes API (le middleware laisse passer /api/*).
+// Contrôles d'accès communs aux routes API (le proxy laisse passer /api/*).
 
 import { getServerSession } from "next-auth";
 import { NextResponse } from "next/server";

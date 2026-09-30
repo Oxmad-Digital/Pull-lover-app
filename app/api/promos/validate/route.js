@@ -3,10 +3,13 @@ import { connectDB } from "@/app/lib/db";
 import Promo from "@/app/models/Promo";
 import { promoDiscount } from "@/app/lib/pricing.mjs";
 import { translator } from "@/app/i18n/server";
+import { clientIp, rateLimit } from "@/app/lib/rateLimit";
 
 export async function POST(req) {
   const t = translator(req);
-  const { code, orderAmount } = await req.json();
+  const { allowed } = await rateLimit(`promo:${clientIp(req)}`, { limit: 20, windowMs: 15 * 60 * 1000 });
+  if (!allowed) return NextResponse.json({ error: t("Trop de tentatives. Réessayez plus tard.", "Too many attempts. Please try again later.") }, { status: 429 });
+  const { code, orderAmount } = await req.json().catch(() => ({}));
   if (typeof code !== "string" || !code.trim()) return NextResponse.json({ error: t("Code requis", "Code required") }, { status: 400 });
 
   await connectDB();

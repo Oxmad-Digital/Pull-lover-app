@@ -40,6 +40,8 @@ const TEXT = {
     yourRating: "Votre note",
     stars: (star) => `${star} étoile${star > 1 ? "s" : ""}`,
     send: "Envoyer mon avis",
+    loginToReview: "Connectez-vous pour laisser un avis.",
+    reviewError: "Votre avis n'a pas pu être envoyé.",
     seeLess: "Voir moins",
     seeMore: "Voir plus",
     related: "Produits similaires",
@@ -70,6 +72,8 @@ const TEXT = {
     yourRating: "Your rating",
     stars: (star) => `${star} star${star > 1 ? "s" : ""}`,
     send: "Submit my review",
+    loginToReview: "Please sign in to leave a review.",
+    reviewError: "Your review could not be sent.",
     seeLess: "See less",
     seeMore: "See more",
     related: "Similar products",
@@ -98,6 +102,7 @@ export default function ProductDetail({ product: baseProduct, initialReviews, re
   const [reviewComment, setReviewComment] = useState("");
   const [reviewRating, setReviewRating] = useState(5);
   const [reviewSuccess, setReviewSuccess] = useState(false);
+  const [reviewError, setReviewError] = useState("");
   const [expandedReviews, setExpandedReviews] = useState({});
   const productId = product._id;
 
@@ -123,7 +128,14 @@ export default function ProductDetail({ product: baseProduct, initialReviews, re
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ productId, name: reviewName, rating: reviewRating, comment: reviewComment }),
     });
-    const created = res.ok ? await res.json() : null;
+    const data = await res.json().catch(() => null);
+    if (!res.ok) {
+      // Avis réservés aux clients connectés ; les autres erreurs (validation, limite) sont renvoyées par l'API
+      setReviewError(res.status === 401 ? t.loginToReview : data?.error || t.reviewError);
+      return;
+    }
+    const created = data;
+    setReviewError("");
     setReviewName("");
     setReviewComment("");
     setReviewRating(5);
@@ -424,6 +436,7 @@ export default function ProductDetail({ product: baseProduct, initialReviews, re
                       </span>
                     ))}
                   </div>
+                  {reviewError && <p className="review-error" role="alert">{reviewError}</p>}
                   <ButtonPrimary onClick={submitReview}>{t.send}</ButtonPrimary>
                 </div>
               )}

@@ -240,7 +240,8 @@ export async function GET(request) {
   if (denied) return denied;
 
   const { searchParams } = new URL(request.url);
-  const period = searchParams.get("period") || "7";
+  // Bornée : la période pilote une boucle jour par jour et une clé de cache
+  const period = String(Math.min(365, Math.max(1, parseInt(searchParams.get("period")) || 7)));
 
   const data = await fetchStats(period);
 

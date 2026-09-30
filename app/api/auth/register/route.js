@@ -2,39 +2,14 @@
 import { connectDB } from "@/app/lib/db";
 import User from "@/app/models/User";
 import bcrypt from "bcryptjs";
-import crypto from "crypto";
 import { NextResponse } from "next/server";
 import { sendEmail } from "@/app/lib/mailer";
 import { getVerificationEmailTemplate } from "@/app/lib/emailTemplates";
 import { validatePassword } from "@/app/lib/password";
 import { translator } from "@/app/i18n/server";
 import { localePath } from "@/app/i18n/config.mjs";
-
-// Rate limiting
-const registrationAttempts = new Map();
-
-function checkRateLimit(ip) {
-  const now = Date.now();
-  const windowMs = 60 * 1000;  // ✅ 60 secondes
-  const maxAttempts = 5;        // ✅ 5 tentatives
-
-  if (!registrationAttempts.has(ip)) {
-    registrationAttempts.set(ip, []);
-  }
-
-  const attempts = registrationAttempts.get(ip);
-  const recentAttempts = attempts.filter(timestamp => now - timestamp < windowMs);
-  registrationAttempts.set(ip, recentAttempts);
-
-  if (recentAttempts.length >= maxAttempts) {
-    const retryAfter = Math.ceil((recentAttempts[0] + windowMs - now) / 1000);
-    return { allowed: false, retryAfter };
-  }
-
-  recentAttempts.push(now);
-  registrationAttempts.set(ip, recentAttempts);
-  return { allowed: true };
-}
+import { createToken } from "@/app/lib/tokens";
+import { clientIp, rateLimit } from "@/app/lib/rateLimit";
 
 // Sanitization
 function sanitizeInput(input) {
@@ -63,13 +38,13 @@ export async function POST(req) {
     await connectDB();
 
     // IP
-    const ip = req.headers.get("x-forwarded-for") || "unknown";
+    const ip = clientIp(req);
 
-    // Rate limit
-    const rateLimit = checkRateLimit(ip);
-    if (!rateLimit.allowed) {
+    // Rate limit (partagé entre instances)
+    const limit = await rateLimit(`register:${ip}`, { limit: 5, windowMs: 15 * 60 * 1000 });
+    if (!limit.allowed) {
       return NextResponse.json(
-        { message: t(`Trop de tentatives. Réessayez dans ${rateLimit.retryAfter} secondes.`, `Too many attempts. Try again in ${rateLimit.retryAfter} seconds.`) },
+        { message: t(`Trop de tentatives. Réessayez dans ${limit.retryAfter} secondes.`, `Too many attempts. Try again in ${limit.retryAfter} seconds.`) },
         { status: 429 }
       );
     }
@@ -79,6 +54,14 @@ export async function POST(req) {
     let { name, email, password } = body;
     const verificationUrlFor = (token) => `${process.env.NEXT_PUBLIC_APP_URL}${localePath(t.lang, "/verify-email")}?token=${token}`;
     const verifySubject = t("🔐 Vérifiez votre email", "🔐 Verify your email");
+    // Réponse identique que l'adresse soit libre ou déjà inscrite (anti-énumération)
+    const created = () => NextResponse.json(
+      {
+        message: t("Compte créé ! Consultez votre email pour vérifier votre adresse.", "Account created! Check your email to verify your address."),
+        requiresVerification: true,
+      },
+      { status: 201 }
+    );
 
     // Sanitization
     name = sanitizeInput(name);
@@ -125,43 +108,33 @@ export async function POST(req) {
     if (existingUser) {
       console.log(`⚠️  Email existant: ${email} | IP: ${ip}`);
 
-      // 🔄 Si email non vérifié, renvoyer un nouveau lien
-      if (!existingUser.emailVerified) {
-        const newToken = crypto.randomBytes(32).toString("hex");
-        existingUser.verificationToken = newToken;
+      // 🔄 Si email non vérifié, renvoyer un nouveau lien (au plus 3 par heure et par adresse)
+      const resend = await rateLimit(`verify:${email}`, { limit: 3, windowMs: 60 * 60 * 1000 });
+      if (!existingUser.emailVerified && resend.allowed) {
+        const { token, hash } = createToken();
+        existingUser.verificationToken = hash;
         existingUser.verificationTokenExpiry = new Date(Date.now() + 24 * 60 * 60 * 1000);
         await existingUser.save();
-
-        const verificationUrl = verificationUrlFor(newToken);
-        const htmlContent = getVerificationEmailTemplate(existingUser.name, verificationUrl, t.lang);
 
         try {
           await sendEmail({
             to: existingUser.email,
             subject: verifySubject,
-            html: htmlContent,
+            html: getVerificationEmailTemplate(existingUser.name, verificationUrlFor(token), t.lang),
           });
         } catch (emailErr) {
           console.error("❌ Erreur envoi email:", emailErr);
         }
-
-        return NextResponse.json(
-          { message: t("Email déjà inscrit mais non vérifié. Un nouveau lien de vérification a été envoyé.", "This email is already registered but not verified. A new verification link has been sent.") },
-          { status: 400 }
-        );
       }
 
-      return NextResponse.json(
-        { message: t("Email déjà utilisé", "This email is already in use") },
-        { status: 400 }
-      );
+      return created();
     }
 
     // Hash password (12 rounds)
     const hashedPassword = await bcrypt.hash(password, 12);
 
     // 🎟️ Créer token de vérification
-    const verificationToken = crypto.randomBytes(32).toString("hex");
+    const { token: verificationToken, hash: verificationTokenHash } = createToken();
     const verificationTokenExpiry = new Date(Date.now() + 24 * 60 * 60 * 1000);
 
     // Créer utilisateur
@@ -171,7 +144,7 @@ export async function POST(req) {
       password: hashedPassword,
       role: "customer",
       emailVerified: false,
-      verificationToken,
+      verificationToken: verificationTokenHash,
       verificationTokenExpiry,
     });
 
@@ -218,13 +191,7 @@ export async function POST(req) {
 
     console.log(`✅ Nouvel utilisateur créé: ${email} | IP: ${ip}`);
 
-    return NextResponse.json(
-      {
-        message: t("Compte créé ! Consultez votre email pour vérifier votre adresse.", "Account created! Check your email to verify your address."),
-        requiresVerification: true,
-      },
-      { status: 201 }
-    );
+    return created();
 
   } catch (error) {
     console.error("❌ Erreur inscription détaillée:", {
@@ -234,10 +201,11 @@ export async function POST(req) {
     });
 
     // Erreur de contrainte d'unicité PostgreSQL
+    // (inscription simultanée de la même adresse) : même réponse que pour une adresse libre
     if (error.code === 11000) {
       return NextResponse.json(
-        { message: t("Cet email est déjà utilisé", "This email is already in use") },
-        { status: 400 }
+        { message: t("Compte créé ! Consultez votre email pour vérifier votre adresse.", "Account created! Check your email to verify your address."), requiresVerification: true },
+        { status: 201 }
       );
     }
 

@@ -621,6 +621,12 @@
   font-weight: 500;
 }
 
+.product-detail-page .review-error {
+  margin: 0;
+  color: var(--brand);
+  font-size: 13px;
+}
+
 /* ── PRODUITS SIMILAIRES ── */
 .product-detail-page .related-products {
   margin-top: 0;

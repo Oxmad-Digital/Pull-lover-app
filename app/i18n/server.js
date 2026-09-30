@@ -1,6 +1,6 @@
 // app/i18n/server.js
 // Langue d'une requête API : les routes ne sont pas préfixées par /en, la langue vient donc
-// du cookie posé par le middleware à chaque page visitée (ou d'un champ explicite du corps).
+// du cookie posé par le proxy à chaque page visitée (ou d'un champ explicite du corps).
 
 import { LOCALE_COOKIE, toLocale, tr } from "./config.mjs";
 

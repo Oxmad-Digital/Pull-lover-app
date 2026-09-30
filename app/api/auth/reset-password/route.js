@@ -4,6 +4,8 @@ import bcrypt from "bcryptjs";
 import { NextResponse } from "next/server";
 import { validatePassword } from "@/app/lib/password";
 import { translator } from "@/app/i18n/server";
+import { hashToken, TOKEN_PATTERN } from "@/app/lib/tokens";
+import { clientIp, rateLimit } from "@/app/lib/rateLimit";
 
 export async function POST(req) {
   let t = translator(req);
@@ -14,7 +16,7 @@ export async function POST(req) {
     t = translator(req, locale);
 
     // Types stricts : un objet ({"$ne": null}) serait interprété comme opérateur de filtre
-    if (typeof token !== "string" || !/^[a-f0-9]{64}$/.test(token) || typeof password !== "string") {
+    if (typeof token !== "string" || !TOKEN_PATTERN.test(token) || typeof password !== "string") {
       return NextResponse.json({ message: t("Données manquantes ou invalides", "Missing or invalid data") }, { status: 400 });
     }
 
@@ -26,8 +28,13 @@ export async function POST(req) {
       );
     }
 
+    const { allowed } = await rateLimit(`reset:${clientIp(req)}`, { limit: 10, windowMs: 15 * 60 * 1000 });
+    if (!allowed) {
+      return NextResponse.json({ message: t("Trop de tentatives. Réessayez plus tard.", "Too many attempts. Please try again later.") }, { status: 429 });
+    }
+
     const user = await User.findOne({
-      resetToken: token,
+      resetToken: hashToken(token),
       resetTokenExpiry: { $gt: new Date() },
     });
 
@@ -41,6 +48,8 @@ export async function POST(req) {
     const hashed = await bcrypt.hash(password, 12);
 
     user.password = hashed;
+    // Invalide les sessions ouvertes avec l'ancien mot de passe (voir authOptions)
+    user.passwordChangedAt = new Date();
     user.resetToken = null;
     user.resetTokenExpiry = null;
     user.failedLoginAttempts = 0;
