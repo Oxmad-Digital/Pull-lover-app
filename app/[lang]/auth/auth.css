@@ -261,47 +261,6 @@
   background: #193030;
 }
 
-.auth-divider {
-  display: flex;
-  align-items: center;
-  gap: 16px;
-}
-
-.auth-divider span {
-  flex: 1;
-  height: 1px;
-  background: var(--pl-line);
-}
-
-.auth-divider p {
-  margin: 0;
-  color: var(--pl-muted);
-  font-size: 10px;
-  line-height: 1.4;
-  letter-spacing: .1em;
-  text-transform: uppercase;
-  white-space: nowrap;
-}
-
-.auth-google {
-  width: 100%;
-  min-height: 56px;
-  border: 1px solid var(--pl-line);
-  border-radius: 0;
-  color: var(--pl-ink);
-  background: transparent;
-  font: 500 12px/1 var(--pl-sans);
-  letter-spacing: .06em;
-  cursor: pointer;
-  transition: color .2s ease, background .2s ease, border-color .2s ease;
-}
-
-.auth-google:hover {
-  border-color: var(--pl-ink);
-  color: white;
-  background: var(--pl-ink);
-}
-
 .auth-switch {
   padding-top: 24px;
   border-top: 1px solid var(--pl-line);
