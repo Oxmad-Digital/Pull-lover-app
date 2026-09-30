@@ -47,9 +47,11 @@ export async function PATCH(req) {
   if (deny) return deny;
 
   await connectDB();
-  const { id, ...updates } = await req.json();
-  if (updates.code) updates.code = updates.code.toUpperCase().trim();
-  const promo = await Promo.findByIdAndUpdate(id, updates, { new: true });
+  const { id, ...body } = await req.json();
+  const EDITABLE = ["code", "description", "type", "value", "minOrderAmount", "maxUses", "expiresAt", "isActive"];
+  const updates = Object.fromEntries(Object.entries(body).filter(([key]) => EDITABLE.includes(key)));
+  if (typeof updates.code === "string") updates.code = updates.code.toUpperCase().trim();
+  const promo = await Promo.findByIdAndUpdate(id, { $set: updates }, { new: true });
   if (!promo) return NextResponse.json({ error: "Promo introuvable" }, { status: 404 });
   return NextResponse.json({ promo });
 }

@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { useSession } from "next-auth/react";
+import { signIn, useSession } from "next-auth/react";
 import { passwordHint, validatePassword } from "@/app/lib/password";
 import { useLang } from "@/app/i18n/I18nProvider";
 
@@ -228,6 +228,8 @@ export default function ProfilePage() {
       });
       const data = await res.json();
       if (res.ok) {
+        // Le changement invalide les sessions existantes : on rouvre celle de cet appareil
+        await signIn("credentials", { email: session?.user?.email, password: pwForm.newPassword, lang, redirect: false });
         setPwForm({ currentPassword: "", newPassword: "", confirmPassword: "" });
         setPwMsg({ type: "success", text: t.passwordChanged });
       } else {

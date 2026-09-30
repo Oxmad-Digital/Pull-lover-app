@@ -30,7 +30,7 @@ export async function GET(req, { params }) {
   } catch (error) {
     console.error("❌ ERREUR:", error.message);
     return NextResponse.json(
-      { success: false, message: error.message },
+      { success: false, message: "Erreur serveur" },
       { status: 500 }
     );
   }

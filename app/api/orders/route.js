@@ -253,12 +253,16 @@ export async function POST(req) {
     const sql = await connectDB();
 
     // Compteur promo, stock et fiche client sont indépendants : écrits en parallèle
-    await Promise.all([
-      // Incrément atomique du compteur d'utilisation du code promo
+    const [promoRows] = await Promise.all([
+      // Incrément atomique et borné du compteur d'utilisation du code promo : deux commandes
+      // simultanées ne peuvent pas dépasser maxUses (aucune ligne renvoyée si le quota est atteint)
       totals.promoCode && sql`
         UPDATE promos
         SET data = jsonb_set(data, '{usedCount}', to_jsonb(COALESCE((data->>'usedCount')::int, 0) + 1))
         WHERE data->>'code' = ${totals.promoCode}
+          AND (jsonb_typeof(data->'maxUses') IS DISTINCT FROM 'number'
+               OR COALESCE((data->>'usedCount')::int, 0) < (data->>'maxUses')::int)
+        RETURNING id
       `,
       // Décrément du stock (par taille si renseignée) : chaque UPDATE est atomique
       ...lines.map((l) =>
@@ -270,6 +274,17 @@ export async function POST(req) {
     /* ======================
        📧 PRÉPARATION DES EMAILS
     ====================== */
+    // Commande déjà payée : un quota promo dépassé entre-temps est signalé à l'admin
+    const promoOverused = Boolean(totals.promoCode) && !promoRows?.length;
+    const notices = [
+      ...(totals.shortages.length
+        ? [`<strong>⚠️ Rupture de stock au moment de l'enregistrement :</strong><br>${totals.shortages.map(escapeHtml).join("<br>")}`]
+        : []),
+      ...(promoOverused
+        ? [`<strong>⚠️ Code promo ${escapeHtml(totals.promoCode)} utilisé au-delà de son quota</strong> (commandes simultanées).`]
+        : []),
+    ];
+
     const orderNumber = order._id.toString().slice(-8).toUpperCase();
     const dateFor = (locale) => new Date().toLocaleDateString(INTL_LOCALE[locale], {
       weekday: "long",
@@ -300,9 +315,7 @@ export async function POST(req) {
       deliveryLabel,
       paymentLabel: `💳 ${paymentLabel("card", "fr")}`,
       total,
-      notice: totals.shortages.length
-        ? `<strong>⚠️ Rupture de stock au moment de l'enregistrement :</strong><br>${totals.shortages.map(escapeHtml).join("<br>")}`
-        : "",
+      notice: notices.join("<br><br>"),
     });
 
     const clientEmailHtml = getOrderConfirmationEmailTemplate({

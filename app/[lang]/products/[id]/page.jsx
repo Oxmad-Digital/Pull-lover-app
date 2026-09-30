@@ -21,7 +21,7 @@ export default async function ProductPage({ params }) {
 
   if (!data) notFound();
 
-  // Une seule URL par fiche. /products/<uuid> est déjà redirigé en 308 par le middleware ;
+  // Une seule URL par fiche. /products/<uuid> est déjà redirigé en 308 par le proxy ;
   // ceci rattrape les autres variantes (casse différente, « MANTASOA »…).
   const path = productPath(data.product);
   if (decodeURIComponent(id) !== path.slice("/products/".length)) permanentRedirect(localePath(lang, path));

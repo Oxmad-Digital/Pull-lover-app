@@ -12,6 +12,20 @@ const nextConfig: NextConfig = {
   async headers() {
     return [
       {
+        // En-têtes de sécurité communs à toutes les réponses
+        source: "/(.*)",
+        headers: [
+          { key: "X-Frame-Options", value: "DENY" },
+          { key: "X-Content-Type-Options", value: "nosniff" },
+          { key: "Referrer-Policy", value: "strict-origin-when-cross-origin" },
+          { key: "Permissions-Policy", value: "camera=(), microphone=(), geolocation=(), browsing-topics=()" },
+          { key: "Strict-Transport-Security", value: "max-age=63072000; includeSubDomains" },
+          // CSP minimale sans risque de casse (scripts inline de Next, Stripe, widget SendCloud) :
+          // interdit l'intégration en iframe, les plugins et le détournement de <base> / des formulaires.
+          { key: "Content-Security-Policy", value: "frame-ancestors 'none'; object-src 'none'; base-uri 'self'; form-action 'self'" },
+        ],
+      },
+      {
         source: "/_next/static/(.*)",
         headers: [
           {

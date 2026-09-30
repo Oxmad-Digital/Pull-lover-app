@@ -12,6 +12,20 @@ import { selectFeaturedProduct } from "@/app/lib/featured-product.mjs";
 const asJson = (value) => JSON.parse(JSON.stringify(value));
 
 /**
+ * Avis affichables : les avis malformés (anciens enregistrements non validés) sont écartés
+ * et seuls les champs publics sont renvoyés (jamais l'identifiant du compte auteur).
+ */
+export function publicReviews(reviews) {
+  return (reviews || [])
+    .filter((review) =>
+      typeof review?.name === "string" &&
+      typeof review.comment === "string" &&
+      Number.isInteger(review.rating) && review.rating >= 1 && review.rating <= 5
+    )
+    .map(({ _id, productId, name, rating, comment, date }) => ({ _id, productId, name, rating, comment, date }));
+}
+
+/**
  * Produit recherché par id, slug ou « mantasoa » (URL marketing du produit unique).
  * cache() : les métadonnées et la page d'un même rendu partagent une seule lecture.
  */
@@ -46,7 +60,7 @@ export async function getProductPageData(id) {
 
   return asJson({
     product,
-    reviews,
+    reviews: publicReviews(reviews),
     relatedProducts: related.filter((item) => item._id !== product._id),
   });
 }

@@ -3,25 +3,20 @@ import { CONTACT_SUBJECTS, normalizeContactPayload, validateContactPayload } fro
 import { sendEmail, adminEmail } from "@/app/lib/mailer";
 import { getContactEmailTemplate } from "@/app/lib/emailTemplates";
 import { translator } from "@/app/i18n/server";
+import { clientIp, rateLimit } from "@/app/lib/rateLimit";
 
 export const runtime = "nodejs";
 const WINDOW_MS = 10 * 60 * 1000;
-const attempts = new Map();
 
-function isRateLimited(request) {
-  const ip = request.headers.get("x-forwarded-for")?.split(",")[0]?.trim() || request.headers.get("x-real-ip") || "unknown";
-  const now = Date.now();
-  const recent = (attempts.get(ip) || []).filter((time) => now - time < WINDOW_MS);
-  recent.push(now);
-  attempts.set(ip, recent);
-  if (attempts.size > 500) for (const [key, values] of attempts) if (!values.some((time) => now - time < WINDOW_MS)) attempts.delete(key);
-  return recent.length > 5;
+async function isRateLimited(request) {
+  const { allowed } = await rateLimit(`contact:${clientIp(request)}`, { limit: 5, windowMs: WINDOW_MS });
+  return !allowed;
 }
 
 export async function POST(request) {
   let t = translator(request);
   try {
-    if (isRateLimited(request)) return NextResponse.json({ message: t("Trop de tentatives. Merci de réessayer dans quelques minutes.", "Too many attempts. Please try again in a few minutes.") }, { status: 429 });
+    if (await isRateLimited(request)) return NextResponse.json({ message: t("Trop de tentatives. Merci de réessayer dans quelques minutes.", "Too many attempts. Please try again in a few minutes.") }, { status: 429 });
     const body = await request.json();
     t = translator(request, body?.locale);
     const sent = t("Votre message a bien été envoyé.", "Your message has been sent.");

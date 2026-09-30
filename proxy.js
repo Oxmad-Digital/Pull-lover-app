@@ -96,14 +96,15 @@ function localizedResponse(req, lang, path) {
   return res;
 }
 
-export async function middleware(req) {
+export async function proxy(req) {
   const { pathname } = req.nextUrl;
 
-  // ✅ Fichiers, API et assets : jamais localisés
+  // ✅ Fichiers, API et assets : jamais localisés. Un point dans une URL /admin ne doit pas
+  // contourner le contrôle d'accès ci-dessous (ex. /admin/orders/a.b).
   if (
     pathname.startsWith("/api") ||
     pathname.startsWith("/_next") ||
-    pathname.includes(".") ||
+    (pathname.includes(".") && !splitLocale(pathname).path.startsWith("/admin")) ||
     METADATA_ROUTE.test(pathname)
   ) {
     return NextResponse.next();
