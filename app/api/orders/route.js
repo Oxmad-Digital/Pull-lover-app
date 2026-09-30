@@ -9,6 +9,7 @@ import Customer from "@/app/models/Customer";
 import Settings from "@/app/models/Settings";
 import { computeOrderTotals, CheckoutError } from "@/app/lib/checkoutPricing";
 import { escapeHtml } from "@/app/lib/text";
+import { shippingLabel } from "@/app/lib/shipping-label";
 import { requireAdmin } from "@/app/lib/auth";
 import Stripe from "stripe";
 import { translator } from "@/app/i18n/server";
@@ -295,7 +296,7 @@ export async function POST(req) {
       minute: "2-digit",
     });
 
-    const deliveryLabel = `📦 ${shippingMethod.carrierLabel} — ${shippingMethod.name}`;
+    const deliveryLabel = `📦 ${shippingLabel({ ...shippingMethod, relay: Boolean(shippingMethod.servicePoint) }, "fr")}`;
     // Articles : en français pour l'admin, dans la langue du client pour sa confirmation
     const clientLines = lang === "en" ? lines.map((line) => ({ ...line, name: line.nameEn || line.name })) : lines;
 

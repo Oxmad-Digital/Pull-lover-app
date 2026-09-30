@@ -4,6 +4,7 @@ import Order from "@/app/models/Order";
 import { sendEmail, ordersPageUrl } from "@/app/lib/mailer";
 import { getOrderConfirmationEmailTemplate, orderItemsHtml } from "@/app/lib/emailTemplates";
 import { carrierLabel } from "@/app/lib/sendcloud";
+import { deliveryLabel as orderDeliveryLabel } from "@/app/lib/shipping-label";
 import { requireAdmin } from "@/app/lib/auth";
 import { INTL_LOCALE, toLocale, tr } from "@/app/i18n/config.mjs";
 import { paymentLabel } from "@/app/i18n/orders.mjs";
@@ -43,7 +44,7 @@ export async function POST(req, { params }) {
       pickup: tr(lang, "🏪 Retrait en magasin", "🏪 In-store pickup"),
     };
     const deliveryLabel = delivery && typeof delivery === "object"
-      ? `📦 ${carrierLabel(delivery.carrier)}${delivery.methodName ? ` — ${delivery.methodName}` : ""}`
+      ? `📦 ${orderDeliveryLabel(delivery, lang) || carrierLabel(delivery.carrier)}`
       : legacyDeliveryLabels[delivery] || delivery || "";
 
     // `lines` fige nom, taille et prix payé au moment de la commande ; repli sur `products` pour les anciennes commandes
