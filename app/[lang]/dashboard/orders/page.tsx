@@ -10,6 +10,7 @@ import { INTL_LOCALE, localePath, toLocale } from "@/app/i18n/config.mjs";
 import { formatMoney } from "@/app/i18n/format.mjs";
 import { orderStatusLabel, paymentLabel } from "@/app/i18n/orders.mjs";
 import { localizeProduct } from "@/app/i18n/product.mjs";
+import { deliveryLabel } from "@/app/lib/shipping-label";
 
 // Étapes affichées au client. Les commandes Stripe sont créées directement au statut "paid".
 const STATUS_STEPS = ["paid", "processing", "shipped", "delivered"] as const;
@@ -254,7 +255,7 @@ export default async function OrdersPage({ params }: { params: Promise<{ lang: s
                       {order.delivery?.method && (
                         <span>
                           <strong>{t.delivery}</strong>
-                          {order.delivery.methodName || order.delivery.method}
+                          {deliveryLabel(order.delivery, lang) || order.delivery.methodName || order.delivery.method}
                         </span>
                       )}
                     </div>

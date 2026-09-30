@@ -6,6 +6,7 @@ import Link from "next/link";
 import Image from "next/image";
 import { useToast } from "@/app/hooks/useToast";
 import { Toast } from "@/app/components/ui/Toast";
+import { deliveryLabel } from "@/app/lib/shipping-label";
 import "./order-detail.css";
 
 const STATUS_OPTIONS = [
@@ -297,7 +298,7 @@ export default function AdminOrderDetailPage() {
               <div className="od-summary-row" style={{ marginBottom: 12 }}>
                 <span className="od-summary-label">Mode</span>
                 <span className="od-summary-value">
-                  {order.delivery.methodName || order.delivery.method}
+                  {deliveryLabel(order.delivery) || order.delivery.methodName || order.delivery.method}
                 </span>
               </div>
             )}

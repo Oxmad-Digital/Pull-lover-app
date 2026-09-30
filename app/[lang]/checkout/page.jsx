@@ -12,13 +12,12 @@ import { useLang } from "@/app/i18n/I18nProvider";
 import { localePath } from "@/app/i18n/config.mjs";
 import { countryName, formatMoney } from "@/app/i18n/format.mjs";
 import { localizeProduct } from "@/app/i18n/product.mjs";
+import { shippingLabel } from "@/app/lib/shipping-label";
 import "./checkout.css";
 
 const TEXT = {
   fr: {
     relayWidgetError: "Widget points relais indisponible",
-    homeSignature: "Livraison à domicile contre signature",
-    homeExpress: "Livraison express à domicile",
     shippingUnavailable: "Modes d'expédition indisponibles",
     noShipping: "Aucun mode d'expédition disponible pour ce pays.",
     requiredFields: "Veuillez remplir tous les champs obligatoires.",
@@ -77,8 +76,6 @@ const TEXT = {
   },
   en: {
     relayWidgetError: "Pickup point widget unavailable",
-    homeSignature: "Home delivery with signature",
-    homeExpress: "Express home delivery",
     shippingUnavailable: "Shipping methods unavailable",
     noShipping: "No shipping method is available for this country.",
     requiredFields: "Please fill in all required fields.",
@@ -189,14 +186,6 @@ function PinIcon({ size = 16 }) {
       <circle cx="12" cy="9.5" r="2.5" />
     </svg>
   );
-}
-
-// Libellés lisibles pour le client (les noms Sendcloud type "Chrono 13" ne lui parlent pas)
-function shippingLabel(m, t) {
-  if (m.servicePoint) return `${m.carrierLabel} — ${m.name.replace(new RegExp(`^${m.carrierLabel}\\s*`, "i"), "")}`;
-  return m.carrier === "colissimo"
-    ? `Colissimo — ${t.homeSignature}`
-    : `${m.carrierLabel} — ${t.homeExpress}`;
 }
 
 function CheckoutInner() {
@@ -572,7 +561,7 @@ function CheckoutInner() {
                           onChange={() => { setShippingId(m.key); setServicePoint(null); }}
                         />
                         <span>
-                          {shippingLabel(m, t)}
+                          {shippingLabel({ ...m, relay: Boolean(m.servicePoint) }, lang)}
                           {m.leadTimeDays ? t.leadTime(m.leadTimeDays) : ""}
                           {m.price != null ? ` — ${money(m.price)}` : ""}
                         </span>
