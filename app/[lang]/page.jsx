@@ -18,20 +18,20 @@ const TEXT = {
     ogDescription: "Mailles artisanales imaginées et fabriquées à la demande dans notre atelier familial à Madagascar.",
     ogAlt: "Le cardigan, au bord du lac",
     manifesto: [
-      { text: "Produire uniquement ce que vous commandez." },
+      { text: "Tricoter uniquement ce que vous commandez." },
       { text: "C'est notre secret", accent: true },
-      { text: "pour vous offrir une maille de qualité à prix juste, façonnée avec passion, sans aucun gaspillage." },
+      { text: "pour vous offrir une maille d’exception, confectionnée avec passion, en quantité limitée." },
     ],
     steps: [
-      ["Vous précommandez", "Choisissez votre taille et réservez votre maille."],
-      ["Nous commandons le fil", "La laine nécessaire est commandée selon les quantités réservées."],
-      ["Nous fabriquons", "Chaque pièce est tricotée, assemblée et finie à la main."],
-      ["Nous expédions", "Votre maille quitte notre atelier pour vous accompagner longtemps."],
+      ["Vous précommandez", "Choisissez votre taille et réservez votre maille.", "30 jours"],
+      ["Nous commandons le fil", "La laine nécessaire est commandée selon les quantités réservées.", "15 jours"],
+      ["Nous fabriquons", "Chaque pièce est tricotée, assemblée et finie à la main.", "45 jours"],
+      ["Nous expédions", "Votre maille quitte notre atelier pour vous accompagner longtemps.", "15 jours"],
     ],
     heroAlt: "Le cardigan porté au bord du lac, dans les hauts plateaux de Madagascar",
     eyebrow: "Maille de Madagascar",
     discover: "Découvrir la pièce",
-    heroText: "Un cardigan d’exception, fabriqué à la demande dans notre atelier familial à Madagascar.",
+    heroText: "Un cardigan oversize pensé pour devenir votre basique. Fabriqué à la demande à Madagascar.",
     explore: "Explorer",
     philosophy: "Notre philosophie",
     origin: "Madagascar · Depuis notre atelier familial",
@@ -43,13 +43,14 @@ const TEXT = {
     collectionText: "Pour cette première collection, nous vous emmenons au bord du lac de Mantasoa. Un endroit étonnant à seulement quelques heures de Tana, où l’ombre des pins danse sur l’eau calme du lac. C’est ici qu’est née l’inspiration de cette première collection, et que nous avons réalisé le shooting photo.",
     workshopAlt: "Les mains d’une artisane réalisent les finitions d’un pull écru dans notre atelier",
     workshopEyebrow: "Le geste juste",
-    workshopTitle: <>La maille, <em>un savoir-faire familial.</em></>,
-    workshopText: "Nous choisissons un fil de qualité selon les exigences de chaque pièce, repris à la main par nos artisans pour l’assemblage et les finitions. Chaque pièce est ensuite contrôlée avec rigueur : qualité de la maille, propreté des coutures, netteté des finitions. La précommande nous permet de produire la juste quantité, pour vous proposer des pièces de qualité, au juste prix.",
+    workshopTitle: <>La maille, <em>un savoir-faire.</em></>,
+    workshopText: "Depuis 30 ans, Ultramaille, notre atelier familial à Antananarivo, façonne la maille avec exigence. Pour fêter cet anniversaire, nous lançons notre propre marque. Le fil est choisi pour chaque pièce, l’assemblage et les finitions sont réalisés à la main, et chaque pièce est contrôlée avec soin avant de quitter l’atelier. De l’atelier au dressing.",
     workshopSignature: "Atelier familial",
     processEyebrow: "La précommande, simplement",
     processTitle: "Votre pull commence à exister quand vous le choisissez.",
+    durationLabel: "Durée :",
     finalEyebrow: "Fabriqué à la demande",
-    finalTitle: <>Un vêtement <br />intemporel et durable.</>,
+    finalTitle: <>Un cardigan <br />intemporel et durable.</>,
     finalText: <>La passion de la maille.<br />Des pièces conçues pour traverser le temps sans se déformer.</>,
     chooseSize: "Choisir ma taille",
   },
@@ -60,20 +61,20 @@ const TEXT = {
     ogDescription: "Handcrafted knitwear designed and made to order in our family workshop in Madagascar.",
     ogAlt: "The cardigan, by the lake",
     manifesto: [
-      { text: "We only make what you order." },
+      { text: "We only knit what you order." },
       { text: "That's our secret", accent: true },
-      { text: "to offer you quality knitwear at a fair price, crafted with passion, with zero waste." },
+      { text: "to offer you exceptional knitwear, crafted with passion, in limited quantities." },
     ],
     steps: [
-      ["You pre-order", "Choose your size and reserve your piece."],
-      ["We order the yarn", "The wool we need is ordered based on the quantities reserved."],
-      ["We make it", "Each piece is knitted, assembled and finished by hand."],
-      ["We ship it", "Your knit leaves our workshop, ready to stay with you for years."],
+      ["You pre-order", "Choose your size and reserve your piece.", "30 days"],
+      ["We order the yarn", "The wool we need is ordered based on the quantities reserved.", "15 days"],
+      ["We make it", "Each piece is knitted, assembled and finished by hand.", "45 days"],
+      ["We ship it", "Your knit leaves our workshop, ready to stay with you for years.", "15 days"],
     ],
     heroAlt: "The cardigan worn by the lake, in the highlands of Madagascar",
     eyebrow: "Knitwear from Madagascar",
     discover: "Discover the piece",
-    heroText: "An exceptional cardigan, made to order in our family workshop in Madagascar.",
+    heroText: "An oversized cardigan designed to become your go-to essential. Made to order in Madagascar.",
     explore: "Explore",
     philosophy: "Our philosophy",
     origin: "Madagascar · From our family workshop",
@@ -85,13 +86,14 @@ const TEXT = {
     collectionText: "For this first collection, we take you to the shores of Lake Mantasoa. A striking place just a few hours from Tana, where the shadows of the pines dance on the calm water. This is where the inspiration for this first collection was born, and where we did the photo shoot.",
     workshopAlt: "An artisan’s hands finishing an ecru sweater in our workshop",
     workshopEyebrow: "The right gesture",
-    workshopTitle: <>Knitting, <em>a family craft.</em></>,
-    workshopText: "We choose a quality yarn to suit each piece, then our artisans assemble and finish it by hand. Every piece is carefully inspected: quality of the knit, clean seams, crisp finishes. Pre-ordering lets us make just the right quantity, so we can offer you quality pieces at a fair price.",
+    workshopTitle: <>Knitting, <em>a craft.</em></>,
+    workshopText: "For 30 years, Ultramaille, our family workshop in Antananarivo, has been crafting knitwear with care and precision. To celebrate this anniversary, we are launching our own brand. The yarn is chosen for each piece, assembly and finishing are done by hand, and every piece is carefully inspected before it leaves the workshop. From our workshop to your wardrobe.",
     workshopSignature: "Family workshop",
     processEyebrow: "Pre-ordering, simply",
     processTitle: "Your sweater starts to exist the moment you choose it.",
+    durationLabel: "Duration:",
     finalEyebrow: "Made to order",
-    finalTitle: <>A timeless, <br />lasting garment.</>,
+    finalTitle: <>A timeless, <br />lasting cardigan.</>,
     finalText: <>A passion for knitwear.<br />Pieces designed to stand the test of time without losing their shape.</>,
     chooseSize: "Choose my size",
   },
@@ -206,9 +208,15 @@ export default async function HomePage({ params }) {
         <div className="pl-steps-wrap">
           <span className="pl-process-thread" aria-hidden="true" />
           <ol className="pl-steps">
-            {t.steps.map(([title, description], index) => (
+            {t.steps.map(([title, description, duration], index) => (
               <li key={title}>
-                <span className="pl-step-number" aria-hidden="true">0{index + 1}</span>
+                <div className="pl-step-meta">
+                  <span className="pl-step-number" aria-hidden="true">0{index + 1}</span>
+                  <span className="pl-step-duration">
+                    <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9" /><path d="M12 7v5l3 2" /></svg>
+                    {t.durationLabel} {duration}
+                  </span>
+                </div>
                 <h3>{title}</h3><p>{description}</p>
               </li>
             ))}

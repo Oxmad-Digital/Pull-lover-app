@@ -64,7 +64,7 @@ const TEXT = {
     kicker: "Maille de Madagascar · Pièce n° 01",
     madeToOrder: "Fabriqué à la demande",
     priceNote: "Hors taxes · total au panier",
-    fallbackDescription: "Une maille essentielle à la coupe droite et généreuse, pensée pour vous accompagner longtemps. Tricotée et finie avec soin dans notre atelier familial à Antananarivo.",
+    fallbackDescription: <>Tricoté dans le <strong>Dorotea</strong>, un fil d’exception de la filature italienne <strong>Filatura Papi Fabio</strong>, ce cardigan associe 90 % de laine mérinos ultrafine et 10 % de cachemire. Sa maille milano, dense et structurée, lui donne une belle tenue : il garde sa forme, porté après porté. Coupe oversize et col rond, pour un basique aussi confortable qu’intemporel.</>,
     color: "Couleur",
     colorLabel: (color) => `Couleur ${color}`,
     chooseSize: "Choisir la taille",
@@ -89,10 +89,8 @@ const TEXT = {
       ["↗", "Livraison suivie", "France métropolitaine et international selon disponibilité"],
       ["↺", "Retours sous 14 jours", "À compter de la réception de votre commande"],
     ],
-    detailsTitle: "Détails & composition",
-    detailsFallback: "Maille douce en fibres naturelles, col rond, manches longues et finitions côtelées. Coupe droite légèrement ample. Chaque pièce est tricotée, assemblée et contrôlée à Antananarivo.",
     fitTitle: "Coupe & taille",
-    fitFallback: "Coupe droite et confortable. Prenez votre taille habituelle pour un porté naturel, ou une taille au-dessus pour un volume plus généreux. Le mannequin porte une taille S.",
+    fitFallback: "Coupe oversize, ample et confortable. Prenez votre taille habituelle pour retrouver ce volume, ou une taille en dessous pour un porté plus près du corps. Le mannequin porte une taille S.",
     careTitle: "Entretien",
     careFallback: "Lavage délicat à froid ou à la main. Essorage doux, séchage à plat et repassage à basse température. Ne pas utiliser de sèche-linge.",
     shippingTitle: "Livraison & retours",
@@ -106,7 +104,7 @@ const TEXT = {
     ],
     closeGuide: "Fermer le guide",
     guideKicker: "Bien choisir",
-    guideIntro: "Le cardigan présente une coupe droite légèrement ample. Choisissez selon le tombé recherché :",
+    guideIntro: "Le cardigan présente une coupe oversize. Choisissez selon le tombé recherché :",
     guideRows: [
       ["Votre taille habituelle", "Un tombé naturel et confortable"],
       ["Une taille au-dessus", "Un porté plus ample et enveloppant"],
@@ -128,7 +126,7 @@ const TEXT = {
     kicker: "Knitwear from Madagascar · Piece no. 01",
     madeToOrder: "Made to order",
     priceNote: "Excl. VAT · total in your cart",
-    fallbackDescription: "An essential knit with a straight, generous cut, designed to stay with you for years. Carefully knitted and finished in our family workshop in Antananarivo.",
+    fallbackDescription: <>Knitted in <strong>Dorotea</strong>, an exceptional yarn from the Italian spinning mill <strong>Filatura Papi Fabio</strong>, this cardigan blends 90% ultrafine merino wool with 10% cashmere. Its dense, structured milano stitch gives it lasting shape, wear after wear. An oversized cut and crew neck make it a basic as comfortable as it is timeless.</>,
     color: "Colour",
     colorLabel: (color) => `Colour ${color}`,
     chooseSize: "Choose your size",
@@ -153,10 +151,8 @@ const TEXT = {
       ["↗", "Tracked delivery", "Mainland France and international, depending on availability"],
       ["↺", "14-day returns", "From the day you receive your order"],
     ],
-    detailsTitle: "Details & composition",
-    detailsFallback: "Soft knit in natural fibres, crew neck, long sleeves and ribbed finishes. Straight, slightly relaxed cut. Each piece is knitted, assembled and inspected in Antananarivo.",
     fitTitle: "Fit & sizing",
-    fitFallback: "Straight, comfortable cut. Take your usual size for a natural fit, or one size up for a roomier look. The model wears a size S.",
+    fitFallback: "Oversized, roomy and comfortable cut. Take your usual size for this relaxed volume, or one size down for a closer fit. The model wears a size S.",
     careTitle: "Care",
     careFallback: "Gentle cold wash or hand wash. Spin gently, dry flat and iron at low temperature. Do not tumble dry.",
     shippingTitle: "Shipping & returns",
@@ -170,7 +166,7 @@ const TEXT = {
     ],
     closeGuide: "Close the guide",
     guideKicker: "Finding your fit",
-    guideIntro: "The cardigan has a straight, slightly relaxed cut. Choose based on the fit you want:",
+    guideIntro: "The cardigan has an oversized cut. Choose based on the fit you want:",
     guideRows: [
       ["Your usual size", "A natural, comfortable fit"],
       ["One size up", "A roomier, cosier fit"],
@@ -383,7 +379,6 @@ export default function MantasoaProductPage({ initialState = null }) {
           </ul>
 
           <div className="mp-accordions">
-            <details open><summary>{t.detailsTitle} <span>+</span></summary><p>{display?.details || t.detailsFallback}</p></details>
             <details><summary>{t.fitTitle} <span>+</span></summary><p>{display?.fitInfo || t.fitFallback}</p></details>
             <details><summary>{t.careTitle} <span>+</span></summary><p>{display?.careInstructions || t.careFallback}</p></details>
             <details><summary>{t.shippingTitle} <span>+</span></summary><p>{display?.shippingInfo || t.shippingFallback}</p></details>
