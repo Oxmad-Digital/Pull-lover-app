@@ -25,17 +25,13 @@ const nextConfig: NextConfig = {
           { key: "Content-Security-Policy", value: "frame-ancestors 'none'; object-src 'none'; base-uri 'self'; form-action 'self'" },
         ],
       },
-      {
-        source: "/_next/static/(.*)",
-        headers: [
-          {
-            key: "Cache-Control",
-            value: process.env.NODE_ENV === "production"
-              ? "public, max-age=31536000, immutable"
-              : "no-store, max-age=0",
-          },
-        ],
-      },
+      // En développement, Next gère lui-même le cache des fichiers statiques (le surcharger casse le HMR).
+      ...(process.env.NODE_ENV === "production"
+        ? [{
+            source: "/_next/static/(.*)",
+            headers: [{ key: "Cache-Control", value: "public, max-age=31536000, immutable" }],
+          }]
+        : []),
       {
         source: "/api/products(.*)",
         headers: [{ key: "Cache-Control", value: "public, s-maxage=60, stale-while-revalidate=300" }],

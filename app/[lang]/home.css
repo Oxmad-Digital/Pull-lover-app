@@ -68,6 +68,7 @@
 .pl-collection-story > p:last-child { font-size: 16px; line-height: 1.8; color: var(--pl-muted); }
 .pl-product { display: grid; grid-template-columns: minmax(0, 1.35fr) minmax(440px, .65fr); background: white; }
 .pl-product-visual { position: relative; overflow: hidden; min-height: 920px; background: var(--pl-mist); }
+.pl-product-media { position: absolute; inset: 0; }
 .pl-product-visual img { object-fit: cover; object-position: 76% center; transition: transform .8s; }
 .pl-image-tag { position: absolute; top: 28px; left: 28px; padding: 10px 14px; background: var(--color-secondary); color: #111; font-size: 11px; letter-spacing: .1em; text-transform: uppercase; }
 .pl-product-info { min-width: 0; align-self: center; padding: clamp(56px, 5vw, 110px) clamp(32px, 4.6vw, 100px); }
