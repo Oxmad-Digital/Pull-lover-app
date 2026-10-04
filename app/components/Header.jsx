@@ -185,9 +185,11 @@ export default function Header({ transparent = false, dashboard = false }) {
           {t.links.map((link) => <Link key={link.href} href={href(link.href)}>{link.label}</Link>)}
         </nav>
         <div className="pl-nav-actions">
-          <Link className="pl-lang-switch" href={switchHref} hrefLang={otherLang} lang={otherLang} aria-label={t.switchLabel} onClick={closeMenus}>
+          {/* Lien classique et non <Link> : la langue est le segment du layout racine, une navigation
+              côté client reconstruirait tout le <html> (script de révélation non exécuté, classe pl-motion perdue). */}
+          <a className="pl-lang-switch" href={switchHref} hrefLang={otherLang} lang={otherLang} aria-label={t.switchLabel} onClick={closeMenus}>
             {otherLang.toUpperCase()}
-          </Link>
+          </a>
           <details className="pl-account-menu" ref={accountMenu}>
             <summary className="pl-icon-button" aria-label={t.account}><UserIcon size={20} /></summary>
             <nav className="pl-account-panel" aria-label={t.account}>
