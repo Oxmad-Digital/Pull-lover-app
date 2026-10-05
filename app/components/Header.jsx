@@ -33,6 +33,10 @@ const TEXT = {
     signOut: "Se déconnecter",
     cart: (count) => `Panier, ${count} article${count > 1 ? "s" : ""}`,
     menu: "Menu de navigation",
+    closeMenu: "Fermer le menu",
+    close: "Fermer",
+    cartLabel: "Panier",
+    signature: "La passion de la maille.",
     mobileNav: "Navigation mobile",
     switchLabel: "English version",
   },
@@ -57,6 +61,10 @@ const TEXT = {
     signOut: "Sign out",
     cart: (count) => `Cart, ${count} item${count > 1 ? "s" : ""}`,
     menu: "Navigation menu",
+    closeMenu: "Close menu",
+    close: "Close",
+    cartLabel: "Cart",
+    signature: "A passion for knitwear.",
     mobileNav: "Mobile navigation",
     switchLabel: "Version française",
   },
@@ -123,6 +131,7 @@ export default function Header({ transparent = false, dashboard = false }) {
   const otherLang = lang === "fr" ? "en" : "fr";
   const switchHref = localePath(otherLang, splitLocale(pathname).path);
   const [dropDate, setDropDate] = useState(null);
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const { cartItems } = useCart();
   const { data: session } = useSession();
   const mobileMenu = useRef(null);
@@ -160,6 +169,32 @@ export default function Header({ transparent = false, dashboard = false }) {
     };
   }, []);
 
+  useEffect(() => {
+    const menu = mobileMenu.current;
+    const mobileViewport = window.matchMedia("(max-width: 939px)");
+    let previousOverflow;
+
+    function syncMenuScroll() {
+      if (!mobileViewport.matches) menu.open = false;
+      setMobileMenuOpen(menu.open);
+      if (menu.open && previousOverflow === undefined) {
+        previousOverflow = document.body.style.overflow;
+        document.body.style.overflow = "hidden";
+      } else if (!menu.open && previousOverflow !== undefined) {
+        document.body.style.overflow = previousOverflow;
+        previousOverflow = undefined;
+      }
+    }
+
+    menu.addEventListener("toggle", syncMenuScroll);
+    mobileViewport.addEventListener("change", syncMenuScroll);
+    return () => {
+      menu.removeEventListener("toggle", syncMenuScroll);
+      mobileViewport.removeEventListener("change", syncMenuScroll);
+      if (previousOverflow !== undefined) document.body.style.overflow = previousOverflow;
+    };
+  }, []);
+
   function closeMenus() {
     if (mobileMenu.current) mobileMenu.current.open = false;
     if (accountMenu.current) accountMenu.current.open = false;
@@ -180,6 +215,7 @@ export default function Header({ transparent = false, dashboard = false }) {
             sizes="(max-width: 599px) 52px, 60px"
             priority
           />
+          <span className="pl-menu-wordmark" aria-hidden="true">Pull-Lover</span>
         </Link>
         <nav className="pl-nav-links" aria-label={t.mainNav}>
           {t.links.map((link) => <Link key={link.href} href={href(link.href)}>{link.label}</Link>)}
@@ -199,10 +235,33 @@ export default function Header({ transparent = false, dashboard = false }) {
           </details>
           <Link href={href("/panier")} className="pl-icon-button pl-bag" aria-label={t.cart(count)}><BagIcon size={22} /><span className="pl-bag-count">{count}</span></Link>
           <details className="pl-mobile-menu" ref={mobileMenu}>
-            <summary className="pl-icon-button" aria-label={t.menu}><span className="pl-menu-lines" aria-hidden="true" /></summary>
+            <summary className="pl-icon-button" aria-label={mobileMenuOpen ? t.closeMenu : t.menu}>
+              <span className="pl-menu-close-label" aria-hidden="true">{t.close}</span>
+              <span className="pl-menu-toggle-icon"><span className="pl-menu-lines" aria-hidden="true" /></span>
+            </summary>
             <nav className="pl-mobile-panel" aria-label={t.mobileNav}>
-              {t.links.map((link) => <Link key={link.href} href={href(link.href)} onClick={closeMenus}>{link.label}<span aria-hidden="true">↗</span></Link>)}
-              <Link href={accountHref} onClick={closeMenus}>{isAdmin ? t.admin : t.account}</Link>
+              <div className="pl-mobile-links">
+                {t.links.map((link, index) => (
+                  <Link className={`pl-mobile-link${index === 2 ? " pl-mobile-link-preorder" : ""}`} key={link.href} href={href(link.href)} onClick={closeMenus}>
+                    <span className="pl-mobile-link-number" aria-hidden="true">0{index + 1}</span>
+                    <span className="pl-mobile-link-label">{link.label}</span>
+                  </Link>
+                ))}
+              </div>
+              <div className="pl-mobile-footer">
+                <div className="pl-mobile-utilities">
+                  <Link href={accountHref} onClick={closeMenus}><UserIcon size={18} />{isAdmin ? t.admin : t.account}</Link>
+                  <Link href={href("/panier")} aria-label={t.cart(count)} onClick={closeMenus}><BagIcon size={18} />{t.cartLabel}<span className="pl-mobile-cart-count">{count}</span></Link>
+                </div>
+                <div className="pl-mobile-meta">
+                  <span>{t.signature}</span>
+                  <div className="pl-mobile-languages">
+                    <span aria-current="true" lang={lang}>{lang.toUpperCase()}</span>
+                    <span aria-hidden="true">/</span>
+                    <a href={switchHref} hrefLang={otherLang} lang={otherLang} aria-label={t.switchLabel} onClick={closeMenus}>{otherLang.toUpperCase()}</a>
+                  </div>
+                </div>
+              </div>
             </nav>
           </details>
         </div>
