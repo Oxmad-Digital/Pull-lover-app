@@ -39,7 +39,6 @@ export async function GET(req) {
     user.verificationTokenExpiry = null;
     await user.save();
 
-    console.log(`✅ Email vérifié: ${user.email}`);
 
     return NextResponse.json(
       { 

@@ -11,7 +11,13 @@ export async function PATCH(request) {
     const session = await getServerSession(authOptions);
     if (!session) return NextResponse.json({ message: t("Non autorisé", "Unauthorized") }, { status: 401 });
 
-    const { street, city, postalCode, country } = await request.json();
+    const body = await request.json();
+    // Chaînes uniquement (un objet ferait planter .trim()), longueur bornée
+    const field = (value, max) => (typeof value === "string" ? value.trim().slice(0, max) : "");
+    const street = field(body?.street, 200);
+    const city = field(body?.city, 100);
+    const postalCode = field(body?.postalCode, 20);
+    const country = field(body?.country, 100);
 
     if (!street || !city || !postalCode) {
       return NextResponse.json({ message: t("Rue, ville et code postal sont obligatoires", "Street, city and postcode are required") }, { status: 400 });
@@ -20,7 +26,7 @@ export async function PATCH(request) {
     await connectDB();
     const user = await User.findOneAndUpdate(
       { email: session.user.email },
-      { address: { street: street.trim(), city: city.trim(), postalCode: postalCode.trim(), country: (country || "").trim() } },
+      { address: { street, city, postalCode, country } },
       { new: true }
     );
 

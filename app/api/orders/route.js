@@ -74,7 +74,6 @@ async function syncCustomer({ firstname, lastname, email, phone, city, address, 
 }
 
 export async function POST(req) {
-  console.log("🚀 API /api/order APPELÉE");
   let t = translator(req);
 
   try {
@@ -404,7 +403,7 @@ export async function GET(req) {
 
     const { searchParams } = new URL(req.url);
     const status = searchParams.get("status");
-    const limit = parseInt(searchParams.get("limit")) || 50;
+    const limit = Math.min(200, Math.max(1, parseInt(searchParams.get("limit")) || 50));
 
     const query = status ? { status } : {};
 

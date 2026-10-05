@@ -7,12 +7,15 @@ import bcrypt from "bcryptjs";
 import { toLocale, tr } from "@/app/i18n/config.mjs";
 import { clientIp, rateLimit } from "@/app/lib/rateLimit";
 
-// Verrouillage après plusieurs mots de passe erronés
-const MAX_FAILED_ATTEMPTS = 5;
-const LOCK_DURATION_MS = 15 * 60 * 1000;
-
 // Tentatives de connexion par IP (tous comptes confondus : freine le credential stuffing)
 const LOGIN_IP_LIMIT = { limit: 20, windowMs: 15 * 60 * 1000 };
+
+// Tentatives sur un même compte depuis une même IP (force brute). Pas de verrouillage global du
+// compte : un tiers pourrait sinon bloquer n'importe qui (l'admin compris) avec 5 mauvais mots de passe.
+const LOGIN_ACCOUNT_IP_LIMIT = { limit: 5, windowMs: 15 * 60 * 1000 };
+
+// Plafond large par compte, toutes IP confondues (force brute distribuée)
+const LOGIN_ACCOUNT_LIMIT = { limit: 50, windowMs: 60 * 60 * 1000 };
 
 // Fréquence de revérification du compte en base (mot de passe changé, rôle retiré, compte supprimé)
 const RECHECK_MS = 5 * 60 * 1000;
@@ -37,9 +40,15 @@ export const authOptions = {
         if (!email || !password) throw new Error(t("Email et mot de passe requis", "Email and password are required"));
 
         const ip = clientIp(req);
-        const { allowed, retryAfter } = await rateLimit(`login:${ip}`, LOGIN_IP_LIMIT);
-        if (!allowed) {
-          const minutes = Math.ceil(retryAfter / 60);
+        // Limites vérifiées avant toute lecture du compte : la réponse ne dit rien de son existence
+        const limits = await Promise.all([
+          rateLimit(`login:${ip}`, LOGIN_IP_LIMIT),
+          rateLimit(`login:account-ip:${email}:${ip}`, LOGIN_ACCOUNT_IP_LIMIT),
+          rateLimit(`login:account:${email}`, LOGIN_ACCOUNT_LIMIT),
+        ]);
+        const blocked = limits.filter((result) => !result.allowed);
+        if (blocked.length) {
+          const minutes = Math.ceil(Math.max(...blocked.map((result) => result.retryAfter)) / 60);
           throw new Error(t(`Trop de tentatives. Réessayez dans ${minutes} min.`, `Too many attempts. Try again in ${minutes} min.`));
         }
 
@@ -49,33 +58,19 @@ export const authOptions = {
         // Compte inexistant ou sans mot de passe local (ancien compte Google) : même réponse
         if (!user || !user.password) throw new Error(invalid);
 
-        // 🔒 VÉRIFICATION COMPTE VERROUILLÉ (avant tout test du mot de passe)
-        if (user.accountLockedUntil && user.accountLockedUntil > new Date()) {
-          const minutes = Math.ceil((user.accountLockedUntil - new Date()) / 60000);
-          throw new Error(t(`Compte verrouillé. Réessayez dans ${minutes} min.`, `Account locked. Try again in ${minutes} min.`));
-        }
-
         const ok = await bcrypt.compare(password, user.password);
-        if (!ok) {
-          user.failedLoginAttempts = (Number(user.failedLoginAttempts) || 0) + 1;
-          if (user.failedLoginAttempts >= MAX_FAILED_ATTEMPTS) {
-            user.accountLockedUntil = new Date(Date.now() + LOCK_DURATION_MS);
-            user.failedLoginAttempts = 0;
-          }
-          await user.save();
-          throw new Error(invalid);
-        }
+        if (!ok) throw new Error(invalid);
 
         // 🔒 VÉRIFICATION EMAIL OBLIGATOIRE
         if (!user.emailVerified) {
           throw new Error(t("Email non vérifié. Consultez votre boîte mail.", "Email not verified. Please check your inbox."));
         }
 
-        // ✅ Réinitialiser tentatives échouées
+        // L'IP de connexion n'est plus conservée (donnée personnelle sans usage) ; l'ancienne valeur est effacée
         user.failedLoginAttempts = 0;
         user.accountLockedUntil = null;
         user.lastLoginAt = new Date();
-        user.lastLoginIP = ip;
+        user.lastLoginIP = null;
         await user.save();
 
         return {

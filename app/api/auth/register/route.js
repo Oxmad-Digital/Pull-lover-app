@@ -106,8 +106,6 @@ export async function POST(req) {
     // Vérifier email existant
     const existingUser = await User.findOne({ email });
     if (existingUser) {
-      console.log(`⚠️  Email existant: ${email} | IP: ${ip}`);
-
       // 🔄 Si email non vérifié, renvoyer un nouveau lien (au plus 3 par heure et par adresse)
       const resend = await rateLimit(`verify:${email}`, { limit: 3, windowMs: 60 * 60 * 1000 });
       if (!existingUser.emailVerified && resend.allowed) {
@@ -166,7 +164,6 @@ export async function POST(req) {
           totalSpent: 0,
           status: "active",
         });
-        console.log(`✅ Customer créé pour: ${email}`);
       }
     } catch (customerError) {
       console.error("⚠️ Erreur création Customer:", customerError.message);
@@ -183,13 +180,11 @@ export async function POST(req) {
         subject: verifySubject,
         html: htmlContent,
       });
-      console.log(`✅ Email de vérification envoyé à: ${email}`);
     } catch (emailError) {
       console.error("❌ Erreur envoi email:", emailError.message);
       // On ne bloque pas l'inscription si l'email échoue
     }
 
-    console.log(`✅ Nouvel utilisateur créé: ${email} | IP: ${ip}`);
 
     return created();
 

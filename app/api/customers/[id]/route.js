@@ -17,12 +17,9 @@ export async function GET(req, { params }) {
     const resolvedParams = await params;
     const id = resolvedParams.id;
 
-    console.log("Recherche du client avec l'ID:", id);
-
     const customer = await Customer.findById(id);
 
     if (!customer) {
-      console.log("❌ Client non trouvé en base de données");
       return NextResponse.json(
         { success: false, message: "Client non trouvé dans la base" },
         { status: 404 }
@@ -34,7 +31,6 @@ export async function GET(req, { params }) {
       .sort({ createdAt: -1 })
       .populate("products.product");
 
-    console.log(`✅ Client trouvé : ${customer.firstname} - ${orders.length} commande(s)`);
 
     return NextResponse.json({
       success: true,

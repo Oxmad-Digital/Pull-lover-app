@@ -21,8 +21,8 @@ export async function GET(req) {
     const vip    = searchParams.get("vip") || "";
     const sort   = searchParams.get("sort") || "createdAt";
     const order  = searchParams.get("order") || "desc";
-    const page   = parseInt(searchParams.get("page")) || 1;
-    const limit  = parseInt(searchParams.get("limit")) || 20;
+    const page   = Math.max(1, parseInt(searchParams.get("page")) || 1);
+    const limit  = Math.min(100, Math.max(1, parseInt(searchParams.get("limit")) || 20));
 
     let query = {};
 
