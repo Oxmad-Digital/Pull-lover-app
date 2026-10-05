@@ -147,7 +147,7 @@ export default function ProductDetail({ product: baseProduct, initialReviews }) 
     if (product.image) allImages.push(product.image);
     if (product.images?.length) allImages.push(...product.images);
     const unique = [...new Set(allImages)].filter(Boolean);
-    return unique.length > 0 ? unique : ["/no-image.svg"];
+    return unique.length > 0 ? unique : ["/api/media/no-image.svg"];
   };
 
   const handleAddToCart = () => {

@@ -4,11 +4,15 @@ import ContactForm from "./ContactForm";
 import { openGraphBase, pageAlternates } from "@/app/lib/seo";
 import "./contact.css";
 
+const HERO_IMAGE = "/api/media/pull-lover-vue-de-haut-sur-le-lac.webp?v=4b51b2c2b9d7";
+// Tenir compte de la largeur de la photo agrandie par le recadrage cover.
+const HERO_SIZES = "(max-width: 599px) max(1138px, 100vw, calc((100svh - 50px) * 16 / 9)), (max-width: 939px) max(1245px, 100vw), max(100vw, calc(min(760px, 76svh) * 16 / 9))";
+
 const TEXT = {
   fr: {
     description: "Une question sur une pièce Pull-Lover, votre taille ou votre commande ? Écrivez à notre atelier, nous vous répondrons avec soin.",
     ogDescription: "Écrivez à l’équipe Pull-Lover. Nous vous répondrons avec soin depuis notre atelier à Madagascar.",
-    heroAlt: "Vue aérienne du lac et des paysages de Mantasoa",
+    heroAlt: "Une femme en cardigan vert assise au bord du lac de Mantasoa",
     eyebrow: "Depuis Madagascar, avec attention",
     title: <>Parlons<br /><em>maille.</em></>,
     intro: "Une question, un doute sur votre taille ou simplement l’envie d’échanger ? Nous sommes à votre écoute.",
@@ -22,7 +26,7 @@ const TEXT = {
   en: {
     description: "A question about a Pull-Lover piece, your size or your order? Write to our workshop and we’ll get back to you with care.",
     ogDescription: "Write to the Pull-Lover team. We’ll get back to you with care from our workshop in Madagascar.",
-    heroAlt: "Aerial view of the lake and landscapes of Mantasoa",
+    heroAlt: "A woman in a green cardigan seated beside Lake Mantasoa",
     eyebrow: "From Madagascar, with care",
     title: <>Let’s talk<br /><em>knitwear.</em></>,
     intro: "A question, unsure about your size, or simply want to chat? We’re here to listen.",
@@ -43,7 +47,7 @@ export async function generateMetadata({ params }) {
     title: "Contact",
     description: t.description,
     alternates: pageAlternates(lang, "/contact"),
-    openGraph: { ...openGraphBase(lang), title: "Contact | Pull-Lover", description: t.ogDescription, images: [{ url: "/api/media/pull-lover-vue-de-haut-sur-le-lac.webp", alt: t.heroAlt }] },
+    openGraph: { ...openGraphBase(lang), title: "Contact | Pull-Lover", description: t.ogDescription, images: [{ url: HERO_IMAGE, width: 1672, height: 941, alt: t.heroAlt }] },
   };
 }
 
@@ -53,8 +57,8 @@ export default async function ContactPage({ params }) {
   if (!t) notFound();
   return <div className="pl-contact">
     <section className="pl-contact-hero" aria-labelledby="contact-title">
-      <Image src="/api/media/pull-lover-vue-de-haut-sur-le-lac.webp" alt={t.heroAlt} fill sizes="100vw" priority className="pl-contact-hero-image" />
-      <div className="pl-contact-hero-shade" />
+      <Image src={HERO_IMAGE} alt={t.heroAlt} fill sizes={HERO_SIZES} quality={90} preload className="pl-contact-hero-image" />
+      <div className="pl-contact-hero-shade" aria-hidden="true" />
       <div className="pl-contact-hero-copy" data-reveal-stagger><p className="pl-contact-eyebrow">{t.eyebrow}</p><h1 id="contact-title">{t.title}</h1><p>{t.intro}</p></div>
       <span className="pl-contact-scroll" aria-hidden="true">{t.scroll} <i /></span>
     </section>

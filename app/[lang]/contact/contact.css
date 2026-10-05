@@ -1,7 +1,7 @@
 .pl-contact { --contact-gutter: clamp(24px, 6vw, 140px); color: var(--pl-ink); background: var(--pl-paper); font-family: var(--pl-sans); }
 .pl-contact-hero { position: relative; isolation: isolate; min-height: min(760px, 76svh); display: flex; align-items: flex-end; overflow: hidden; color: #fff; background: #334645; }
 .pl-contact-hero-image { z-index: -2; object-fit: cover; object-position: center 48%; animation: pl-contact-image-in 1.5s cubic-bezier(.215,.61,.355,1) both; }
-.pl-contact-hero-shade { position: absolute; z-index: -1; inset: 0; background: linear-gradient(90deg, rgba(13,28,29,.66), rgba(13,28,29,.25) 55%, rgba(13,28,29,.08)), linear-gradient(0deg, rgba(13,28,29,.5), transparent 52%); }
+.pl-contact-hero-shade { position: absolute; z-index: -1; inset: 0; background: linear-gradient(90deg, rgba(13,28,29,.42), rgba(13,28,29,.1) 55%, transparent 80%), linear-gradient(0deg, rgba(13,28,29,.24), transparent 52%); }
 .pl-contact-hero-copy { width: min(930px, 84vw); padding: clamp(72px, 8vw, 130px) var(--contact-gutter); }
 .pl-contact-eyebrow { margin: 0 0 28px; font-size: 11px; font-weight: 600; letter-spacing: .14em; line-height: 1.4; text-transform: uppercase; }
 .pl-contact-hero h1 { margin: 0; font: 400 clamp(76px, 9vw, 176px)/.78 var(--pl-serif); letter-spacing: -.065em; }
@@ -57,7 +57,7 @@
   .pl-contact { --contact-gutter: 24px; }
   .pl-contact-hero { min-height: max(640px, calc(100svh - 50px)); }
   .pl-contact-hero-image { object-position: 58% center; }
-  .pl-contact-hero-shade { background: linear-gradient(0deg, rgba(13,28,29,.72), rgba(13,28,29,.08) 82%); }
+  .pl-contact-hero-shade { background: linear-gradient(0deg, rgba(13,28,29,.48), rgba(13,28,29,.1) 45%, transparent 82%); }
   .pl-contact-hero-copy { width: 100%; padding-bottom: 96px; }
   .pl-contact-hero h1 { font-size: clamp(70px, 22vw, 106px); }
   .pl-contact-hero-copy > p:last-child { margin-top: 30px; font-size: 15px; }

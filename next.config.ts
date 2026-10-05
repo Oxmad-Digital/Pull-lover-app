@@ -8,6 +8,13 @@ const nextConfig: NextConfig = {
   serverExternalPackages: ["@neondatabase/serverless"],
   images: {
     formats: ["image/avif", "image/webp"],
+    qualities: [75, 90],
+    localPatterns: [
+      { pathname: "/**", search: "" },
+      { pathname: "/api/media/pull-lover-hero.webp" },
+      { pathname: "/api/media/pull-lover-vue-de-haut-sur-le-lac.webp" },
+      { pathname: "/api/media/pull-lover-manequin-cardigan-2.webp" },
+    ],
   },
   async headers() {
     return [

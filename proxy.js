@@ -50,7 +50,7 @@ const MAINTENANCE_HTML = `<!doctype html>
 </style>
 </head>
 <body>
-  <img src="/pull-lover_logo_coeur_rouge-transparent.webp" alt="Pull-Lover" width="160" height="160">
+  <img src="/api/media/pull-lover_logo_coeur_rouge-transparent.webp" alt="Pull-Lover" width="160" height="160">
   <h1>Bientôt de retour.</h1>
   <p>Notre site est en cours de préparation.</p>
   <p lang="en">Back soon — our site is being prepared.</p>

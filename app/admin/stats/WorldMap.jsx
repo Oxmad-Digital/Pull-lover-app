@@ -3,7 +3,7 @@
 import { useEffect, useRef } from "react";
 import styles from "./stats.module.css";
 
-// Carte : public/world-map.min.svg (Simple World Map, CC BY-SA 3.0), un chemin par pays
+// Carte : world-map.min.svg dans R2 (Simple World Map, CC BY-SA 3.0), un chemin par pays
 // identifié par son code ISO 3166-1 en minuscules.
 const EMPTY_FILL = "#F3EAE7";
 const STROKE = "rgba(36, 59, 59, 0.18)";
@@ -20,7 +20,7 @@ export default function WorldMap({ countries }) {
     (async () => {
       let svgText;
       try {
-        svgText = await (await fetch("/world-map.min.svg")).text();
+        svgText = await (await fetch("/api/media/world-map.min.svg")).text();
       } catch {
         return;
       }

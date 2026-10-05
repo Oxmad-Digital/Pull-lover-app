@@ -157,8 +157,8 @@ export function orderItemsHtml(items, lang = "fr") {
     `).join("");
 }
 
-// Les clients mail n'affichent que des images en URL absolue : logo servi depuis public/email/
-const logoUrl = () => `${(process.env.NEXT_PUBLIC_APP_URL || process.env.NEXTAUTH_URL || "https://pull-lover.com").replace(/\/$/, "")}/email/logo-coeur.png`;
+// Les clients mail n'affichent que des images en URL absolue : logo servi depuis R2 (email/)
+const logoUrl = () => `${(process.env.NEXT_PUBLIC_APP_URL || process.env.NEXTAUTH_URL || "https://pull-lover.com").replace(/\/$/, "")}/api/media/email/logo-coeur.png`;
 
 function logoHtml(size = 26) {
   return `<table role="presentation" cellpadding="0" cellspacing="0" align="center"><tr>

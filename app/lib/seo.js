@@ -65,7 +65,7 @@ export const organizationJsonLd = (lang = "fr") => ({
   "@id": `${SITE_URL}/#organization`,
   name: SITE_NAME,
   url: SITE_URL,
-  logo: absoluteUrl("/pull-lover_logo_coeur_rouge-transparent.webp"),
+  logo: absoluteUrl("/api/media/pull-lover_logo_coeur_rouge-transparent.webp"),
   description: SITE_DESCRIPTION[lang],
 });
 

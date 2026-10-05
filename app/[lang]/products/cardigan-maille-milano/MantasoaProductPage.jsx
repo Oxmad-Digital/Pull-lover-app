@@ -19,10 +19,10 @@ const CARDIGAN_VARIANTS = [
     code: "#284a37",
     name: { fr: "Vert forêt", en: "Forest green" },
     images: [
-      "/products/cardigan/cardigan-vert-mannequin-broderie-v4.png",
-      "/products/cardigan/cardigan-vert-face-broderie-v4.png",
-      "/products/cardigan/cardigan-vert-dos-broderie-v4.png",
-      "/products/cardigan/cardigan-vert-coeur-broderie-v4.png",
+      "/api/media/products/cardigan-maille-milano/cardigan-vert-mannequin-broderie-v4.webp",
+      "/api/media/products/cardigan-maille-milano/cardigan-vert-face-broderie-v4.webp",
+      "/api/media/products/cardigan-maille-milano/cardigan-vert-dos-broderie-v4.webp",
+      "/api/media/products/cardigan-maille-milano/cardigan-vert-coeur-broderie-v4.webp",
     ],
   },
   {
@@ -30,10 +30,10 @@ const CARDIGAN_VARIANTS = [
     code: "#a9c7e8",
     name: { fr: "Bleu ciel", en: "Sky blue" },
     images: [
-      "/products/cardigan/cardigan-bleu-mannequin-harmonise-v5.png",
-      "/products/cardigan/cardigan-bleu-face-broderie-v4.png",
-      "/products/cardigan/cardigan-bleu-dos-broderie-v4.png",
-      "/products/cardigan/cardigan-bleu-coeur-broderie-v4.png",
+      "/api/media/products/cardigan-maille-milano/cardigan-bleu-mannequin-harmonise-v5.webp",
+      "/api/media/products/cardigan-maille-milano/cardigan-bleu-face-broderie-v4.webp",
+      "/api/media/products/cardigan-maille-milano/cardigan-bleu-dos-broderie-v4.webp",
+      "/api/media/products/cardigan-maille-milano/cardigan-bleu-coeur-broderie-v4.webp",
     ],
   },
   {
@@ -41,10 +41,10 @@ const CARDIGAN_VARIANTS = [
     code: "#3d3d3f",
     name: { fr: "Gris anthracite", en: "Anthracite grey" },
     images: [
-      "/products/cardigan/cardigan-anthracite-mannequin-broderie-v4.png",
-      "/products/cardigan/cardigan-anthracite-face-broderie-v4.png",
-      "/products/cardigan/cardigan-anthracite-dos-broderie-v4.png",
-      "/products/cardigan/cardigan-anthracite-coeur-broderie-v4.png",
+      "/api/media/products/cardigan-maille-milano/cardigan-anthracite-mannequin-broderie-v4.webp",
+      "/api/media/products/cardigan-maille-milano/cardigan-anthracite-face-broderie-v4.webp",
+      "/api/media/products/cardigan-maille-milano/cardigan-anthracite-dos-broderie-v4.webp",
+      "/api/media/products/cardigan-maille-milano/cardigan-anthracite-coeur-broderie-v4.webp",
     ],
   },
 ];
@@ -54,7 +54,7 @@ const TEXT = {
     mainAlt: "Le cardigan porté",
     fallbackAlts: ["Le cardigan écru porté au bord du lac", "Le cardigan écru vu de face", "Détail de la maille et du col"],
     view: (name, index) => `${name} — vue ${index}`,
-    fallbackName: "Cardigan maille milano",
+    fallbackName: "Cardigan en maille milano",
     breadcrumb: "Fil d’Ariane",
     home: "Accueil",
     views: "Vues du produit",
@@ -99,7 +99,7 @@ const TEXT = {
     factsTitle: "Le temps de bien faire.",
     facts: [
       ["Origine", "Imaginé et confectionné à Antananarivo, Madagascar."],
-      ["Fabrication", "Tricotage, assemblage et finitions réalisés avec soin dans l’atelier familial."],
+      ["Fabrication", "Tricotage, assemblage et finitions réalisés avec soin dans notre atelier familial."],
       ["Production", "Chaque pièce commence à prendre forme après votre commande."],
     ],
     closeGuide: "Fermer le guide",
@@ -307,7 +307,7 @@ export default function MantasoaProductPage({ initialState = null }) {
         <div className="mp-panel" data-reveal-stagger>
           <p className="mp-kicker">{t.kicker}</p>
           <div className="mp-heading-row">
-            <h1 id="mantasoa-title">{display?.name || t.fallbackName}</h1>
+            <h1 id="mantasoa-title">{t.fallbackName}</h1>
             <span className="mp-made"><i aria-hidden="true" />{t.madeToOrder}</span>
           </div>
           <div className="mp-price-row">

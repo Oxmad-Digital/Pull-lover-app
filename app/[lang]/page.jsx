@@ -10,6 +10,12 @@ import "./home.css";
 // Le prix et la description du produit sont rendus côté serveur, régénérés au plus toutes les 60 s
 export const revalidate = 60;
 
+const HERO_IMAGE = "/api/media/pull-lover-hero.webp?v=7a46013c4022";
+
+// Le recadrage cover agrandit la photo au-delà de la largeur du viewport sur mobile.
+// Les tailles suivent les hauteurs minimales du hero pour charger assez de pixels.
+const HERO_SIZES = "(max-width: 599px) max(1316px, 100vw, calc((100svh - 50px) * 16 / 9)), max(1245px, 100vw, calc((100svh - 34px) * 16 / 9))";
+
 const TEXT = {
   fr: {
     title: `${SITE_NAME} | La passion de la maille`,
@@ -124,7 +130,7 @@ export async function generateMetadata({ params }) {
       ...openGraphBase(lang),
       title: t.ogTitle,
       description: t.ogDescription,
-      images: [{ url: "/api/media/site/mantasoa-hero.webp", width: 1586, height: 992, alt: t.ogAlt }],
+      images: [{ url: HERO_IMAGE, width: 1672, height: 941, alt: t.ogAlt }],
     },
   };
 }
@@ -140,7 +146,7 @@ export default async function HomePage({ params }) {
       <JsonLd data={[organizationJsonLd(lang), websiteJsonLd()]} />
       <HomeCinematic />
       <section className="pl-hero" aria-labelledby="home-title">
-        <Image src="/pull-lover-hero.webp" alt={t.heroAlt} fill sizes="100vw" preload className="pl-hero-image" />
+        <Image src={HERO_IMAGE} alt={t.heroAlt} fill sizes={HERO_SIZES} quality={90} preload className="pl-hero-image" />
         <div className="pl-hero-copy">
           <h1 id="home-title">
             <span className="pl-eyebrow">{t.eyebrow}</span>
@@ -225,7 +231,7 @@ export default async function HomePage({ params }) {
       </section>
 
       <section className="pl-final" aria-labelledby="final-title">
-        <Image src="/api/media/pull-lover-manequin-cardigan-2.webp" alt="" fill sizes="100vw" />
+        <Image src="/api/media/pull-lover-manequin-cardigan-2.webp?v=b25ae1191378" alt="" fill sizes="100vw" />
         <div className="pl-final-copy">
           <p className="pl-eyebrow">{t.finalEyebrow}</p>
           <h2 id="final-title">{t.finalTitle}</h2>

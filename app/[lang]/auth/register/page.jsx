@@ -161,7 +161,7 @@ export default function RegisterPage() {
       eyebrow={t.eyebrow}
       title={t.title}
       description={t.description}
-      image="/api/media/pull-lover-manequin-cardigan-2.webp"
+      image="/api/media/pull-lover-manequin-cardigan-2.webp?v=b25ae1191378"
       imageAlt={t.imageAlt}
       visualTitle={t.visualTitle}
       visualText={t.visualText}
