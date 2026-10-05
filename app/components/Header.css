@@ -8,11 +8,9 @@
 .pl-announcement-separator { width: 1px; height: 14px; background: rgba(255,255,255,.35); }
 .pl-announcement-timer { display: inline-flex; align-items: baseline; gap: 7px; color: #fff; font-variant-numeric: tabular-nums; white-space: nowrap; }
 .pl-announcement-timer strong { min-width: 25px; font-size: 11px; font-weight: 700; letter-spacing: .04em; text-align: left; }
-.pl-nav { height: 88px; display: grid; grid-template-columns: 1fr auto 1fr; align-items: center; padding: 0 clamp(24px, 4vw, 90px); border-bottom: 1px solid var(--pl-line); }
+.pl-nav { height: 72px; display: grid; grid-template-columns: 1fr auto 1fr; align-items: center; padding: 0 clamp(24px, 4vw, 90px); border-bottom: 1px solid var(--pl-line); }
 .pl-header-home .pl-nav { position: absolute; top: 100%; left: 0; right: 0; color: white; background: transparent; -webkit-backdrop-filter: blur(1px); backdrop-filter: blur(1px); border-bottom-color: #ffffff45; }
-.pl-header-home.is-cinematic-scrolled .pl-nav { position: fixed; top: 0; color: var(--pl-ink); background: color-mix(in srgb, var(--pl-paper) 91%, transparent); border-bottom-color: var(--pl-line); -webkit-backdrop-filter: blur(14px); backdrop-filter: blur(14px); animation: pl-nav-enter .45s ease both; }
-@keyframes pl-nav-enter { from { transform: translateY(-100%); } to { transform: translateY(0); } }
-.pl-logo { display: block; justify-self: start; width: 60px; height: 60px; }
+.pl-logo { display: block; justify-self: start; width: 48px; height: 48px; }
 .pl-logo-image { display: block; width: 100%; height: 100%; object-fit: contain; }
 .pl-nav-links { display: flex; justify-content: center; gap: 36px; font-size: 12px; letter-spacing: .09em; text-transform: uppercase; }
 .pl-nav-links a { padding: 15px 0; }
@@ -32,7 +30,7 @@
 .pl-header .pl-skip-link { position: fixed; left: 24px; top: 8px; z-index: 100; padding: 12px 18px; background: var(--pl-paper); color: var(--pl-ink); transform: translateY(-160%); }
 .pl-header .pl-skip-link:focus { transform: none; }
 @media (max-width: 939px) {
-  .pl-nav { height: 76px; grid-template-columns: 1fr auto; }
+  .pl-nav { height: 68px; grid-template-columns: 1fr auto; }
   .pl-nav-links { display: none; }
   .pl-nav-actions { gap: 8px; }
   .pl-mobile-menu { display: block; }
@@ -50,7 +48,7 @@
   .pl-announcement-timer { gap: 6px; }
   .pl-announcement-timer strong { min-width: 23px; font-size: 10px; }
   .pl-nav { padding-inline: 20px; }
-  .pl-logo { width: 52px; height: 52px; }
+  .pl-logo { width: 44px; height: 44px; }
   .pl-nav-actions { gap: 2px; }
   .pl-lang-switch { min-width: 36px; }
 }

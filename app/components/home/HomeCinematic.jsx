@@ -124,16 +124,6 @@ export default function HomeCinematic() {
         });
         onEnter(".pl-final", (tl) => tl.from(".pl-final-copy > *", { ...REVEAL, stagger: 0.16 }), "top 62%");
 
-        const header = document.querySelector(".pl-header-home");
-        if (header) {
-          ScrollTrigger.create({
-            trigger: ".pl-hero",
-            start: "bottom 80px",
-            onEnter: () => header.classList.add("is-cinematic-scrolled"),
-            onLeaveBack: () => header.classList.remove("is-cinematic-scrolled"),
-          });
-        }
-
         if (window.matchMedia("(hover: hover) and (pointer: fine)").matches) {
           const hero = document.querySelector(".pl-hero");
           if (hero) {
@@ -196,7 +186,6 @@ export default function HomeCinematic() {
       resizeObserver?.disconnect();
       clearTimeout(refreshTimer);
       interactionCleanups.forEach((cleanup) => cleanup());
-      document.querySelector(".pl-header-home")?.classList.remove("is-cinematic-scrolled");
       document.querySelector(".pl-home")?.classList.remove("is-cinematic");
       document.querySelector(".pl-product-info")?.classList.remove("is-revealed");
       context?.revert();
