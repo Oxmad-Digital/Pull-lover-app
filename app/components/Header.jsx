@@ -213,7 +213,7 @@ export default function Header({ transparent = false, dashboard = false }) {
             width={500}
             height={500}
             sizes="(max-width: 599px) 52px, 60px"
-            priority
+            loading="eager"
           />
           <span className="pl-menu-wordmark" aria-hidden="true">Pull-Lover</span>
         </Link>

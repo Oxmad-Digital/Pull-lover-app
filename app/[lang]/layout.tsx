@@ -1,6 +1,5 @@
 import React from "react";
 import "../globals.css";
-import "../mantasoa-product.css";
 import { notFound } from "next/navigation";
 import Script from "next/script";
 import { montserrat } from "../fonts";

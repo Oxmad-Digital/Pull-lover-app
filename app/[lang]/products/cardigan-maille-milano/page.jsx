@@ -4,6 +4,8 @@ import { getFeaturedProductState } from "@/app/lib/products";
 import { FEATURED_PRODUCT_PATH, breadcrumbJsonLd, openGraphBase, pageAlternates, productJsonLd } from "@/app/lib/seo";
 import { localePath } from "@/app/i18n/config.mjs";
 import { localizeProduct } from "@/app/i18n/product.mjs";
+// Styles propres à cette fiche : chargés ici plutôt que dans le layout de toutes les pages
+import "@/app/mantasoa-product.css";
 
 // Fiche rendue côté serveur avec le stock du moment, régénérée au plus toutes les 60 s
 export const revalidate = 60;

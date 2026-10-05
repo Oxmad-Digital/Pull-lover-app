@@ -285,7 +285,8 @@ export default function MantasoaProductPage({ initialState = null }) {
       </nav>
 
       <section className="mp-buy" aria-labelledby="mantasoa-title">
-        <div className="mp-gallery" data-reveal>
+        {/* Pas de data-reveal : l'image principale est le LCP, elle doit s'afficher sans attendre l'hydratation */}
+        <div className="mp-gallery">
           <div className="mp-thumbnails" aria-label={t.views}>
             {images.map((image, index) => (
               <button type="button" key={image.src} className={activeImage === index ? "is-active" : ""}
