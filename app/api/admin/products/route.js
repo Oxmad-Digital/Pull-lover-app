@@ -77,7 +77,7 @@ export async function GET(request) {
     // Mode mono-produit : la fiche produit existe toujours, même à stock 0
     if ((await Product.countDocuments()) === 0) {
       await Product.create({
-        name: "Cardigan en maille",
+        name: "Cardigan en maille milano",
         price: 0,
         stock: 0,
         stocks: {},

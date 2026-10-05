@@ -26,7 +26,7 @@ export default function ProductForm({
     return Object.fromEntries(ALL_SIZES.map((s) => [s, existing[s] ?? 0]));
   };
 
-  const [name, setName] = useState(editingProduct?.name || "Cardigan en maille");
+  const [name, setName] = useState(editingProduct?.name || "Cardigan en maille milano");
   const [stocksBySize, setStocksBySize] = useState(initStocksBySize);
   const [description, setDescription] = useState(editingProduct?.description || "");
   const [details, setDetails] = useState(editingProduct?.details || "");
@@ -168,7 +168,7 @@ export default function ProductForm({
       <div className="form-field">
         <label className="form-label">Nom du produit <span className="form-required">*</span></label>
         <input
-          placeholder="Cardigan en maille"
+          placeholder="Cardigan en maille milano"
           value={name}
           onChange={(e) => setName(e.target.value)}
           required

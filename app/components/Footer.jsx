@@ -11,7 +11,7 @@ const TEXT = {
     home: "Pull-Lover, accueil",
     discoverLabel: "Découvrir Pull-Lover",
     discover: "Découvrir",
-    discoverLinks: [["/products/cardigan-maille-milano", "Cardigan maille milano"], ["/#atelier", "Notre atelier"], ["/#precommande-info", "La précommande"]],
+    discoverLinks: [["/products/cardigan-maille-milano", "Cardigan en maille milano"], ["/#atelier", "Notre atelier"], ["/#precommande-info", "La précommande"]],
     contactLabel: "Restons en lien",
     contactLinks: [["/contact", "Nous contacter"], ["/dashboard", "Mon compte"]],
     madeIn: "Imaginé et fabriqué à Madagascar",
