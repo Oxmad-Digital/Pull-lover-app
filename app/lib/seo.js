@@ -43,7 +43,7 @@ export const privatePageMetadata = (titles) => async ({ params }) => {
 };
 
 // URL marketing du produit mis en avant (mode mono-produit)
-export const FEATURED_PRODUCT_PATH = "/products/mantasoa";
+export const FEATURED_PRODUCT_PATH = "/products/cardigan-maille-milano";
 
 /** URL publique d'une fiche produit : le slug, à défaut l'id. */
 export const productPath = (product) => `/products/${product.slug || product._id}`;

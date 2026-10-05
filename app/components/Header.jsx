@@ -14,7 +14,7 @@ import "./Header.css";
 const TEXT = {
   fr: {
     links: [
-      { label: "La pièce", href: "/products/mantasoa" },
+      { label: "La pièce", href: "/products/cardigan-maille-milano" },
       { label: "L’atelier", href: "/#atelier" },
       { label: "Précommande", href: "/#precommande-info" },
       { label: "Contact", href: "/contact" },
@@ -38,7 +38,7 @@ const TEXT = {
   },
   en: {
     links: [
-      { label: "The piece", href: "/products/mantasoa" },
+      { label: "The piece", href: "/products/cardigan-maille-milano" },
       { label: "The workshop", href: "/#atelier" },
       { label: "Pre-order", href: "/#precommande-info" },
       { label: "Contact", href: "/contact" },

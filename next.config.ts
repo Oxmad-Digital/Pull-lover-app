@@ -42,9 +42,12 @@ const nextConfig: NextConfig = {
     // Anciennes URLs de la boutique multi-produits : redirigées définitivement vers
     // la fiche (un fragment comme /#piece est ignoré par les moteurs de recherche).
     return [
-      { source: "/boutique", destination: "/products/mantasoa", permanent: true },
-      { source: "/boutique/:path*", destination: "/products/mantasoa", permanent: true },
-      { source: "/nos-mailles/:path*", destination: "/products/mantasoa", permanent: true },
+      { source: "/boutique", destination: "/products/cardigan-maille-milano", permanent: true },
+      { source: "/boutique/:path*", destination: "/products/cardigan-maille-milano", permanent: true },
+      { source: "/nos-mailles/:path*", destination: "/products/cardigan-maille-milano", permanent: true },
+      // Ancienne URL de la fiche, renommée d'après le produit
+      { source: "/products/mantasoa", destination: "/products/cardigan-maille-milano", permanent: true },
+      { source: "/en/products/mantasoa", destination: "/en/products/cardigan-maille-milano", permanent: true },
       // Pages supprimées
       { source: "/NotreMarque", destination: "/", permanent: true },
       { source: "/notre-marque", destination: "/", permanent: true },

@@ -12,19 +12,19 @@ const HERO_IMAGE = "/api/media/site/mantasoa-hero.webp";
 
 const TEXT = {
   fr: {
-    title: "Cardigan en maille de Madagascar",
+    title: "Cardigan maille milano",
     description:
       "Découvrez notre cardigan en maille de Madagascar, choisissez votre taille et commandez cette pièce fabriquée à la demande dans notre atelier familial.",
-    ogTitle: "Cardigan en maille de Madagascar — Pull-Lover",
+    ogTitle: "Cardigan maille milano — Pull-Lover",
     ogDescription: "Une maille essentielle, imaginée et fabriquée à Madagascar.",
     ogAlt: "Cardigan en maille porté au bord du lac",
     home: "Accueil",
   },
   en: {
-    title: "Knit cardigan from Madagascar",
+    title: "Milano knit cardigan",
     description:
       "Discover our knit cardigan from Madagascar, choose your size and order this essential piece, made to order in our family workshop in Antananarivo.",
-    ogTitle: "Knit cardigan from Madagascar — Pull-Lover",
+    ogTitle: "Milano knit cardigan — Pull-Lover",
     ogDescription: "An essential knit, designed and made in Madagascar.",
     ogAlt: "Knit cardigan worn by the lake",
     home: "Home",

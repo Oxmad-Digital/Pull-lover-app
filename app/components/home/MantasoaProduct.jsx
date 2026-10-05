@@ -75,7 +75,7 @@ export default function MantasoaProduct({ initialState = null }) {
 
   return (
     <section className="pl-product" id="piece" aria-labelledby="product-title">
-      <Link className="pl-product-visual" href={localePath(lang, "/products/mantasoa")} aria-label={t.visualLabel}>
+      <Link className="pl-product-visual" href={localePath(lang, "/products/cardigan-maille-milano")} aria-label={t.visualLabel}>
         {/* Conteneur absolu : le lien devient sticky sur grand écran, position que next/image refuse pour `fill`. */}
         <span className="pl-product-media">
           <Image src="/api/media/pull-lover-manequin-cardigan-3.webp" alt={t.visualAlt} fill sizes="(max-width: 939px) 100vw, 65vw" />
@@ -93,7 +93,7 @@ export default function MantasoaProduct({ initialState = null }) {
         {status === "error" && <div className="pl-product-state" role="status"><p>{t.error}</p></div>}
         {status === "empty" && <div className="pl-product-state"><p>{t.empty}</p></div>}
 
-        <Link className="pl-button pl-product-link" href={localePath(lang, "/products/mantasoa")}>{t.cta} <span aria-hidden="true">→</span></Link>
+        <Link className="pl-button pl-product-link" href={localePath(lang, "/products/cardigan-maille-milano")}>{t.cta} <span aria-hidden="true">→</span></Link>
       </div>
     </section>
   );

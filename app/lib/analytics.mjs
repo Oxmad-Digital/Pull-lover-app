@@ -11,7 +11,7 @@ const TRACKED_PATHS = [
   "/checkout",
   "/success",
   "/contact",
-  "/products/mantasoa",
+  "/products/cardigan-maille-milano",
   "/conditions-de-vente",
   "/mentions-legales",
   "/politique-de-confidentialite",
