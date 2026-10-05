@@ -1,21 +1,14 @@
 import { SITE_URL } from "./lib/seo";
-import { LOCALES, localePath } from "./i18n/config.mjs";
 
 export default function robots() {
   return {
     rules: {
       userAgent: "*",
       allow: "/",
-      // Pages privées, dans chaque langue (/panier et /en/panier…)
-      disallow: [
-        "/api/",
-        "/admin",
-        ...LOCALES.flatMap((lang) =>
-          ["/dashboard", "/auth/", "/panier", "/checkout", "/success", "/verify-email"].map((path) => localePath(lang, path))
-        ),
-      ],
+      // Les pages de compte, panier et tunnel d'achat ne sont pas bloquées ici : elles portent un
+      // noindex que Google doit pouvoir lire (bloquées, elles resteraient indexables sans contenu).
+      disallow: ["/api/", "/admin"],
     },
     sitemap: `${SITE_URL}/sitemap.xml`,
-    host: SITE_URL,
   };
 }

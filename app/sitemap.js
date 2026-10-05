@@ -13,6 +13,7 @@ const STATIC_PAGES = [
   ["/conditions-de-vente", 0.2, "yearly"],
   ["/mentions-legales", 0.1, "yearly"],
   ["/politique-de-confidentialite", 0.1, "yearly"],
+  ["/suppression-donnees", 0.1, "yearly"],
 ];
 
 /** Une entrée par langue, chacune listant ses traductions (hreflang). */

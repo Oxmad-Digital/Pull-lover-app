@@ -91,6 +91,17 @@ export const breadcrumbJsonLd = (items) => ({
   })),
 });
 
+// Reprend les articles 7 et 8 des CGV (rétractation de 14 jours, frais de retour à la charge du client) :
+// à mettre à jour avec elles.
+const RETURN_POLICY_JSON_LD = {
+  "@type": "MerchantReturnPolicy",
+  applicableCountry: "FR",
+  returnPolicyCategory: "https://schema.org/MerchantReturnFiniteReturnWindow",
+  merchantReturnDays: 14,
+  returnMethod: "https://schema.org/ReturnByMail",
+  returnFees: "https://schema.org/ReturnFeesCustomerResponsibility",
+};
+
 /**
  * Fiche Product schema.org. La note moyenne n'est ajoutée que si les avis
  * sont affichés sur la page (exigence Google).
@@ -116,6 +127,7 @@ export function productJsonLd(product, { path, images = [], reviews = [] } = {})
       availability: inStock ? "https://schema.org/PreOrder" : "https://schema.org/OutOfStock",
       itemCondition: "https://schema.org/NewCondition",
       seller: { "@id": `${SITE_URL}/#organization` },
+      hasMerchantReturnPolicy: RETURN_POLICY_JSON_LD,
     },
   };
 
