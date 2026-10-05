@@ -312,7 +312,8 @@
   .auth-content { padding-inline: 48px; }
 }
 
-@media (max-width: 939px) {
+/* Tablettes en portrait (iPad Pro 13 = 1032 px) : la colonne image devient trop étroite, on empile. */
+@media (max-width: 939px), (max-width: 1366px) and (orientation: portrait) {
   .auth-page { grid-template-columns: 1fr; }
   .auth-visual { min-height: 440px; padding: 48px; }
   .auth-visual-copy h2 { max-width: 600px; font-size: clamp(54px, 9vw, 82px); }

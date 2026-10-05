@@ -6,7 +6,7 @@ import "./contact.css";
 
 const HERO_IMAGE = "/api/media/pull-lover-vue-de-haut-sur-le-lac.webp?v=4b51b2c2b9d7";
 // Tenir compte de la largeur de la photo agrandie par le recadrage cover.
-const HERO_SIZES = "(max-width: 599px) max(1138px, 100vw, calc((100svh - 50px) * 16 / 9)), (max-width: 939px) max(1245px, 100vw), max(100vw, calc(min(760px, 76svh) * 16 / 9))";
+const HERO_SIZES = "(max-width: 599px) max(1138px, 100vw, calc((100svh - 50px) * 16 / 9)), (max-width: 939px) max(1245px, 100vw), (max-width: 1366px) and (orientation: portrait) max(1245px, 100vw), max(100vw, calc(min(760px, 76svh) * 16 / 9))";
 
 const TEXT = {
   fr: {

@@ -196,7 +196,7 @@ export default async function HomePage({ params }) {
 
       <section className="pl-workshop" id="atelier" aria-labelledby="workshop-title">
         <div className="pl-workshop-image">
-          <Image src="/api/media/site/atelier-maille.webp" alt={t.workshopAlt} fill sizes="(max-width: 939px) 100vw, 50vw" />
+          <Image src="/api/media/site/atelier-maille.webp" alt={t.workshopAlt} fill sizes="(max-width: 939px) 100vw, (max-width: 1366px) and (orientation: portrait) 100vw, 50vw" />
         </div>
         <div className="pl-workshop-copy">
           <p className="pl-eyebrow">{t.workshopEyebrow}</p>

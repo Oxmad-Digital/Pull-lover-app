@@ -30,7 +30,7 @@ export default function AuthShell({
           preload
           quality={90}
           // Le recadrage en hauteur nécessite une source plus large que la colonne.
-          sizes="(max-width: 599px) max(480px, 100vw), (max-width: 939px) max(660px, 100vw), max(1536px, 52vw)"
+          sizes="(max-width: 599px) max(480px, 100vw), (max-width: 939px) max(660px, 100vw), (max-width: 1366px) and (orientation: portrait) 100vw, max(1536px, 52vw)"
         />
         <div className="auth-visual-copy" data-reveal-stagger>
           <p className="auth-eyebrow">{t.eyebrow}</p>
