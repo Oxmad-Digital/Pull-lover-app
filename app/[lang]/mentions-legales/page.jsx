@@ -33,7 +33,7 @@ function LegalNoticeFr() {
       </Section>
 
       <Section title="2. Directeur de la publication">
-        Le directeur de la publication est le responsable de Pull Lover, joignable à l’adresse e-mail
+        Le directeur de la publication est <strong>Tom Wybo</strong>, joignable à l’adresse e-mail
         indiquée ci-dessus.
       </Section>
 
@@ -101,7 +101,7 @@ function LegalNoticeEn() {
       </Section>
 
       <Section title="2. Publication director">
-        The publication director is the manager of Pull Lover, who can be reached at the email address
+        The publication director is <strong>Tom Wybo</strong>, who can be reached at the email address
         given above.
       </Section>
 

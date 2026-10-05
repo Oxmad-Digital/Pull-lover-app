@@ -63,16 +63,29 @@ function TermsFr() {
       </Section>
 
       <Section title="6. Livraison">
-        <p>Les commandes sont expédiées vers la France métropolitaine et, selon disponibilité, à
-        l’international. Les délais indicatifs sont :</p>
+        <p>
+          Les pièces sont vendues en précommande et fabriquées à la demande. Avant l’expédition au
+          Client, chaque collection suit les étapes décrites dans la{" "}
+          <Link href={localePath("fr", "/#precommande-info")}>section précommande</Link> de la
+          page d’accueil :
+        </p>
+        <ul>
+          <li><strong>Période de précommande :</strong> 30 jours</li>
+          <li><strong>Commande du fil :</strong> 15 jours</li>
+          <li><strong>Fabrication à l’atelier :</strong> 45 jours</li>
+          <li><strong>Acheminement de Madagascar vers la France :</strong> 15 jours</li>
+        </ul>
+        <p>Les commandes sont ensuite expédiées vers la France métropolitaine et, selon disponibilité,
+        à l’international. Les délais de livraison indicatifs sont :</p>
         <ul>
           <li><strong>France métropolitaine :</strong> 5 à 10 jours ouvrés</li>
           <li><strong>International :</strong> 10 à 20 jours ouvrés</li>
         </ul>
         <p>
-          Ces délais courent à compter de la confirmation de commande. Pull Lover ne saurait être
-          tenu responsable des retards imputables au transporteur ou à des événements hors de son
-          contrôle.
+          Ces délais de livraison courent à compter de la fin de la période de précommande et de
+          l’arrivée des produits en France, prêts à être remis au transporteur. Les durées des étapes
+          de précommande sont indicatives. Pull Lover ne saurait être tenu responsable des retards
+          imputables au transporteur ou à des événements hors de son contrôle.
         </p>
       </Section>
 
@@ -178,15 +191,29 @@ function TermsEn() {
       </Section>
 
       <Section title="6. Delivery">
-        <p>Orders are shipped to mainland France and, depending on availability, internationally.
+        <p>
+          Pieces are sold on pre-order and made to order. Before shipping to the Customer, each
+          collection goes through the steps described in the{" "}
+          <Link href={localePath("en", "/#precommande-info")}>pre-order section</Link> of the
+          home page:
+        </p>
+        <ul>
+          <li><strong>Pre-order period:</strong> 30 days</li>
+          <li><strong>Yarn ordering:</strong> 15 days</li>
+          <li><strong>Making in the workshop:</strong> 45 days</li>
+          <li><strong>Transport from Madagascar to France:</strong> 15 days</li>
+        </ul>
+        <p>Orders are then shipped to mainland France and, depending on availability, internationally.
         Estimated delivery times are:</p>
         <ul>
           <li><strong>Mainland France:</strong> 5 to 10 business days</li>
           <li><strong>International:</strong> 10 to 20 business days</li>
         </ul>
         <p>
-          These times run from the order confirmation. Pull Lover cannot be held responsible for delays
-          caused by the carrier or by events beyond its control.
+          These delivery times run from the end of the pre-order period and the arrival of the products
+          in France, ready to be handed over to the carrier. The durations of the pre-order steps are
+          estimates. Pull Lover cannot be held responsible for delays caused by the carrier or by events
+          beyond its control.
         </p>
       </Section>
 
