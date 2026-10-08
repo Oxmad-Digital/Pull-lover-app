@@ -1,6 +1,7 @@
 "use client";
 import { useState } from "react";
 import { cleanProductTranslations } from "@/app/i18n/product.mjs";
+import { FEATURED_PRODUCT_COPY } from "@/app/lib/featured-product-copy.mjs";
 import "./ProductForm.css";
 
 // Champs de la version anglaise du site (/en) : vides, ils reprennent le texte français
@@ -26,18 +27,22 @@ export default function ProductForm({
     return Object.fromEntries(ALL_SIZES.map((s) => [s, existing[s] ?? 0]));
   };
 
-  const [name, setName] = useState(editingProduct?.name || "Cardigan en maille milano");
+  const [name, setName] = useState(editingProduct?.name || FEATURED_PRODUCT_COPY.fr.name);
   const [stocksBySize, setStocksBySize] = useState(initStocksBySize);
-  const [description, setDescription] = useState(editingProduct?.description || "");
+  const [description, setDescription] = useState(editingProduct?.description || FEATURED_PRODUCT_COPY.fr.description);
   const [details, setDetails] = useState(editingProduct?.details || "");
-  const [careInstructions, setCareInstructions] = useState(editingProduct?.careInstructions || "");
-  const [fitInfo, setFitInfo] = useState(editingProduct?.fitInfo || "");
-  const [shippingInfo, setShippingInfo] = useState(editingProduct?.shippingInfo || "");
+  const [careInstructions, setCareInstructions] = useState(editingProduct?.careInstructions || FEATURED_PRODUCT_COPY.fr.careInstructions);
+  const [fitInfo, setFitInfo] = useState(editingProduct?.fitInfo || FEATURED_PRODUCT_COPY.fr.fitInfo);
+  const [shippingInfo, setShippingInfo] = useState(editingProduct?.shippingInfo || FEATURED_PRODUCT_COPY.fr.shippingInfo);
   const [color, setColor] = useState(editingProduct?.color || "");
   const [price, setPrice] = useState(editingProduct?.price || "");
   const [weight, setWeight] = useState(editingProduct?.weight || "");
   const [promoPrice, setPromoPrice] = useState(editingProduct?.promoPrice || "");
-  const [english, setEnglish] = useState(() => cleanProductTranslations(editingProduct?.translations).en);
+  // Champs vides : on montre le texte par défaut que la boutique affiche à leur place
+  const [english, setEnglish] = useState(() => {
+    const saved = cleanProductTranslations(editingProduct?.translations).en;
+    return Object.fromEntries(Object.entries(saved).map(([key, value]) => [key, value || FEATURED_PRODUCT_COPY.en[key] || ""]));
+  });
 
   const [uploadedUrls, setUploadedUrls] = useState(
     editingProduct?.images || (editingProduct?.image ? [editingProduct.image] : [])

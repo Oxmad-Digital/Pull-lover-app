@@ -4,6 +4,7 @@ import { getFeaturedProductState } from "@/app/lib/products";
 import { FEATURED_PRODUCT_PATH, breadcrumbJsonLd, openGraphBase, pageAlternates, productJsonLd } from "@/app/lib/seo";
 import { localePath } from "@/app/i18n/config.mjs";
 import { localizeProduct } from "@/app/i18n/product.mjs";
+import { FEATURED_PRODUCT_COPY } from "@/app/lib/featured-product-copy.mjs";
 // Styles propres à cette fiche : chargés ici plutôt que dans le layout de toutes les pages
 import "@/app/mantasoa-product.css";
 
@@ -14,35 +15,38 @@ const HERO_IMAGE = "/api/media/products/cardigan-maille-milano/cardigan-vert-man
 
 const TEXT = {
   fr: {
-    title: "Cardigan en maille milano",
     description:
       "Découvrez notre cardigan en maille de Madagascar, choisissez votre taille et commandez cette pièce fabriquée à la demande dans notre atelier familial.",
-    ogTitle: "Cardigan en maille milano — Pull-Lover",
     ogDescription: "Une maille essentielle, imaginée et fabriquée à Madagascar.",
     ogAlt: "Cardigan en maille vert brodé d'un cœur, porté en studio",
     home: "Accueil",
   },
   en: {
-    title: "Milano knit cardigan",
     description:
       "Discover our knit cardigan from Madagascar, choose your size and order this essential piece, made to order in our family workshop in Antananarivo.",
-    ogTitle: "Milano knit cardigan — Pull-Lover",
     ogDescription: "An essential knit, designed and made in Madagascar.",
     ogAlt: "Green knit cardigan with an embroidered heart, worn in the studio",
     home: "Home",
   },
 };
 
+// Nom saisi dans l'admin (version anglaise si renseignée), texte par défaut si la base est injoignable
+async function productName(lang) {
+  const state = await getFeaturedProductState();
+  return localizeProduct(state?.product, lang)?.name || FEATURED_PRODUCT_COPY[lang].name;
+}
+
 export async function generateMetadata({ params }) {
   const { lang } = await params;
   const t = TEXT[lang];
+  const name = await productName(lang);
   return {
-    title: t.title,
+    title: name,
     description: t.description,
     alternates: pageAlternates(lang, FEATURED_PRODUCT_PATH),
     openGraph: {
       ...openGraphBase(lang),
-      title: t.ogTitle,
+      title: `${name} — Pull-Lover`,
       description: t.ogDescription,
       url: localePath(lang, FEATURED_PRODUCT_PATH),
       images: [{ url: HERO_IMAGE, width: 1254, height: 1254, alt: t.ogAlt }],
@@ -53,8 +57,7 @@ export async function generateMetadata({ params }) {
 export default async function MantasoaPage({ params }) {
   const { lang } = await params;
   const initialState = await getFeaturedProductState();
-  const localizedProduct = localizeProduct(initialState?.product, lang);
-  const product = localizedProduct ? { ...localizedProduct, name: TEXT[lang].title } : null;
+  const product = localizeProduct(initialState?.product, lang);
   const path = localePath(lang, FEATURED_PRODUCT_PATH);
   return (
     <>

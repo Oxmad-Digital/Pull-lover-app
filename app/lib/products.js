@@ -60,7 +60,7 @@ export async function getProductPageData(id) {
  * GET /api/products?limit=20). null si la base est injoignable : le client charge alors lui-même.
  * @returns {Promise<{ status: "ready" | "empty", product: object | null } | null>}
  */
-export async function getFeaturedProductState() {
+export const getFeaturedProductState = cache(async () => {
   try {
     const products = await Product.find({}).sort({ createdAt: -1 }).limit(20).lean();
     const product = selectFeaturedProduct(products);
@@ -69,4 +69,4 @@ export async function getFeaturedProductState() {
     console.error("Produit mis en avant indisponible au rendu serveur:", error.message);
     return null;
   }
-}
+});

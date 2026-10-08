@@ -10,6 +10,7 @@ import { useLang } from "@/app/i18n/I18nProvider";
 import { localePath } from "@/app/i18n/config.mjs";
 import { formatPrice } from "@/app/i18n/format.mjs";
 import { localizeProduct } from "@/app/i18n/product.mjs";
+import { FEATURED_PRODUCT_COPY } from "@/app/lib/featured-product-copy.mjs";
 
 const SIZE_ORDER = ["XS", "S", "M", "L", "XL", "XXL"];
 
@@ -54,7 +55,6 @@ const TEXT = {
     mainAlt: "Le cardigan porté",
     fallbackAlts: ["Le cardigan écru porté au bord du lac", "Le cardigan écru vu de face", "Détail de la maille et du col"],
     view: (name, index) => `${name} — vue ${index}`,
-    fallbackName: "Cardigan en maille milano",
     breadcrumb: "Fil d’Ariane",
     home: "Accueil",
     views: "Vues du produit",
@@ -64,7 +64,6 @@ const TEXT = {
     kicker: "Maille de Madagascar · Pièce n° 01",
     madeToOrder: "Fabriqué à la demande",
     priceNote: "Hors taxes · total au panier",
-    fallbackDescription: <>Tricoté dans le <strong>Dorotea</strong>, un fil d’exception de la filature italienne <strong>Filatura Papi Fabio</strong>, ce cardigan associe 90 % de laine mérinos ultrafine et 10 % de cachemire. Sa maille milano, dense et structurée, lui donne une belle tenue : il garde sa forme, porté après porté. Coupe oversize et col rond, pour un basique aussi confortable qu’intemporel.</>,
     color: "Couleur",
     colorLabel: (color) => `Couleur ${color}`,
     chooseSize: "Choisir la taille",
@@ -90,11 +89,8 @@ const TEXT = {
       ["↺", "Retours sous 14 jours", "À compter de la réception de votre commande"],
     ],
     fitTitle: "Coupe & taille",
-    fitFallback: "Coupe oversize, ample et confortable. Prenez votre taille habituelle pour retrouver ce volume, ou une taille en dessous pour un porté plus près du corps. Le mannequin porte une taille S.",
     careTitle: "Entretien",
-    careFallback: "Lavage délicat à froid ou à la main. Essorage doux, séchage à plat et repassage à basse température. Ne pas utiliser de sèche-linge.",
     shippingTitle: "Livraison & retours",
-    shippingFallback: "La confection démarre après votre commande. Vous recevez un suivi dès l’expédition. Les retours sont acceptés sous 14 jours sur les pièces non portées, dans leur état d’origine.",
     factsKicker: "La passion de la maille",
     factsTitle: "Le temps de bien faire.",
     facts: [
@@ -116,7 +112,6 @@ const TEXT = {
     mainAlt: "The cardigan, worn",
     fallbackAlts: ["The ecru cardigan worn by the lake", "The ecru cardigan, front view", "Close-up of the knit and collar"],
     view: (name, index) => `${name} — view ${index}`,
-    fallbackName: "Milano knit cardigan",
     breadcrumb: "Breadcrumb",
     home: "Home",
     views: "Product views",
@@ -126,7 +121,6 @@ const TEXT = {
     kicker: "Knitwear from Madagascar · Piece no. 01",
     madeToOrder: "Made to order",
     priceNote: "Excl. VAT · total in your cart",
-    fallbackDescription: <>Knitted in <strong>Dorotea</strong>, an exceptional yarn from the Italian spinning mill <strong>Filatura Papi Fabio</strong>, this cardigan blends 90% ultrafine merino wool with 10% cashmere. Its dense, structured milano stitch gives it lasting shape, wear after wear. An oversized cut and crew neck make it a basic as comfortable as it is timeless.</>,
     color: "Colour",
     colorLabel: (color) => `Colour ${color}`,
     chooseSize: "Choose your size",
@@ -152,11 +146,8 @@ const TEXT = {
       ["↺", "14-day returns", "From the day you receive your order"],
     ],
     fitTitle: "Fit & sizing",
-    fitFallback: "Oversized, roomy and comfortable cut. Take your usual size for this relaxed volume, or one size down for a closer fit. The model wears a size S.",
     careTitle: "Care",
-    careFallback: "Gentle cold wash or hand wash. Spin gently, dry flat and iron at low temperature. Do not tumble dry.",
     shippingTitle: "Shipping & returns",
-    shippingFallback: "Production starts once you place your order. You receive tracking as soon as it ships. Returns are accepted within 14 days on unworn pieces in their original condition.",
     factsKicker: "A passion for knitwear",
     factsTitle: "Taking the time to do it right.",
     facts: [
@@ -181,6 +172,7 @@ const TEXT = {
 export default function MantasoaProductPage({ initialState = null }) {
   const lang = useLang();
   const t = TEXT[lang];
+  const copy = FEATURED_PRODUCT_COPY[lang];
   const href = (path) => localePath(lang, path);
   const router = useRouter();
   const { addToCart, cartItems } = useCart();
@@ -212,6 +204,7 @@ export default function MantasoaProductPage({ initialState = null }) {
 
   // Textes affichés dans la langue de la page ; `product` garde les valeurs françaises envoyées à la commande
   const display = useMemo(() => localizeProduct(product, lang), [product, lang]);
+  const name = display?.name || copy.name;
   const selectedVariant = useMemo(
     () => CARDIGAN_VARIANTS.find((variant) => variant.id === selectedColor) || CARDIGAN_VARIANTS[0],
     [selectedColor],
@@ -221,10 +214,10 @@ export default function MantasoaProductPage({ initialState = null }) {
       src,
       alt: index === 0
         ? `${t.mainAlt} — ${selectedVariant.name[lang]}`
-        : t.view(`${display?.name || t.fallbackName} — ${selectedVariant.name[lang]}`, index + 1),
+        : t.view(`${name} — ${selectedVariant.name[lang]}`, index + 1),
       contain: index > 0,
     })),
-    [display?.name, lang, selectedVariant, t],
+    [name, lang, selectedVariant, t],
   );
   const sizes = useMemo(() => {
     const variants = product ? productSizes(product) : [];
@@ -281,7 +274,7 @@ export default function MantasoaProductPage({ initialState = null }) {
   return (
     <article className="mp-page">
       <nav className="mp-breadcrumb" aria-label={t.breadcrumb} data-reveal>
-        <Link href={href("/")}>{t.home}</Link><span>/</span><span>{t.fallbackName}</span>
+        <Link href={href("/")}>{t.home}</Link><span>/</span><span>{name}</span>
       </nav>
 
       <section className="mp-buy" aria-labelledby="mantasoa-title">
@@ -308,7 +301,7 @@ export default function MantasoaProductPage({ initialState = null }) {
         <div className="mp-panel" data-reveal-stagger>
           <p className="mp-kicker">{t.kicker}</p>
           <div className="mp-heading-row">
-            <h1 id="mantasoa-title">{t.fallbackName}</h1>
+            <h1 id="mantasoa-title">{name}</h1>
             <span className="mp-made"><i aria-hidden="true" />{t.madeToOrder}</span>
           </div>
           <div className="mp-price-row">
@@ -317,7 +310,7 @@ export default function MantasoaProductPage({ initialState = null }) {
             </p> : <span className="mp-price-placeholder" />}
             <span>{t.priceNote}</span>
           </div>
-          <p className="mp-lead">{display?.description || t.fallbackDescription}</p>
+          <p className="mp-lead">{display?.description || copy.description}</p>
 
           <div className="mp-color">
             <div className="mp-color-copy"><strong>{t.color}</strong><span>{selectedVariant.name[lang]}</span></div>
@@ -380,9 +373,9 @@ export default function MantasoaProductPage({ initialState = null }) {
           </ul>
 
           <div className="mp-accordions">
-            <details><summary>{t.fitTitle} <span>+</span></summary><p>{display?.fitInfo || t.fitFallback}</p></details>
-            <details><summary>{t.careTitle} <span>+</span></summary><p>{display?.careInstructions || t.careFallback}</p></details>
-            <details><summary>{t.shippingTitle} <span>+</span></summary><p>{display?.shippingInfo || t.shippingFallback}</p></details>
+            <details><summary>{t.fitTitle} <span>+</span></summary><p>{display?.fitInfo || copy.fitInfo}</p></details>
+            <details><summary>{t.careTitle} <span>+</span></summary><p>{display?.careInstructions || copy.careInstructions}</p></details>
+            <details><summary>{t.shippingTitle} <span>+</span></summary><p>{display?.shippingInfo || copy.shippingInfo}</p></details>
           </div>
         </div>
       </section>
