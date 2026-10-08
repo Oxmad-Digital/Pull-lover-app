@@ -46,22 +46,25 @@ export default function HomeCinematic() {
           .from(".pl-hero-foot > *", { y: 24, autoAlpha: 0, duration: 0.7, stagger: STAGGER }, 0.95)
           .from(".pl-scroll-cue", { autoAlpha: 0, y: -16, duration: 0.65 }, 1.25);
 
-        gsap.to(".pl-hero", {
-          "--pl-hero-y": "58%",
+        // Parallaxe en transform (composité par le GPU) : animer object-position repeindrait
+        // toute l'image à chaque frame du défilement.
+        gsap.to(".pl-hero-image", {
+          yPercent: 8,
           ease: "none",
           scrollTrigger: { trigger: ".pl-hero", start: "top top", end: "bottom top", scrub: 0.7 },
         });
 
         // Manifeste : lettres → trait → origine, enchaînés dans une seule timeline.
+        // Le flou sur ~130 lettres à la fois saccade sur mobile : réservé aux écrans à pointeur fin.
+        const finePointer = window.matchMedia("(hover: hover) and (pointer: fine)").matches;
         onEnter(".pl-manifesto", (tl) => tl
           .from(".pl-manifesto-char", {
             yPercent: 35,
             autoAlpha: 0,
-            filter: "blur(8px)",
+            ...(finePointer ? { filter: "blur(8px)", clearProps: "filter" } : {}),
             duration: 0.9,
             stagger: 0.022,
             ease: "power2.out",
-            clearProps: "filter",
           })
           .from(".pl-manifesto-thread", { ...LINE }, "-=1.2")
           .from(".pl-origin", { ...REVEAL }, "-=0.9"), "top 72%");
@@ -124,7 +127,7 @@ export default function HomeCinematic() {
         });
         onEnter(".pl-final", (tl) => tl.from(".pl-final-copy > *", { ...REVEAL, stagger: 0.16 }), "top 62%");
 
-        if (window.matchMedia("(hover: hover) and (pointer: fine)").matches) {
+        if (finePointer) {
           const hero = document.querySelector(".pl-hero");
           if (hero) {
             const moveHeroX = gsap.quickTo(hero, "--pl-hero-x", { duration: 0.9, ease: "power3" });

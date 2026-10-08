@@ -41,6 +41,11 @@ export async function GET(request, { params }) {
     if (object.LastModified) headers.set("Last-Modified", object.LastModified.toUTCString());
     headers.set("Accept-Ranges", "bytes");
     headers.set("Cache-Control", object.CacheControl || "public, max-age=31536000, immutable");
+    // Sans s-maxage, le CDN de Vercel ne garde pas la réponse d'une fonction : chaque accès relirait R2.
+    // Durée courte côté CDN (une image remplacée sous la même clé y reste au plus un jour).
+    if (!object.ContentRange && !PRIVATE_PREFIXES.some((prefix) => key.startsWith(prefix))) {
+      headers.set("Vercel-CDN-Cache-Control", "public, max-age=86400, stale-while-revalidate=604800");
+    }
 
     return new Response(object.Body?.transformToWebStream(), {
       status: object.ContentRange ? 206 : 200,

@@ -11,7 +11,7 @@ export async function GET(request) {
     const denied = await requireAdmin();
     if (denied) return denied;
 
-    await connectDB();
+    const sql = await connectDB();
 
     const { searchParams } = new URL(request.url);
     const search    = searchParams.get("search") || "";
@@ -36,13 +36,14 @@ export async function GET(request) {
     const sortObj = { [sortField]: sortDir === "asc" ? 1 : -1 };
     const skip    = (page - 1) * limit;
 
-    const [orders, total, statsAgg, totalAll] = await Promise.all([
+    const [orders, total, statsAgg] = await Promise.all([
       Order.find(filter).populate("products.product").sort(sortObj).skip(skip).limit(limit).lean(),
       Order.countDocuments(filter),
-      Order.aggregate([{ $group: { _id: "$status", count: { $sum: 1 } } }]),
-      Order.countDocuments(),
+      // Compté en SQL : l'agrégation du modèle chargerait toutes les commandes en mémoire
+      sql.query(`SELECT data->>'status' AS "_id", count(*)::int AS count FROM orders GROUP BY 1`),
     ]);
 
+    const totalAll = statsAgg.reduce((sum, s) => sum + s.count, 0);
     const stats = { total: totalAll, pending: 0, confirmed: 0, processing: 0, paid: 0, shipped: 0, delivered: 0, cancelled: 0 };
     statsAgg.forEach(s => { if (s._id in stats) stats[s._id] = s.count; });
 

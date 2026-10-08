@@ -14,7 +14,7 @@ export async function GET() {
       bandeauText:     settings?.bandeauText     ?? "",
       maintenanceMode: settings?.maintenanceMode ?? false,
     }, {
-      headers: { "Cache-Control": "public, s-maxage=5, stale-while-revalidate=30" },
+      headers: { "Cache-Control": "public, s-maxage=60, stale-while-revalidate=60" },
     });
   } catch (err) {
     console.error("GET /api/settings:", err);

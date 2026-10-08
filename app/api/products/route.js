@@ -17,8 +17,9 @@ export async function GET(req) {
     await connectDB();
 
     const { searchParams } = new URL(req.url);
-    const page = Number(searchParams.get("page")) || 1;
-    const limit = Number(searchParams.get("limit")) || 5;
+    // Bornés : une requête publique ne doit pas pouvoir demander tout le catalogue d'un coup
+    const page = Math.max(1, Math.floor(Number(searchParams.get("page"))) || 1);
+    const limit = Math.min(50, Math.max(1, Math.floor(Number(searchParams.get("limit"))) || 5));
     const search = searchParams.get("search") || "";
 
     const skip = (page - 1) * limit;

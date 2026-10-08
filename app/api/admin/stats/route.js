@@ -78,35 +78,25 @@ const fetchStats = unstable_cache(
 
       // Revenus
       sql.query(`SELECT COALESCE(sum(${num("data->>'total'")}), 0) AS total FROM orders`),
-      Order.aggregate([
-        { $match: { createdAt: { $gte: periodStart } } },
-        { $group: { _id: null, total: { $sum: "$total" } } },
-      ]),
-      Order.aggregate([
-        { $match: { createdAt: { $gte: prevPeriodStart, $lt: periodStart } } },
-        { $group: { _id: null, total: { $sum: "$total" } } },
-      ]),
+      sql.query(`SELECT COALESCE(sum(${num("data->>'total'")}), 0) AS total FROM orders WHERE created_at >= $1`, [periodStart]),
+      sql.query(
+        `SELECT COALESCE(sum(${num("data->>'total'")}), 0) AS total FROM orders WHERE created_at >= $1 AND created_at < $2`,
+        [prevPeriodStart, periodStart]
+      ),
       Product.aggregate([
         { $match: { isAvailable: true } },
         { $group: { _id: null, total: { $sum: { $multiply: ["$stock", "$price"] } } } },
       ]),
 
-      // Évolution ventes — 1 seule agrégation (au lieu d'une boucle)
-      Order.aggregate([
-        { $match: { createdAt: { $gte: periodStart } } },
-        {
-          $group: {
-            _id: {
-              y: { $year: "$createdAt" },
-              m: { $month: "$createdAt" },
-              d: { $dayOfMonth: "$createdAt" },
-            },
-            revenue: { $sum: "$total" },
-            orders:  { $sum: 1 },
-          },
-        },
-        { $sort: { "_id.y": 1, "_id.m": 1, "_id.d": 1 } },
-      ]),
+      // Évolution ventes — 1 seule agrégation, jours comptés dans le fuseau du serveur
+      // (le même que la boucle de remplissage ci-dessous)
+      sql.query(
+        `SELECT to_char((created_at AT TIME ZONE $2)::date, 'YYYY-MM-DD') AS day,
+                COALESCE(sum(${num("data->>'total'")}), 0) AS revenue,
+                count(*)::int AS orders
+         FROM orders WHERE created_at >= $1 GROUP BY 1`,
+        [periodStart, Intl.DateTimeFormat().resolvedOptions().timeZone]
+      ),
 
       // Top produits
       sql.query(`
@@ -162,9 +152,8 @@ const fetchStats = unstable_cache(
 
     // ── Évolution : remplir les jours sans commandes ──
     const evoMap = {};
-    salesEvolutionAgg.forEach(({ _id, revenue, orders }) => {
-      const key = `${_id.y}-${String(_id.m).padStart(2, "0")}-${String(_id.d).padStart(2, "0")}`;
-      evoMap[key] = { revenue, orders };
+    salesEvolutionAgg.forEach(({ day, revenue, orders }) => {
+      evoMap[day] = { revenue: Number(revenue), orders };
     });
     const salesEvolution = [];
     for (let i = daysAgo - 1; i >= 0; i--) {

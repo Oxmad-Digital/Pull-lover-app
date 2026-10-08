@@ -1,5 +1,6 @@
 "use client";
 
+import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useCart } from "@/app/components/CartContext";
@@ -169,7 +170,11 @@ export default function CartPage() {
 
                   {/* IMAGE */}
                   <div className="cart-item-image">
-                    {item.image ? <img src={item.image} alt={item.name} /> : <span aria-hidden="true">PL</span>}
+                    {/* Vignette optimisée (la photo d'origine pèse plusieurs centaines de Ko) ;
+                        une ancienne URL hors /api/media reste affichée telle quelle */}
+                    {item.image?.startsWith("/api/media/")
+                      ? <Image src={item.image} alt={item.name} width={124} height={155} />
+                      : item.image ? <img src={item.image} alt={item.name} /> : <span aria-hidden="true">PL</span>}
                   </div>
 
                   {/* NOM + TAILLE + COULEUR + QTY */}

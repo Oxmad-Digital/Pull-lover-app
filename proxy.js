@@ -185,5 +185,5 @@ export async function proxy(req) {
 export const config = {
   // Tourne sur toutes les pages (hors assets/_next/api) pour pouvoir localiser chaque URL
   // et appliquer l'écran de maintenance à l'ensemble du site public.
-  matcher: ["/((?!_next/static|_next/image|favicon.ico).*)"],
+  matcher: ["/((?!api/|_next/static|_next/image|favicon.ico).*)"],
 };
