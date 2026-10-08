@@ -352,3 +352,147 @@
 .form-translation .form-hint {
   margin-top: -6px;
 }
+
+/* ── Couleurs et photos ── */
+.form-colors {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  margin: 0;
+  padding: 16px;
+  border: 1px dashed var(--gray-300, #d6d3d1);
+  border-radius: 10px;
+}
+
+.form-colors legend {
+  padding: 0 6px;
+}
+
+.form-colors .form-hint {
+  margin-top: -6px;
+}
+
+.color-card {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding: 12px;
+  background: var(--gray-100);
+  border: 1.5px solid var(--gray-200);
+  border-radius: var(--radius-md);
+}
+
+.color-card-head {
+  display: grid;
+  grid-template-columns: 40px 1fr 1fr auto;
+  gap: 8px;
+  align-items: center;
+}
+
+.product-form .color-card-head input[type="color"] {
+  width: 40px;
+  height: 40px;
+  padding: 2px;
+  cursor: pointer;
+}
+
+.color-card-actions {
+  display: flex;
+  gap: 4px;
+}
+
+.color-card-actions button,
+.image-move button {
+  width: 28px;
+  height: 28px;
+  border: 1px solid var(--gray-300);
+  border-radius: 6px;
+  background: white;
+  cursor: pointer;
+  font-size: 13px;
+}
+
+.color-card-actions button:disabled,
+.image-move button:disabled {
+  opacity: 0.35;
+  cursor: default;
+}
+
+.color-card-actions .color-remove:hover {
+  background: #ef4444;
+  border-color: #ef4444;
+  color: white;
+}
+
+.image-main-badge {
+  position: absolute;
+  left: 4px;
+  top: 4px;
+  padding: 1px 5px;
+  font-size: 10px;
+  font-weight: 600;
+  color: white;
+  background: var(--dark);
+  border-radius: 4px;
+}
+
+.image-move {
+  position: absolute;
+  bottom: 4px;
+  left: 0;
+  right: 0;
+  display: flex;
+  justify-content: center;
+  gap: 4px;
+  opacity: 0;
+  transition: opacity 0.15s;
+}
+
+.image-move button {
+  width: 24px;
+  height: 22px;
+  font-size: 11px;
+}
+
+.image-preview-item:hover .image-move,
+.image-preview-item:focus-within .image-move {
+  opacity: 1;
+}
+
+.btn-add-color {
+  align-self: flex-start;
+  padding: 8px 14px;
+  font-size: 13px;
+  font-weight: 600;
+  background: white;
+  border: 1.5px dashed var(--gray-300);
+  border-radius: var(--radius-md);
+  cursor: pointer;
+}
+
+.btn-add-color:hover {
+  border-color: #C75C5C;
+  color: #C75C5C;
+}
+
+@media (max-width: 480px) {
+  .color-card-head {
+    grid-template-columns: 40px 1fr auto;
+  }
+
+  .color-card-head .color-card-actions {
+    grid-column: 3;
+    grid-row: 1;
+  }
+
+  .color-card-head input:nth-of-type(3) {
+    grid-column: 2 / -1;
+    grid-row: 2;
+  }
+}
+
+@media (hover: none) {
+  .image-move {
+    opacity: 1;
+  }
+}

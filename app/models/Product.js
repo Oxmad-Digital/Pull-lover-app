@@ -31,6 +31,7 @@ const Product = createPostgresModel({
     specifications: [],
     sizes: [],
     colors: [],
+    variants: [],
     weight: 0,
     rating: 0,
     reviewsCount: 0,

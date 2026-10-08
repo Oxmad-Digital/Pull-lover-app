@@ -9,17 +9,23 @@ import { requireAdmin } from "@/app/lib/auth";
 import { escapeRegex } from "@/app/lib/text";
 import { deleteFromR2 } from "@/app/lib/r2";
 import { cleanProductTranslations } from "@/app/i18n/product.mjs";
+import { DEFAULT_IMAGE_KEYS, cleanProductColors, mediaUrl } from "@/app/lib/product-colors.mjs";
 
 // Champs modifiables via PATCH (bascule rapide depuis la liste admin)
 const PATCHABLE_FIELDS = ["isAvailable"];
 
-/** Normalise le corps JSON du formulaire produit (images déjà uploadées). */
+/** Normalise le corps JSON du formulaire produit (photos déjà uploadées, rangées par couleur). */
 function productFields(body) {
   const {
     name, brand, size, sizes, condition, description, details, careInstructions, fitInfo, shippingInfo, color,
     price, promoPrice, stock, stocks, weight,
-    images, image, imageKeys, translations,
+    variants, translations,
   } = body;
+
+  // Liste à plat des photos (vignette admin, e-mails de commande, SEO), dans l'ordre des couleurs
+  const colors = cleanProductColors(variants);
+  const imageKeys = [...new Set(colors.flatMap((color) => color.images))];
+  const images = imageKeys.map(mediaUrl);
 
   return {
     name,
@@ -38,17 +44,19 @@ function productFields(body) {
     promoPrice: promoPrice || null,
     stock: Number(stock) || 0,
     stocks: stocks || {},
-    images: images || [],
-    image: image || images?.[0] || "",
-    imageKeys: imageKeys || [],
+    variants: colors,
+    images,
+    image: images[0] || "",
+    imageKeys,
     translations: cleanProductTranslations(translations),
     isAvailable: Number(stock) > 0,
   };
 }
 
+// Les photos d'origine restent sur R2 : la fiche les affiche quand aucune couleur n'est enregistrée
 async function deleteKeys(keys) {
   await Promise.all(
-    keys.filter(Boolean).map((key) =>
+    keys.filter((key) => key && !DEFAULT_IMAGE_KEYS.has(key)).map((key) =>
       deleteFromR2(key).catch((err) =>
         console.error(`❌ Erreur suppression: ${key}`, err)
       )
@@ -166,10 +174,11 @@ export async function PUT(request) {
       return NextResponse.json({ message: "Produit introuvable" }, { status: 404 });
     }
 
-    const product = await Product.findByIdAndUpdate(body._id, productFields(body), { new: true });
+    const fields = productFields(body);
+    const product = await Product.findByIdAndUpdate(body._id, fields, { new: true });
 
-    // Supprime de R2 les images retirées du produit
-    const keptKeys = new Set(body.imageKeys || []);
+    // Supprime de R2 les photos retirées du produit
+    const keptKeys = new Set(fields.imageKeys);
     await deleteKeys((previousProduct.imageKeys || []).filter((key) => !keptKeys.has(key)));
 
     return NextResponse.json({ product });

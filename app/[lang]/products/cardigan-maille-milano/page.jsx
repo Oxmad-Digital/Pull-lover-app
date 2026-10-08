@@ -5,13 +5,12 @@ import { FEATURED_PRODUCT_PATH, breadcrumbJsonLd, openGraphBase, pageAlternates,
 import { localePath } from "@/app/i18n/config.mjs";
 import { localizeProduct } from "@/app/i18n/product.mjs";
 import { FEATURED_PRODUCT_COPY } from "@/app/lib/featured-product-copy.mjs";
+import { mediaUrl, productColors } from "@/app/lib/product-colors.mjs";
 // Styles propres à cette fiche : chargés ici plutôt que dans le layout de toutes les pages
 import "@/app/mantasoa-product.css";
 
 // Fiche rendue côté serveur avec le stock du moment, régénérée au plus toutes les 60 s
 export const revalidate = 60;
-
-const HERO_IMAGE = "/api/media/products/cardigan-maille-milano/cardigan-vert-mannequin-broderie-v4.webp";
 
 const TEXT = {
   fr: {
@@ -30,16 +29,22 @@ const TEXT = {
   },
 };
 
-// Nom saisi dans l'admin (version anglaise si renseignée), texte par défaut si la base est injoignable
-async function productName(lang) {
+// Photo principale de la première couleur (partages et données structurées)
+const heroImage = (product) => mediaUrl(productColors(product)[0].images[0]);
+
+// Nom (version anglaise si renseignée) et photo saisis dans l'admin, valeurs par défaut si la base est injoignable
+async function productMeta(lang) {
   const state = await getFeaturedProductState();
-  return localizeProduct(state?.product, lang)?.name || FEATURED_PRODUCT_COPY[lang].name;
+  return {
+    name: localizeProduct(state?.product, lang)?.name || FEATURED_PRODUCT_COPY[lang].name,
+    image: heroImage(state?.product),
+  };
 }
 
 export async function generateMetadata({ params }) {
   const { lang } = await params;
   const t = TEXT[lang];
-  const name = await productName(lang);
+  const { name, image } = await productMeta(lang);
   return {
     title: name,
     description: t.description,
@@ -49,7 +54,7 @@ export async function generateMetadata({ params }) {
       title: `${name} — Pull-Lover`,
       description: t.ogDescription,
       url: localePath(lang, FEATURED_PRODUCT_PATH),
-      images: [{ url: HERO_IMAGE, width: 1254, height: 1254, alt: t.ogAlt }],
+      images: [{ url: image, alt: t.ogAlt }],
     },
   };
 }
@@ -64,7 +69,7 @@ export default async function MantasoaPage({ params }) {
       {product && (
         <JsonLd
           data={[
-            productJsonLd(product, { path, images: [HERO_IMAGE] }),
+            productJsonLd(product, { path, images: [heroImage(product)] }),
             breadcrumbJsonLd([[TEXT[lang].home, localePath(lang, "/")], [product.name, path]]),
           ]}
         />

@@ -11,44 +11,9 @@ import { localePath } from "@/app/i18n/config.mjs";
 import { formatPrice } from "@/app/i18n/format.mjs";
 import { localizeProduct } from "@/app/i18n/product.mjs";
 import { FEATURED_PRODUCT_COPY } from "@/app/lib/featured-product-copy.mjs";
+import { mediaUrl, productColors } from "@/app/lib/product-colors.mjs";
 
 const SIZE_ORDER = ["XS", "S", "M", "L", "XL", "XXL"];
-
-const CARDIGAN_VARIANTS = [
-  {
-    id: "vert-foret",
-    code: "#284a37",
-    name: { fr: "Vert forêt", en: "Forest green" },
-    images: [
-      "/api/media/products/cardigan-maille-milano/cardigan-vert-mannequin-broderie-v4.webp",
-      "/api/media/products/cardigan-maille-milano/cardigan-vert-face-broderie-v4.webp",
-      "/api/media/products/cardigan-maille-milano/cardigan-vert-dos-broderie-v4.webp",
-      "/api/media/products/cardigan-maille-milano/cardigan-vert-coeur-broderie-v4.webp",
-    ],
-  },
-  {
-    id: "bleu-ciel",
-    code: "#a9c7e8",
-    name: { fr: "Bleu ciel", en: "Sky blue" },
-    images: [
-      "/api/media/products/cardigan-maille-milano/cardigan-bleu-mannequin-harmonise-v5.webp",
-      "/api/media/products/cardigan-maille-milano/cardigan-bleu-face-broderie-v4.webp",
-      "/api/media/products/cardigan-maille-milano/cardigan-bleu-dos-broderie-v4.webp",
-      "/api/media/products/cardigan-maille-milano/cardigan-bleu-coeur-broderie-v4.webp",
-    ],
-  },
-  {
-    id: "gris-anthracite",
-    code: "#3d3d3f",
-    name: { fr: "Gris anthracite", en: "Anthracite grey" },
-    images: [
-      "/api/media/products/cardigan-maille-milano/cardigan-anthracite-mannequin-broderie-v4.webp",
-      "/api/media/products/cardigan-maille-milano/cardigan-anthracite-face-broderie-v4.webp",
-      "/api/media/products/cardigan-maille-milano/cardigan-anthracite-dos-broderie-v4.webp",
-      "/api/media/products/cardigan-maille-milano/cardigan-anthracite-coeur-broderie-v4.webp",
-    ],
-  },
-];
 
 const TEXT = {
   fr: {
@@ -179,7 +144,7 @@ export default function MantasoaProductPage({ initialState = null }) {
   const [status, setStatus] = useState(initialState?.status ?? "loading");
   const [product, setProduct] = useState(initialState?.product ?? null);
   const [activeImage, setActiveImage] = useState(0);
-  const [selectedColor, setSelectedColor] = useState(CARDIGAN_VARIANTS[0].id);
+  const [selectedColor, setSelectedColor] = useState(() => productColors(initialState?.product)[0].id);
   const [selectedSize, setSelectedSize] = useState("");
   const [quantity, setQuantity] = useState(1);
   const [sizeError, setSizeError] = useState(false);
@@ -205,13 +170,18 @@ export default function MantasoaProductPage({ initialState = null }) {
   // Textes affichés dans la langue de la page ; `product` garde les valeurs françaises envoyées à la commande
   const display = useMemo(() => localizeProduct(product, lang), [product, lang]);
   const name = display?.name || copy.name;
-  const selectedVariant = useMemo(
-    () => CARDIGAN_VARIANTS.find((variant) => variant.id === selectedColor) || CARDIGAN_VARIANTS[0],
-    [selectedColor],
+  const variants = useMemo(
+    () => productColors(product).map((variant) => ({
+      ...variant,
+      // Nom anglais vide : on reprend le nom français
+      name: { fr: variant.name.fr, en: variant.name.en || variant.name.fr },
+    })),
+    [product],
   );
+  const selectedVariant = variants.find((variant) => variant.id === selectedColor) || variants[0];
   const images = useMemo(
-    () => selectedVariant.images.map((src, index) => ({
-      src,
+    () => selectedVariant.images.map((key, index) => ({
+      src: mediaUrl(key),
       alt: index === 0
         ? `${t.mainAlt} — ${selectedVariant.name[lang]}`
         : t.view(`${name} — ${selectedVariant.name[lang]}`, index + 1),
@@ -315,7 +285,7 @@ export default function MantasoaProductPage({ initialState = null }) {
           <div className="mp-color">
             <div className="mp-color-copy"><strong>{t.color}</strong><span>{selectedVariant.name[lang]}</span></div>
             <div className="mp-swatches" aria-label={t.color}>
-              {CARDIGAN_VARIANTS.map((variant) => (
+              {variants.map((variant) => (
                 <button
                   type="button"
                   key={variant.id}

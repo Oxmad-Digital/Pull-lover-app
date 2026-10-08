@@ -2,6 +2,8 @@
 import { useState } from "react";
 import { cleanProductTranslations } from "@/app/i18n/product.mjs";
 import { FEATURED_PRODUCT_COPY } from "@/app/lib/featured-product-copy.mjs";
+import { DEFAULT_PRODUCT_COLORS } from "@/app/lib/product-colors.mjs";
+import ProductColorsField from "./ProductColorsField";
 import "./ProductForm.css";
 
 // Champs de la version anglaise du site (/en) : vides, ils reprennent le texte français
@@ -12,7 +14,6 @@ const ENGLISH_FIELDS = [
   { key: "careInstructions", label: "Entretien et lavage", placeholder: "Machine wash at 30°C, do not tumble dry…", rows: 3 },
   { key: "fitInfo", label: "Coupe et taille", placeholder: "Straight cut, take your usual size…", rows: 3 },
   { key: "shippingInfo", label: "Livraison et retours", placeholder: "Made after you order, 14-day returns…", rows: 3 },
-  { key: "color", label: "Couleur", placeholder: "Natural ecru" },
 ];
 
 export default function ProductForm({
@@ -34,7 +35,6 @@ export default function ProductForm({
   const [careInstructions, setCareInstructions] = useState(editingProduct?.careInstructions || FEATURED_PRODUCT_COPY.fr.careInstructions);
   const [fitInfo, setFitInfo] = useState(editingProduct?.fitInfo || FEATURED_PRODUCT_COPY.fr.fitInfo);
   const [shippingInfo, setShippingInfo] = useState(editingProduct?.shippingInfo || FEATURED_PRODUCT_COPY.fr.shippingInfo);
-  const [color, setColor] = useState(editingProduct?.color || "");
   const [price, setPrice] = useState(editingProduct?.price || "");
   const [weight, setWeight] = useState(editingProduct?.weight || "");
   const [promoPrice, setPromoPrice] = useState(editingProduct?.promoPrice || "");
@@ -44,68 +44,15 @@ export default function ProductForm({
     return Object.fromEntries(Object.entries(saved).map(([key, value]) => [key, value || FEATURED_PRODUCT_COPY.en[key] || ""]));
   });
 
-  const [uploadedUrls, setUploadedUrls] = useState(
-    editingProduct?.images || (editingProduct?.image ? [editingProduct.image] : [])
-  );
-  const [uploadedKeys, setUploadedKeys] = useState(
-    editingProduct?.imageKeys || []
-  );
-  const [imagePreviews, setImagePreviews] = useState(
-    editingProduct?.images || (editingProduct?.image ? [editingProduct.image] : [])
+
+  // Aucune couleur enregistrée : on part de celles que la fiche affiche par défaut
+  const [colors, setColors] = useState(() =>
+    editingProduct?.variants?.length ? editingProduct.variants : structuredClone(DEFAULT_PRODUCT_COLORS)
   );
 
   const [uploading, setUploading] = useState(false);
   const [loading, setLoading] = useState(false);
   const [msg, setMsg] = useState("");
-
-  // ✅ Upload immédiat sur R2
-  const handleImageChange = async (e) => {
-    const files = Array.from(e.target.files);
-    if (files.length === 0) return;
-
-    setUploading(true);
-    setMsg("📤 Upload en cours...");
-
-    try {
-      for (const file of files) {
-        const localPreview = URL.createObjectURL(file);
-        setImagePreviews((prev) => [...prev, localPreview]);
-
-        const formData = new FormData();
-        formData.append("file", file);
-        formData.append("type", "product");
-
-        const res = await fetch("/api/upload", {
-          method: "POST",
-          body: formData,
-        });
-
-        const data = await res.json();
-
-        if (!res.ok) {
-          setMsg("❌ Erreur upload: " + data.message);
-          setUploading(false);
-          return;
-        }
-
-        setImagePreviews((prev) => [...prev.slice(0, -1), data.url]);
-        setUploadedUrls((prev) => [...prev, data.url]);
-        setUploadedKeys((prev) => [...prev, data.key]);
-      }
-
-      setMsg("✅ Images uploadées !");
-    } catch (err) {
-      setMsg("❌ Erreur: " + err.message);
-    } finally {
-      setUploading(false);
-    }
-  };
-
-  const removeImage = (index) => {
-    setImagePreviews((prev) => prev.filter((_, i) => i !== index));
-    setUploadedUrls((prev) => prev.filter((_, i) => i !== index));
-    setUploadedKeys((prev) => prev.filter((_, i) => i !== index));
-  };
 
   // ✅ Envoie du JSON pur
   const handleSubmit = async (e) => {
@@ -145,13 +92,12 @@ export default function ProductForm({
         careInstructions,
         fitInfo,
         shippingInfo,
-        color,
+        // Ancien champ couleur unique, remplacé par les couleurs : conservé tel quel
+        color: editingProduct?.color || "",
         price: Number(price),
         promoPrice: promoPrice ? Number(promoPrice) : null,
         weight: weight ? Number(weight) : 0,
-        images: uploadedUrls,
-        image: uploadedUrls[0] || "",
-        imageKeys: uploadedKeys,
+        variants: colors,
         translations: cleanProductTranslations({ en: english }),
       };
 
@@ -260,15 +206,6 @@ export default function ProductForm({
         />
       </div>
 
-      <div className="form-field">
-        <label className="form-label">Couleur</label>
-        <input
-          placeholder="Écru naturel"
-          value={color}
-          onChange={(e) => setColor(e.target.value)}
-        />
-      </div>
-
       <fieldset className="form-translation">
         <legend className="form-label">Version anglaise</legend>
         <small className="form-hint">Textes affichés sur le site en anglais (/en). Un champ laissé vide reprend le texte français.</small>
@@ -330,43 +267,7 @@ export default function ProductForm({
         />
       </div>
 
-      {/* Upload images */}
-      <div className="image-upload-section">
-        <label>Images du produit</label>
-        <input
-          type="file"
-          accept="image/*"
-          multiple
-          onChange={handleImageChange}
-          disabled={uploading}
-        />
-        {uploading && (
-          <p style={{ color: "#C75C5C", marginTop: "8px", fontSize: "13px", fontWeight: "500" }}>
-            ⏳ Upload en cours...
-          </p>
-        )}
-        <p className="image-count">
-          {uploadedUrls.length} image(s) sur R2 ✅
-        </p>
-      </div>
-
-      {/* Prévisualisation */}
-      {imagePreviews.length > 0 && (
-        <div className="image-previews">
-          {imagePreviews.map((src, index) => (
-            <div key={index} className="image-preview-item">
-              <img src={src} alt={`Preview ${index + 1}`} />
-              <button
-                type="button"
-                onClick={() => removeImage(index)}
-                className="remove-image-btn"
-              >
-                ✕
-              </button>
-            </div>
-          ))}
-        </div>
-      )}
+      <ProductColorsField colors={colors} onChange={setColors} onUploadingChange={setUploading} />
 
       <div className="form-buttons">
         <button
