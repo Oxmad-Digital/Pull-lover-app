@@ -3,9 +3,13 @@ import { getToken } from "next-auth/jwt";
 import { getClient } from "./app/lib/db";
 import { DEFAULT_LOCALE, LOCALE_COOKIE, localePath, splitLocale } from "./app/i18n/config.mjs";
 
-// 🚧 Mode maintenance : n'affecte que ces domaines (le lien *.vercel.app reste
-// toujours accessible pour continuer à travailler sur le site en prod).
-const MAINTENANCE_HOSTS = ["pull-lover.com", "www.pull-lover.com"];
+// 🚧 Mode maintenance : s'applique à tous les domaines (pull-lover.com comme *.vercel.app),
+// sauf en développement local. Un admin connecté voit toujours le site.
+const MAINTENANCE_ENABLED_HERE = process.env.NODE_ENV === "production";
+
+// Pages toujours accessibles en maintenance : un admin doit pouvoir se connecter
+// (ou réinitialiser son mot de passe) pour voir le site et désactiver le mode.
+const ALLOWED_DURING_MAINTENANCE = ["/auth/login", "/auth/forgot-password", "/auth/reset-password"];
 
 // Lu directement en base (une ligne, un champ) et gardé en mémoire de l'instance :
 // pas d'appel HTTP vers /api/settings à chaque navigation. Un changement dans les
@@ -47,6 +51,8 @@ const MAINTENANCE_HTML = `<!doctype html>
   img { width: 140px; height: auto; margin-bottom: 1rem; }
   h1 { margin: 0; font-size: 1.5rem; font-weight: 500; letter-spacing: .01em; }
   p { margin: 0; font-size: .95rem; color: #777; }
+  .admin { position: fixed; bottom: 1.25rem; font-size: .75rem; color: #aaa; text-decoration: none; }
+  .admin:hover, .admin:focus-visible { color: #555; text-decoration: underline; }
 </style>
 </head>
 <body>
@@ -54,6 +60,7 @@ const MAINTENANCE_HTML = `<!doctype html>
   <h1>Bientôt de retour.</h1>
   <p>Notre site est en cours de préparation.</p>
   <p lang="en">Back soon — our site is being prepared.</p>
+  <a class="admin" href="/auth/login" rel="nofollow">Accès administrateur</a>
 </body>
 </html>`;
 
@@ -126,23 +133,27 @@ export async function proxy(req) {
 
   // Le JWT n'est décodé que si une règle en a besoin (et au plus une fois)
   let tokenPromise;
-  const readToken = () => (tokenPromise ??= getToken({
-    req,
-    secret: process.env.NEXTAUTH_SECRET,
-    // Déduit du protocole réel de la requête (et non de NEXTAUTH_URL) pour
-    // lire le bon cookie (__Secure-next-auth...) en production.
-    secureCookie:
-      (req.headers.get("x-forwarded-proto") || req.nextUrl.protocol.replace(":", "")) === "https",
-  }));
+  const readToken = () => (tokenPromise ??= (async () => {
+    // Nom du cookie déduit du protocole réel de la requête (__Secure-next-auth... en https).
+    // NextAuth le nomme pourtant d'après NEXTAUTH_URL : si celle-ci est mal renseignée
+    // (ex. http://localhost:3000 en prod), on lit l'autre nom plutôt que de bloquer l'admin.
+    // Sans risque : le jeton reste chiffré et vérifié avec NEXTAUTH_SECRET.
+    const https = (req.headers.get("x-forwarded-proto") || req.nextUrl.protocol.replace(":", "")) === "https";
+    const secret = process.env.NEXTAUTH_SECRET;
+    return (await getToken({ req, secret, secureCookie: https }))
+      ?? (await getToken({ req, secret, secureCookie: !https }));
+  })());
 
   // 🚧 ÉCRAN "SITE EN CONSTRUCTION"
-  // Uniquement sur le domaine pull-lover.com, jamais sur /admin (pour pouvoir
-  // désactiver le mode depuis les réglages), ni sur la connexion, ni pour un admin déjà connecté.
-  if (!isAdmin && !path.startsWith("/auth/login")) {
-    const host = (req.headers.get("host") || "").split(":")[0].toLowerCase();
-    if (MAINTENANCE_HOSTS.includes(host) && (await isMaintenanceModeOn()) && (await readToken())?.role !== "admin") {
-      return maintenanceResponse();
-    }
+  // Jamais sur /admin (contrôlé plus bas), ni sur la connexion, ni pour un admin déjà connecté.
+  if (
+    MAINTENANCE_ENABLED_HERE &&
+    !isAdmin &&
+    !ALLOWED_DURING_MAINTENANCE.some((p) => path === p || path.startsWith(`${p}/`)) &&
+    (await isMaintenanceModeOn()) &&
+    (await readToken())?.role !== "admin"
+  ) {
+    return maintenanceResponse();
   }
 
   const productId = path.match(PRODUCT_ID_PATH)?.[1];
