@@ -308,7 +308,6 @@
 .mp-confirmation { padding: 12px 14px; color: #294d31; background: #edf3ed; }
 .mp-confirmation a { color: inherit; font-weight: 600; }
 .mp-load-note { color: #8b3d35; }
-.mp-orders-closed { margin: 12px 0 0; padding: 12px 14px; color: #6b4a1f; background: #f6efe4; font-size: 11px; line-height: 1.5; }
 .mp-lead-time { margin: 12px 0 0; color: #6f6a64; font-size: 11px; line-height: 1.5; }
 .mp-size-picker.has-error .mp-sizes { outline: 1px solid #9a2929; outline-offset: 4px; }
 
@@ -331,8 +330,7 @@
 .mp-quantity button:disabled { cursor: not-allowed; opacity: 0.3; }
 .mp-quantity span { font-size: 12px; }
 
-.mp-add,
-.mp-buy-now {
+.mp-add {
   min-height: 58px;
   padding: 15px 20px;
   cursor: pointer;
@@ -355,17 +353,9 @@
 .mp-add:hover:not(:disabled) { color: var(--mp-ink); background: transparent; }
 .mp-add span { padding-left: 12px; font-size: 10px; font-weight: 400; }
 
-.mp-buy-now {
-  width: 100%;
-  margin-top: 10px;
-  color: var(--mp-ink);
-  background: transparent;
-  border: 1px solid var(--mp-ink);
-  font-size: 10px;
-}
-
-.mp-buy-now:hover:not(:disabled) { color: white; background: var(--mp-ink); }
-.mp-add:disabled, .mp-buy-now:disabled { cursor: not-allowed; opacity: 0.4; }
+.mp-add:disabled { cursor: not-allowed; opacity: 0.4; }
+/* Commandes fermées : le message reste lisible dans le bouton */
+.mp-add.is-closed:disabled { opacity: 0.75; }
 
 .mp-reassurance {
   display: grid;

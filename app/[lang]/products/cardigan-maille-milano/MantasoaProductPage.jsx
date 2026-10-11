@@ -3,7 +3,6 @@
 import Image from "next/image";
 import Link from "next/link";
 import { useEffect, useMemo, useState } from "react";
-import { useRouter } from "next/navigation";
 import { useCart } from "@/app/components/CartContext";
 import { productSizes, remainingStock, selectFeaturedProduct } from "@/app/lib/featured-product.mjs";
 import { useLang } from "@/app/i18n/I18nProvider";
@@ -42,9 +41,7 @@ const TEXT = {
     addToCart: "Ajouter au panier",
     loading: "Chargement…",
     unavailable: "Indisponible",
-    comingSoon: "Bientôt disponible",
-    ordersClosed: "Les commandes ne sont pas encore ouvertes. Elles ouvriront très bientôt, merci de votre patience.",
-    buyNow: "Commander maintenant",
+    ordersClosed: "Commandes bientôt ouvertes",
     leadTime: "Environ 2 semaines pour l’envoi de votre pièce en France, puis le délai de livraison du transporteur.",
     added: "Le cardigan a été ajouté à votre panier.",
     viewCart: "Voir le panier",
@@ -102,9 +99,7 @@ const TEXT = {
     addToCart: "Add to cart",
     loading: "Loading…",
     unavailable: "Unavailable",
-    comingSoon: "Coming soon",
-    ordersClosed: "Orders are not open yet. They will open very soon, thank you for your patience.",
-    buyNow: "Order now",
+    ordersClosed: "Orders opening soon",
     leadTime: "Allow about 2 weeks for your piece to reach France, plus the carrier’s delivery time.",
     added: "The cardigan has been added to your cart.",
     viewCart: "View cart",
@@ -145,7 +140,6 @@ export default function MantasoaProductPage({ initialState = null, ordersOpen = 
   const t = TEXT[lang];
   const copy = FEATURED_PRODUCT_COPY[lang];
   const href = (path) => localePath(lang, path);
-  const router = useRouter();
   const { addToCart, cartItems } = useCart();
   const [status, setStatus] = useState(initialState?.status ?? "loading");
   const [product, setProduct] = useState(initialState?.product ?? null);
@@ -243,10 +237,6 @@ export default function MantasoaProductPage({ initialState = null, ordersOpen = 
     return true;
   }
 
-  function buyNow() {
-    if (addSelection()) router.push(href("/checkout"));
-  }
-
   return (
     <article className="mp-page">
       <nav className="mp-breadcrumb" aria-label={t.breadcrumb} data-reveal>
@@ -332,17 +322,15 @@ export default function MantasoaProductPage({ initialState = null, ordersOpen = 
               <span aria-live="polite">{quantity}</span>
               <button type="button" aria-label={t.increase} disabled={!selectedSize || quantity >= stockForSize} onClick={() => setQuantity((value) => value + 1)}>+</button>
             </div>
-            <button type="button" className="mp-add" disabled={!purchasable} onClick={addSelection}>
-              {purchasable ? t.addToCart : !ordersOpen ? t.comingSoon : status === "loading" ? t.loading : t.unavailable}
-              {price !== null && <span>{formatPrice(price * quantity, lang)}</span>}
+            <button type="button" className={`mp-add${ordersOpen ? "" : " is-closed"}`} disabled={!purchasable} onClick={addSelection}>
+              {purchasable ? t.addToCart : !ordersOpen ? t.ordersClosed : status === "loading" ? t.loading : t.unavailable}
+              {price !== null && ordersOpen && <span>{formatPrice(price * quantity, lang)}</span>}
             </button>
           </div>
-          <button type="button" className="mp-buy-now" disabled={!purchasable} onClick={buyNow}>{t.buyNow}</button>
           <p className="mp-lead-time">{t.leadTime}</p>
           {confirmation && <p className="mp-confirmation" role="status">{t.added} <Link href={href("/panier")}>{t.viewCart}</Link></p>}
           {status === "error" && <p className="mp-load-note">{t.loadError}</p>}
           {status === "empty" && <p className="mp-load-note">{t.notOpen}</p>}
-          {!ordersOpen && <p className="mp-orders-closed" role="status">{t.ordersClosed}</p>}
 
           <ul className="mp-reassurance" aria-label={t.services}>
             {t.reassurance.map(([icon, title, text]) => (
