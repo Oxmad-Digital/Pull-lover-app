@@ -28,7 +28,7 @@ const TEXT = {
     next: "Photo suivante",
     kicker: "Maille de Madagascar · Pièce n° 01",
     madeToOrder: "Fabriqué à la demande",
-    priceNote: "Hors taxes · total au panier",
+    priceNote: "TTC · 2 semaines pour l’expédition + livraison",
     color: "Couleur",
     colorLabel: (color) => `Couleur ${color}`,
     chooseSize: "Choisir la taille",
@@ -42,7 +42,10 @@ const TEXT = {
     addToCart: "Ajouter au panier",
     loading: "Chargement…",
     unavailable: "Indisponible",
+    comingSoon: "Bientôt disponible",
+    ordersClosed: "Les commandes ne sont pas encore ouvertes. Elles ouvriront très bientôt, merci de votre patience.",
     buyNow: "Commander maintenant",
+    leadTime: "Environ 2 semaines pour l’envoi de votre pièce en France, puis le délai de livraison du transporteur.",
     added: "Le cardigan a été ajouté à votre panier.",
     viewCart: "Voir le panier",
     loadError: "Les informations de stock sont momentanément indisponibles. Réessayez dans quelques instants.",
@@ -85,7 +88,7 @@ const TEXT = {
     next: "Next photo",
     kicker: "Knitwear from Madagascar · Piece no. 01",
     madeToOrder: "Made to order",
-    priceNote: "Excl. VAT · total in your cart",
+    priceNote: "Incl. VAT · 2 weeks to ship + delivery",
     color: "Colour",
     colorLabel: (color) => `Colour ${color}`,
     chooseSize: "Choose your size",
@@ -99,7 +102,10 @@ const TEXT = {
     addToCart: "Add to cart",
     loading: "Loading…",
     unavailable: "Unavailable",
+    comingSoon: "Coming soon",
+    ordersClosed: "Orders are not open yet. They will open very soon, thank you for your patience.",
     buyNow: "Order now",
+    leadTime: "Allow about 2 weeks for your piece to reach France, plus the carrier’s delivery time.",
     added: "The cardigan has been added to your cart.",
     viewCart: "View cart",
     loadError: "Stock information is temporarily unavailable. Please try again in a moment.",
@@ -134,7 +140,7 @@ const TEXT = {
 
 
 // initialState : calculé au rendu serveur ; absent (base injoignable), le produit est chargé ici.
-export default function MantasoaProductPage({ initialState = null }) {
+export default function MantasoaProductPage({ initialState = null, ordersOpen = true }) {
   const lang = useLang();
   const t = TEXT[lang];
   const copy = FEATURED_PRODUCT_COPY[lang];
@@ -199,7 +205,7 @@ export default function MantasoaProductPage({ initialState = null }) {
     });
   }, [product]);
   const stockForSize = selectedSize && product ? remainingStock(product, selectedSize, cartItems) : 0;
-  const purchasable = status === "ready" && product?.isAvailable !== false && Number(product.stock) > 0;
+  const purchasable = ordersOpen && status === "ready" && product?.isAvailable !== false && Number(product.stock) > 0;
   const price = product ? Number(product.promoPrice ?? product.price) : null;
 
 
@@ -327,14 +333,16 @@ export default function MantasoaProductPage({ initialState = null }) {
               <button type="button" aria-label={t.increase} disabled={!selectedSize || quantity >= stockForSize} onClick={() => setQuantity((value) => value + 1)}>+</button>
             </div>
             <button type="button" className="mp-add" disabled={!purchasable} onClick={addSelection}>
-              {purchasable ? t.addToCart : status === "loading" ? t.loading : t.unavailable}
+              {purchasable ? t.addToCart : !ordersOpen ? t.comingSoon : status === "loading" ? t.loading : t.unavailable}
               {price !== null && <span>{formatPrice(price * quantity, lang)}</span>}
             </button>
           </div>
           <button type="button" className="mp-buy-now" disabled={!purchasable} onClick={buyNow}>{t.buyNow}</button>
+          <p className="mp-lead-time">{t.leadTime}</p>
           {confirmation && <p className="mp-confirmation" role="status">{t.added} <Link href={href("/panier")}>{t.viewCart}</Link></p>}
           {status === "error" && <p className="mp-load-note">{t.loadError}</p>}
           {status === "empty" && <p className="mp-load-note">{t.notOpen}</p>}
+          {!ordersOpen && <p className="mp-orders-closed" role="status">{t.ordersClosed}</p>}
 
           <ul className="mp-reassurance" aria-label={t.services}>
             {t.reassurance.map(([icon, title, text]) => (

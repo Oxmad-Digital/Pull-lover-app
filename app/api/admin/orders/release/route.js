@@ -6,7 +6,7 @@ import { connectDB }        from "@/app/lib/db";
 import { SENDCLOUD_CONFIGURED } from "@/app/lib/sendcloud";
 import { findDueOrders, releaseDueOrders } from "@/app/lib/shipOrder";
 
-// GET : liste (sans rien envoyer) des commandes dont la période de drop est terminée
+// GET : liste (sans rien envoyer) des commandes payées pas encore envoyées au transporteur
 export async function GET() {
   const denied = await requireAdmin();
   if (denied) return denied;
@@ -23,7 +23,7 @@ export async function GET() {
   });
 }
 
-// POST { confirm: true } : annonce toutes les commandes échues au transporteur
+// POST { confirm: true } : annonce toutes ces commandes au transporteur
 export async function POST(req) {
   const denied = await requireAdmin();
   if (denied) return denied;

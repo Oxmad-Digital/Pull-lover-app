@@ -258,6 +258,10 @@
 .summary-divider { height: 1px; margin: 10px 0 18px; background: var(--pl-line); }
 .summary-total { align-items: baseline; margin-bottom: 26px; color: var(--pl-ink); font-family: var(--pl-serif); font-size: 24px; }
 .summary-total span:last-child { font-size: 30px; font-weight: 400; }
+/* TVA comprise dans le total, rappelée en petit sous le montant */
+.summary-total:has(+ .summary-vat) { margin-bottom: 6px; }
+.summary-vat { margin-bottom: 26px; font-size: 12px; }
+.summary-vat span:last-child { color: var(--pl-muted); }
 
 .cart-checkout-button.btn {
   min-height: 58px;
@@ -269,9 +273,9 @@
   letter-spacing: .09em;
   text-transform: uppercase;
 }
-.cart-checkout-button span { font-size: 18px; line-height: 1; }
 .cart-quantity-warning { margin: 0 0 12px; color: var(--color-secondary-hover); font-size: 12px; line-height: 1.5; text-align: center; }
 .cart-made-to-order { margin: 14px 0 0; color: var(--pl-muted); font-size: 10px; letter-spacing: .06em; text-align: center; text-transform: uppercase; }
+.cart-lead-time { margin: 10px 0 0; color: var(--pl-muted); font-size: 12px; line-height: 1.5; text-align: center; }
 
 .cart-empty {
   max-width: 860px;

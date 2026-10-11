@@ -6,7 +6,6 @@ import Order from "@/app/models/Order";
 import { sendEmail, adminEmail, ordersPageUrl } from "@/app/lib/mailer";
 import { getOrderConfirmationEmailTemplate, getAdminNewOrderEmailTemplate, orderItemsHtml } from "@/app/lib/emailTemplates";
 import Customer from "@/app/models/Customer";
-import Settings from "@/app/models/Settings";
 import { computeOrderTotals, CheckoutError } from "@/app/lib/checkoutPricing";
 import { escapeHtml } from "@/app/lib/text";
 import { shippingLabel } from "@/app/lib/shipping-label";
@@ -181,11 +180,6 @@ export async function POST(req) {
       return NextResponse.json({ message: t("Veuillez choisir un point relais", "Please choose a pickup point") }, { status: 400 });
     }
 
-    // Drop : les données de livraison restent chez nous jusqu'à la fin de la période de drop
-    const settings = await Settings.findOne();
-    const releaseDate = settings?.shippingReleaseDate ? new Date(settings.shippingReleaseDate) : null;
-    const releaseAt = releaseDate && releaseDate > new Date() ? releaseDate : null;
-
     let order;
     try {
     order = await Order.create({
@@ -227,7 +221,6 @@ export async function POST(req) {
               city:       String(servicePoint.city || ""),
             }
           : null,
-        releaseAt,
         shippedAt:      null,
       },
       stockShortages: totals.shortages,

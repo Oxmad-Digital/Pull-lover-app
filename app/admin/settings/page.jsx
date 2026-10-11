@@ -41,10 +41,8 @@ export default function AdminSettingsPage() {
   const [dropDate, setDropDate]       = useState("");
   const [dropMode, setDropMode]     = useState("date");
   const [dur, setDur]                 = useState({ days: "", hours: "", minutes: "" });
-  const [releaseDate, setReleaseDate] = useState("");
   const [due, setDue]                 = useState(null);
   const [releasing, setReleasing]     = useState(false);
-  const [bandeauText, setBandeauText] = useState("");
   const [current, setCurrent]         = useState(null);
   const [loading, setLoading]         = useState(true);
   const [saving, setSaving]           = useState(null);
@@ -59,8 +57,6 @@ export default function AdminSettingsPage() {
     const data = await res.json();
     setCurrent(data);
     setDropDate(toLocalDatetimeValue(data.dropDate));
-    setReleaseDate(toLocalDatetimeValue(data.shippingReleaseDate));
-    setBandeauText(data.bandeauText ?? "");
     setLoading(false);
   }
 
@@ -68,6 +64,16 @@ export default function AdminSettingsPage() {
 
   function toggleMaintenance() {
     patch("maintenanceMode", !current?.maintenanceMode, "Mode maintenance");
+  }
+
+  function toggleOrders() {
+    const opening = current?.ordersOpen === false;
+    if (!opening && !window.confirm("Fermer les commandes ? Le site reste visible mais plus personne ne pourra payer.")) return;
+    patch("ordersOpen", opening, "Commandes");
+  }
+
+  function toggleBandeau() {
+    patch("bandeauEnabled", current?.bandeauEnabled === false, "Bandeau");
   }
 
   async function patch(field, value, label) {
@@ -205,17 +211,33 @@ export default function AdminSettingsPage() {
 
       <div className="content-grid" style={{ marginTop: 32 }}>
 
-        {/* ── Compteur drop ── */}
+        {/* ── Bandeau du header : affichage + compteur du drop ── */}
         <div className="admin-content-card">
           <p style={{ fontSize: 12, fontWeight: 700, color: "#78716c", textTransform: "uppercase", letterSpacing: "0.05em", marginBottom: 14 }}>
-            Compteur — date du prochain drop
+            Bandeau du header
+          </p>
+          <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 16, flexWrap: "wrap" }}>
+            <button
+              type="button"
+              className={`ap-toggle ${current?.bandeauEnabled !== false ? "on" : "off"}`}
+              onClick={toggleBandeau}
+              disabled={saving === "bandeauEnabled"}
+              title={current?.bandeauEnabled !== false ? "Masquer le bandeau" : "Afficher le bandeau"}
+            >
+              <span className="ap-toggle-thumb" />
+            </button>
+            <StatusBadge active={current?.bandeauEnabled !== false} activeLabel="Bandeau affiché" inactiveLabel="Bandeau masqué" />
+          </div>
+          {errors.bandeauEnabled && <p style={{ fontSize: 13, color: "#C75C5C", marginBottom: 12 }}>{errors.bandeauEnabled}</p>}
+          <p style={{ fontSize: 11, fontWeight: 700, color: "#78716c", textTransform: "uppercase", letterSpacing: "0.05em", margin: "20px 0 10px", paddingTop: 16, borderTop: "1px solid #e7e5e4" }}>
+            Compteur — date de fin de précommande
           </p>
           <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 16, flexWrap: "wrap" }}>
             <span style={{ fontSize: 14, fontWeight: 600, color: "#252323" }}>{formatDate(current?.dropDate)}</span>
             <StatusBadge
               active={!!(current?.dropDate && !dropExpired)}
               activeLabel="Actif"
-              inactiveLabel={current?.dropDate ? "Expiré — compteur caché" : "Non défini"}
+              inactiveLabel={current?.dropDate ? "Date passée" : "Non défini"}
             />
           </div>
           <form onSubmit={submitDrop} style={{ display: "flex", flexDirection: "column", gap: 12 }}>
@@ -234,7 +256,7 @@ export default function AdminSettingsPage() {
                 <label style={labelStyle}>Date & heure *</label>
                 <input type="datetime-local" value={dropDate} onChange={(e) => setDropDate(e.target.value)} />
                 <p style={{ fontSize: 11, color: "#a8a29e", marginTop: 5 }}>
-                  Le compteur est affiché sur la page d’accueil jusqu’à cette date, puis se cache automatiquement.
+                  Le bandeau affiche le compte à rebours jusqu’à cette date. Sans date, ou une fois la date passée, il affiche « date à définir ».
                 </p>
               </div>
             ) : (
@@ -267,37 +289,20 @@ export default function AdminSettingsPage() {
           </form>
         </div>
 
-        {/* ── Expédition : fin de la période de drop ── */}
+        {/* ── Expédition : envoi manuel au transporteur ── */}
         <div className="admin-content-card">
           <p style={{ fontSize: 12, fontWeight: 700, color: "#78716c", textTransform: "uppercase", letterSpacing: "0.05em", marginBottom: 14 }}>
-            Expédition — fin de la période de drop
+            Expédition
           </p>
-          <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 16, flexWrap: "wrap" }}>
-            <span style={{ fontSize: 14, fontWeight: 600, color: "#252323" }}>{formatDate(current?.shippingReleaseDate)}</span>
-            <StatusBadge
-              active={!!(current?.shippingReleaseDate && new Date(current.shippingReleaseDate) > dropNow)}
-              activeLabel="Envois en attente"
-              inactiveLabel={current?.shippingReleaseDate ? "Terminée" : "Non définie"}
-            />
-          </div>
-          <form onSubmit={(e) => { e.preventDefault(); patch("shippingReleaseDate", releaseDate ? new Date(releaseDate).toISOString() : null, "Date d'expédition"); }}
-            style={{ display: "flex", flexDirection: "column", gap: 12 }}>
-            <div>
-              <label style={labelStyle}>Date d&apos;envoi aux transporteurs</label>
-              <input type="datetime-local" value={releaseDate} onChange={(e) => setReleaseDate(e.target.value)} />
-              <p style={{ fontSize: 11, color: "#a8a29e", marginTop: 5 }}>
-                Les commandes passées avant cette date sont enregistrées mais ne sont PAS envoyées au transporteur. S&apos;applique aux nouvelles commandes.
-              </p>
-            </div>
-            <button type="submit" className="ap-btn-add" style={{ alignSelf: "flex-start" }} disabled={saving === "shippingReleaseDate"}>
-              {saving === "shippingReleaseDate" ? "Sauvegarde…" : "Enregistrer"}
-            </button>
-          </form>
-          <div style={{ borderTop: "1px solid #e7e5e4", marginTop: 18, paddingTop: 16 }}>
+          <p style={{ fontSize: 11, color: "#a8a29e", margin: "0 0 16px" }}>
+            Les commandes ne sont jamais envoyées automatiquement au transporteur. Elles partent uniquement
+            quand vous cliquez sur « Envoyer au transporteur » ici, ou sur « Générer l&apos;étiquette » dans le détail d&apos;une commande.
+          </p>
+          <div>
             <button type="button" className="ap-btn-add" onClick={checkDue}>Voir les commandes à expédier</button>
             {due && (
               <p style={{ fontSize: 13, color: "#57534e", marginTop: 10 }}>
-                {due.count} commande(s) payée(s) dont la période de drop est terminée.
+                {due.count} commande(s) payée(s) pas encore envoyée(s) au transporteur.
                 {due.count > 0 && (
                   <button type="button" className="ap-btn-add" style={{ marginLeft: 10 }} onClick={releaseNow} disabled={releasing}>
                     {releasing ? "Envoi…" : "Envoyer au transporteur"}
@@ -308,41 +313,29 @@ export default function AdminSettingsPage() {
           </div>
         </div>
 
-        {/* ── Bandeau header ── */}
+        {/* ── Ouverture des commandes ── */}
         <div className="admin-content-card">
           <p style={{ fontSize: 12, fontWeight: 700, color: "#78716c", textTransform: "uppercase", letterSpacing: "0.05em", marginBottom: 14 }}>
-            Bandeau header
+            Commandes
           </p>
           <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 16, flexWrap: "wrap" }}>
-            <span style={{ fontSize: 13, color: "#57534e", fontStyle: current?.bandeauText ? "normal" : "italic" }}>
-              {current?.bandeauText || "Aucun texte — bandeau masqué"}
-            </span>
-            <StatusBadge active={!!current?.bandeauText} activeLabel="Visible" inactiveLabel="Masqué" />
+            <button
+              type="button"
+              className={`ap-toggle ${current?.ordersOpen !== false ? "on" : "off"}`}
+              onClick={toggleOrders}
+              disabled={saving === "ordersOpen"}
+              title={current?.ordersOpen !== false ? "Fermer les commandes" : "Ouvrir les commandes"}
+            >
+              <span className="ap-toggle-thumb" />
+            </button>
+            <StatusBadge active={current?.ordersOpen !== false} activeLabel="Commandes ouvertes" inactiveLabel="Commandes fermées" />
           </div>
-          <form onSubmit={(e) => { e.preventDefault(); patch("bandeauText", bandeauText, "Bandeau"); }}
-            style={{ display: "flex", flexDirection: "column", gap: 12 }}>
-            <div>
-              <label style={labelStyle}>Texte du bandeau</label>
-              <input type="text" placeholder="Nouvel arrivage le 01/09/2026 à 19H" value={bandeauText}
-                onChange={(e) => setBandeauText(e.target.value)} />
-              <p style={{ fontSize: 11, color: "#a8a29e", marginTop: 5 }}>
-                Affiché en haut de toutes les pages (sauf accueil). Laisser vide pour masquer.
-              </p>
-            </div>
-            {errors.bandeauText && <p style={{ fontSize: 13, color: "#C75C5C" }}>{errors.bandeauText}</p>}
-            <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
-              <button type="submit" className="ap-btn-add" style={{ alignSelf: "flex-start" }} disabled={saving === "bandeauText"}>
-                {saving === "bandeauText" ? "Sauvegarde…" : "Enregistrer"}
-              </button>
-              {bandeauText && (
-                <button type="button" disabled={saving === "bandeauText"}
-                  onClick={() => { setBandeauText(""); patch("bandeauText", "", "Bandeau"); }}
-                  style={{ padding: "10px 16px", background: "#fff", border: "1.5px solid #e7e5e4", borderRadius: 6, fontSize: 13, fontWeight: 600, cursor: "pointer", color: "#C75C5C" }}>
-                  Masquer
-                </button>
-              )}
-            </div>
-          </form>
+          <p style={{ fontSize: 11, color: "#a8a29e", marginTop: 5 }}>
+            Une fois fermées, le site reste consultable mais les boutons « Ajouter au panier »,
+            « Commander maintenant » et « Procéder au paiement » sont désactivés, et aucun paiement
+            ne peut être créé. Les visiteurs voient un message indiquant que les commandes ouvriront bientôt.
+          </p>
+          {errors.ordersOpen && <p style={{ fontSize: 13, color: "#C75C5C", marginTop: 8 }}>{errors.ordersOpen}</p>}
         </div>
 
         {/* ── Mode maintenance ── */}

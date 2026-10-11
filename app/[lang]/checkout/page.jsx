@@ -7,6 +7,7 @@ import { Elements, CardElement, useStripe, useElements } from "@stripe/react-str
 import Image from "next/image";
 import { useCart } from "@/app/components/CartContext";
 import { ButtonPrimary } from "@/app/components/ui/Button";
+import { useOrdersOpen } from "@/app/hooks/useOrdersOpen";
 import { applicablePromo, computeTotals, PROMO_STORAGE_KEY, readStoredPromo } from "@/app/lib/pricing.mjs";
 import { useLang } from "@/app/i18n/I18nProvider";
 import { localePath } from "@/app/i18n/config.mjs";
@@ -56,9 +57,9 @@ const TEXT = {
     shippingLoading: "Chargement des modes d'expédition…",
     homeDelivery: "Livraison à domicile",
     relay: "Point relais",
-    leadTime: (days) => ` (~${days} j)`,
     changeRelay: "Changer de point relais",
     chooseRelayButton: "Choisir un point relais",
+    relayUnavailableHint: "Si un point relais est indiqué comme indisponible, choisissez-en un autre.",
     payment: "Paiement",
     cardInfo: "Informations de carte",
     stripeNotice: "Paiement chiffré et sécurisé par Stripe. Vos données bancaires ne transitent jamais par nos serveurs.",
@@ -69,10 +70,13 @@ const TEXT = {
     orderSummary: "Résumé de commande",
     detail: "Détail",
     subtotal: (count) => `Sous-total (${count})`,
+    quantity: (qty) => `Qté : ${qty}`,
     discount: (code) => `Remise (${code})`,
-    vat: "TVA (20%)",
+    vat: "Dont TVA (20 %)",
     shipping: "Livraison",
-    total: "Total",
+    ordersClosed: "Les commandes ne sont pas encore ouvertes. Elles ouvriront très bientôt, merci de votre patience.",
+    dispatchDelay: "Environ 2 semaines pour l’envoi de votre pièce en France, puis le délai de livraison du transporteur.",
+    total: "Total TTC",
   },
   en: {
     relayWidgetError: "Pickup point widget unavailable",
@@ -114,9 +118,9 @@ const TEXT = {
     shippingLoading: "Loading shipping methods…",
     homeDelivery: "Home delivery",
     relay: "Pickup point",
-    leadTime: (days) => ` (~${days} day${days > 1 ? "s" : ""})`,
     changeRelay: "Change pickup point",
     chooseRelayButton: "Choose a pickup point",
+    relayUnavailableHint: "If a pickup point is shown as unavailable, please choose another one.",
     payment: "Payment",
     cardInfo: "Card details",
     stripeNotice: "Encrypted, secure payment by Stripe. Your card details never pass through our servers.",
@@ -127,10 +131,13 @@ const TEXT = {
     orderSummary: "Order summary",
     detail: "Details",
     subtotal: (count) => `Subtotal (${count})`,
+    quantity: (qty) => `Qty: ${qty}`,
     discount: (code) => `Discount (${code})`,
-    vat: "VAT (20%)",
+    vat: "Incl. VAT (20%)",
     shipping: "Shipping",
-    total: "Total",
+    ordersClosed: "Orders are not open yet. They will open very soon, thank you for your patience.",
+    dispatchDelay: "Allow about 2 weeks for your piece to reach France, plus the carrier’s delivery time.",
+    total: "Total incl. VAT",
   },
 };
 
@@ -218,6 +225,7 @@ function CheckoutInner() {
   // PaymentIntent déjà débité dont la commande n'a pas pu être enregistrée :
   // une nouvelle tentative ne doit relancer que l'enregistrement, jamais un second paiement.
   const [paidIntentId, setPaidIntentId] = useState(null);
+  const ordersOpen = useOrdersOpen();
 
   useEffect(() => {
     const stored = readStoredPromo();
@@ -437,7 +445,7 @@ function CheckoutInner() {
 
         <header className="checkout-header" data-reveal-stagger>
           <button className="checkout-back" type="button" onClick={() => router.back()}>
-            <span aria-hidden="true">←</span> {t.back}
+            <svg viewBox="0 0 16 16" aria-hidden="true"><path d="M14 8H2M7 3 2 8l5 5" /></svg>{t.back}
           </button>
           <p className="checkout-eyebrow">{t.eyebrow}</p>
           <div className="checkout-heading">
@@ -562,7 +570,6 @@ function CheckoutInner() {
                         />
                         <span>
                           {shippingLabel({ ...m, relay: Boolean(m.servicePoint) }, lang)}
-                          {m.leadTimeDays ? t.leadTime(m.leadTimeDays) : ""}
                           {m.price != null ? ` — ${money(m.price)}` : ""}
                         </span>
                       </label>
@@ -572,6 +579,7 @@ function CheckoutInner() {
                             <PinIcon />
                             {servicePoint ? t.changeRelay : t.chooseRelayButton}
                           </button>
+                          {!servicePoint && <p className="checkout-stripe-notice">{t.relayUnavailableHint}</p>}
                           {servicePoint && (
                             <p className="checkout-stripe-notice">
                               {servicePoint.name} — {servicePoint.street}, {servicePoint.postalCode} {servicePoint.city}
@@ -601,18 +609,19 @@ function CheckoutInner() {
             </div>
 
             {errorMsg && <p className="checkout-error">{errorMsg}</p>}
+            {!ordersOpen && !paidIntentId && <p className="checkout-error" role="status">{t.ordersClosed}</p>}
 
             <ButtonPrimary
               full
               type="submit"
-              disabled={loading || !stripe}
+              disabled={loading || !stripe || (!ordersOpen && !paidIntentId)}
               className="checkout-pay-button"
             >
               {loading
                 ? t.processing
                 : paidIntentId
-                  ? <>{t.finalize} <span aria-hidden="true">→</span></>
-                  : <>{t.pay(money(total))} <span aria-hidden="true">→</span></>}
+                  ? t.finalize
+                  : t.pay(money(total))}
             </ButtonPrimary>
 
           </form>
@@ -640,10 +649,10 @@ function CheckoutInner() {
                   </div>
                   <div className="checkout-item-info">
                     <strong>{item.name}</strong>
-                    <p>{item.description}</p>
+                    <p>{[item.color, item.size, t.quantity(item.quantity)].filter(Boolean).join(" · ")}</p>
                   </div>
                   <span className="checkout-item-price">
-                    {money(item.promoPrice ?? item.price)}
+                    {money(Number(item.promoPrice ?? item.price) * item.quantity)}
                   </span>
                 </div>
               ))}
@@ -662,10 +671,6 @@ function CheckoutInner() {
                 </div>
               )}
               <div className="checkout-summary-row">
-                <span>{t.vat}</span>
-                <span>{money(tva)}</span>
-              </div>
-              <div className="checkout-summary-row">
                 <span>{t.shipping}</span>
                 <span>{livraison == null ? "—" : money(livraison)}</span>
               </div>
@@ -674,6 +679,11 @@ function CheckoutInner() {
                 <span>{t.total}</span>
                 <span>{money(total)}</span>
               </div>
+              <div className="checkout-summary-row checkout-summary-vat">
+                <span>{t.vat}</span>
+                <span>{money(tva)}</span>
+              </div>
+              <p className="checkout-lead-time">{t.dispatchDelay}</p>
             </div>
 
           </div>

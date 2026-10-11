@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import Stripe from "stripe";
 import { connectDB } from "@/app/lib/db";
+import Settings from "@/app/models/Settings";
 import { computeOrderTotals, CheckoutError } from "@/app/lib/checkoutPricing";
 import { translator } from "@/app/i18n/server";
 import { clientIp, rateLimit } from "@/app/lib/rateLimit";
@@ -22,6 +23,11 @@ export async function POST(req) {
     const customerEmail = typeof rawEmail === "string" && EMAIL_PATTERN.test(rawEmail.trim()) ? rawEmail.trim() : "";
 
     await connectDB();
+    // Commandes fermées depuis l'admin : aucun paiement n'est créé, quel que soit l'écran d'où vient l'appel
+    const settings = await Settings.findOne();
+    if (settings?.ordersOpen === false) {
+      return NextResponse.json({ message: t("Les commandes ne sont pas encore ouvertes. Elles ouvriront très bientôt, merci de votre patience.", "Orders are not open yet. They will open very soon, thank you for your patience.") }, { status: 403 });
+    }
     const { total } = await computeOrderTotals({ cartItems, promoCode, delivery, lang: t.lang });
 
     const paymentIntent = await stripe.paymentIntents.create({

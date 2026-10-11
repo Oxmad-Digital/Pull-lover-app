@@ -308,6 +308,8 @@
 .mp-confirmation { padding: 12px 14px; color: #294d31; background: #edf3ed; }
 .mp-confirmation a { color: inherit; font-weight: 600; }
 .mp-load-note { color: #8b3d35; }
+.mp-orders-closed { margin: 12px 0 0; padding: 12px 14px; color: #6b4a1f; background: #f6efe4; font-size: 11px; line-height: 1.5; }
+.mp-lead-time { margin: 12px 0 0; color: #6f6a64; font-size: 11px; line-height: 1.5; }
 .mp-size-picker.has-error .mp-sizes { outline: 1px solid #9a2929; outline-offset: 4px; }
 
 .mp-purchase-row {

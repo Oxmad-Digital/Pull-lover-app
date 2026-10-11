@@ -6,7 +6,7 @@ import { useState } from "react";
 import { signOut } from "next-auth/react";
 import {
   DashboardIcon, ProductsIcon, UsersIcon, AdminOrdersIcon,
-  PromoIcon, LogoutIcon, PlusIcon, CloseIcon, SettingsIcon, StatsIcon,
+  PromoIcon, LogoutIcon, HomeIcon, PlusIcon, CloseIcon, SettingsIcon, StatsIcon,
 } from "@/app/components/icons";
 
 const NAV_ITEMS = [
@@ -111,6 +111,11 @@ export default function AdminSidebar() {
                 <span>{label}</span>
               </Link>
             ))}
+            {/* Retour au site sans se déconnecter */}
+            <Link href="/" className="admin-more-item" onClick={() => setMoreOpen(false)}>
+              <span className="admin-more-item-icon"><HomeIcon /></span>
+              <span>Voir le site</span>
+            </Link>
             <button
               className="admin-more-item admin-more-logout"
               onClick={() => { setMoreOpen(false); signOut({ callbackUrl: "/" }); }}

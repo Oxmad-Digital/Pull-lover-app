@@ -12,9 +12,10 @@ export async function GET() {
   const settings = await Settings.findOne();
   return NextResponse.json({
     dropDate:        settings?.dropDate        ?? null,
-    shippingReleaseDate: settings?.shippingReleaseDate ?? null,
     startDate:       settings?.updatedAt       ?? null,
     bandeauText:     settings?.bandeauText     ?? "",
+    bandeauEnabled:  settings?.bandeauEnabled  ?? true,
+    ordersOpen:      settings?.ordersOpen      ?? true,
     maintenanceMode: settings?.maintenanceMode ?? false,
   });
 }
@@ -26,8 +27,9 @@ export async function PATCH(req) {
   const update = {};
 
   if ("dropDate" in body)        update.dropDate        = body.dropDate ? new Date(body.dropDate) : null;
-  if ("shippingReleaseDate" in body) update.shippingReleaseDate = body.shippingReleaseDate ? new Date(body.shippingReleaseDate) : null;
   if ("bandeauText" in body)     update.bandeauText     = body.bandeauText ?? "";
+  if ("bandeauEnabled" in body)  update.bandeauEnabled  = !!body.bandeauEnabled;
+  if ("ordersOpen" in body)      update.ordersOpen      = !!body.ordersOpen;
   if ("maintenanceMode" in body) update.maintenanceMode = !!body.maintenanceMode;
 
   if (Object.keys(update).length === 0) {
@@ -42,9 +44,10 @@ export async function PATCH(req) {
   );
   return NextResponse.json({
     dropDate:        settings.dropDate,
-    shippingReleaseDate: settings.shippingReleaseDate ?? null,
     startDate:       settings.updatedAt,
     bandeauText:     settings.bandeauText,
+    bandeauEnabled:  settings.bandeauEnabled ?? true,
+    ordersOpen:      settings.ordersOpen ?? true,
     maintenanceMode: settings.maintenanceMode,
   });
 }

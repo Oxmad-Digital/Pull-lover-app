@@ -12,12 +12,14 @@ export async function GET() {
       dropDate:        settings?.dropDate        ?? null,
       startDate:       settings?.updatedAt       ?? null,
       bandeauText:     settings?.bandeauText     ?? "",
+      bandeauEnabled:  settings?.bandeauEnabled  ?? true,
+      ordersOpen:      settings?.ordersOpen      ?? true,
       maintenanceMode: settings?.maintenanceMode ?? false,
     }, {
       headers: { "Cache-Control": "public, s-maxage=60, stale-while-revalidate=60" },
     });
   } catch (err) {
     console.error("GET /api/settings:", err);
-    return NextResponse.json({ dropDate: null, startDate: null, bandeauText: "", maintenanceMode: false }, { status: 500 });
+    return NextResponse.json({ dropDate: null, startDate: null, bandeauText: "", bandeauEnabled: true, ordersOpen: true, maintenanceMode: false }, { status: 500 });
   }
 }

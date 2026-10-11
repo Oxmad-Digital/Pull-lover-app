@@ -459,11 +459,6 @@
   color: #888;
   margin: 0 0 16px;
 }
-.od-shipping-warning {
-  display: block;
-  margin-top: 8px;
-  color: #b45309;
-}
 
 .od-btn-generate {
   background: var(--color-secondary-hover);

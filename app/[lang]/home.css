@@ -38,7 +38,6 @@
 .pl-home .pl-button:disabled { color: var(--pl-muted); background: #e5e7e4; border-color: #e5e7e4; cursor: not-allowed; }
 .pl-home .pl-button-light { flex-shrink: 0; color: var(--pl-ink); background: white; border-color: white; }
 .pl-home .pl-button-light:hover { background: transparent; color: white; }
-.pl-button span[aria-hidden] { font-size: 20px; line-height: 1; }
 .pl-scroll-cue { position: absolute; right: 4vw; bottom: 54px; display: flex; align-items: center; gap: 16px; writing-mode: vertical-rl; font-size: 11px; letter-spacing: .15em; text-decoration: none; text-transform: uppercase; }
 .pl-scroll-cue::after { content: ''; height: 54px; width: 1px; background: #ffffff90; }
 .pl-manifesto { padding: clamp(100px, 10vw, 190px) 8vw; }

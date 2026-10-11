@@ -11,10 +11,10 @@ test('the promo discount follows the current cart instead of the cart at validat
   assert.equal(promoDiscount({ type: 'fixed', value: 30 }, 20), 20);
 });
 
-test('totals keep cents instead of rounding VAT to whole euros', () => {
+test('prices include VAT: the VAT is shown but not added to the total', () => {
   const totals = computeTotals({ subtotal: 89.9, promo: null, shipping: 6.45 });
-  assert.equal(totals.tva, 17.98);
-  assert.equal(totals.total, 114.33);
+  assert.equal(totals.tva, 14.98);
+  assert.equal(totals.total, 96.35);
 });
 
 test('a promo below its minimum order amount is not applied', () => {

@@ -6,6 +6,7 @@ import { useRouter } from "next/navigation";
 import { useCart } from "@/app/components/CartContext";
 import { useEffect, useState } from "react";
 import { ButtonPrimary } from "@/app/components/ui/Button";
+import { useOrdersOpen } from "@/app/hooks/useOrdersOpen";
 import { applicablePromo, computeTotals, PROMO_STORAGE_KEY, readStoredPromo } from "@/app/lib/pricing.mjs";
 import { useLang } from "@/app/i18n/I18nProvider";
 import { localePath } from "@/app/i18n/config.mjs";
@@ -39,10 +40,13 @@ const TEXT = {
     productDiscount: "Réduction produits",
     discount: (code) => `Remise (${code})`,
     minNotReached: (code, amount) => `Code ${code} : montant minimum de ${amount} non atteint.`,
-    vat: "TVA (20%)",
+    vat: "Dont TVA (20 %)",
+    total: "Total TTC",
     zeroQty: "Un article a une quantité de 0. Supprimez-le ou augmentez la quantité.",
     checkout: "Procéder au paiement",
     madeToOrder: "Fabriqué à la demande · Paiement sécurisé",
+    ordersClosed: "Les commandes ne sont pas encore ouvertes. Elles ouvriront très bientôt, merci de votre patience.",
+    leadTime: "Environ 2 semaines pour l’envoi de votre pièce en France, puis le délai de livraison du transporteur.",
   },
   en: {
     eyebrow: "Your selection",
@@ -69,10 +73,13 @@ const TEXT = {
     productDiscount: "Product discount",
     discount: (code) => `Discount (${code})`,
     minNotReached: (code, amount) => `Code ${code}: minimum order of ${amount} not reached.`,
-    vat: "VAT (20%)",
+    vat: "Incl. VAT (20%)",
+    total: "Total incl. VAT",
     zeroQty: "An item has a quantity of 0. Remove it or increase the quantity.",
     checkout: "Proceed to checkout",
     madeToOrder: "Made to order · Secure payment",
+    ordersClosed: "Orders are not open yet. They will open very soon, thank you for your patience.",
+    leadTime: "Allow about 2 weeks for your piece to reach France, plus the carrier’s delivery time.",
   },
 };
 
@@ -86,6 +93,7 @@ export default function CartPage() {
   const [promoApplied, setPromoApplied] = useState(null);
   const [promoError, setPromoError] = useState("");
   const [promoLoading, setPromoLoading] = useState(false);
+  const ordersOpen = useOrdersOpen();
 
   // Code promo déjà validé (conservé 24 h) : restauré pour afficher le même total qu'au checkout
   useEffect(() => {
@@ -285,24 +293,28 @@ export default function CartPage() {
                   {t.minNotReached(promoApplied.code, money(promoApplied.minOrderAmount))}
                 </p>
               )}
-              <div className="summary-row">
+              <div className="summary-divider" />
+              <div className="summary-row summary-total">
+                <span>{t.total}</span>
+                <span>{money(total)}</span>
+              </div>
+              <div className="summary-row summary-vat">
                 <span>{t.vat}</span>
                 <span>{money(tva)}</span>
               </div>
-              <div className="summary-divider" />
-              <div className="summary-row summary-total">
-                <span>Total</span>
-                <span>{money(total)}</span>
-              </div>
+              {!ordersOpen && (
+                <p className="cart-quantity-warning" role="status">{t.ordersClosed}</p>
+              )}
               {hasZeroQty && (
                 <p className="cart-quantity-warning">
                   {t.zeroQty}
                 </p>
               )}
-              <ButtonPrimary className="cart-checkout-button" full onClick={() => router.push(localePath(lang, "/checkout"))} disabled={hasZeroQty}>
-                {t.checkout} <span aria-hidden="true">→</span>
+              <ButtonPrimary className="cart-checkout-button" full onClick={() => router.push(localePath(lang, "/checkout"))} disabled={hasZeroQty || !ordersOpen}>
+                {t.checkout}
               </ButtonPrimary>
               <p className="cart-made-to-order">{t.madeToOrder}</p>
+              <p className="cart-lead-time">{t.leadTime}</p>
             </div>
           </div>
 

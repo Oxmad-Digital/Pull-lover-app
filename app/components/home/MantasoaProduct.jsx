@@ -18,7 +18,7 @@ const TEXT = {
     madeToOrder: "À la demande",
     collection: "Collection Mantasoa",
     fallbackName: "Le cardigan",
-    priceNote: "Hors taxes · total calculé au panier",
+    priceNote: "TTC · 2 semaines pour l’expédition + livraison",
     fallbackDescription: "Une maille essentielle, pensée pour vous accompagner longtemps. Chaque pièce prend forme dans notre atelier familial à Antananarivo.",
     loading: "Chargement du vêtement…",
     error: "Les disponibilités ne peuvent pas être chargées pour le moment.",
@@ -33,7 +33,7 @@ const TEXT = {
     madeToOrder: "Made to order",
     collection: "Mantasoa collection",
     fallbackName: "The cardigan",
-    priceNote: "Excl. VAT · total calculated in your cart",
+    priceNote: "Incl. VAT · 2 weeks to ship + delivery",
     fallbackDescription: "An essential knit, designed to stay with you for years. Each piece takes shape in our family workshop in Antananarivo.",
     loading: "Loading the garment…",
     error: "Availability can’t be loaded right now.",
@@ -93,7 +93,7 @@ export default function MantasoaProduct({ initialState = null }) {
         {status === "error" && <div className="pl-product-state" role="status"><p>{t.error}</p></div>}
         {status === "empty" && <div className="pl-product-state"><p>{t.empty}</p></div>}
 
-        <Link className="pl-button pl-product-link" href={localePath(lang, "/products/cardigan-maille-milano")}>{t.cta} <span aria-hidden="true">→</span></Link>
+        <Link className="pl-button pl-product-link" href={localePath(lang, "/products/cardigan-maille-milano")}>{t.cta}</Link>
       </div>
     </section>
   );

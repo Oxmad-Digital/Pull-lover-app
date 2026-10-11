@@ -13,11 +13,12 @@ export function promoDiscount(promo, subtotal) {
   return round2(Math.max(0, discount));
 }
 
+// Les prix des articles sont TTC : la TVA est comprise dans le montant, elle n'est pas ajoutée.
 export function computeTotals({ subtotal, promo, shipping = 0 }) {
   const discount = promoDiscount(promo, subtotal);
   const discounted = round2(Math.max(0, subtotal - discount));
-  const tva = round2(discounted * TVA_RATE);
-  const total = round2(discounted + tva + (Number(shipping) || 0));
+  const tva = round2(discounted - discounted / (1 + TVA_RATE));
+  const total = round2(discounted + (Number(shipping) || 0));
   return { discount, discounted, tva, total };
 }
 

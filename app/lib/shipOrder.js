@@ -1,7 +1,7 @@
 // app/lib/shipOrder.js
 // Annonce une commande au transporteur via SendCloud : création du colis + étiquette
 // (le transporteur reçoit alors les données de livraison du client), puis email de suivi.
-// ⚠️ Action irréversible côté transporteur — ne l'appeler qu'à la fin de la période de drop.
+// ⚠️ Action irréversible côté transporteur — uniquement déclenchée à la main depuis l'admin.
 
 import Order from "@/app/models/Order";
 import { connectDB } from "@/app/lib/db";
@@ -52,17 +52,11 @@ async function releaseShipment(id) {
   `;
 }
 
-/** Date avant laquelle la commande ne doit pas partir chez le transporteur (ou null). */
-function holdUntil(order) {
-  const releaseAt = order.delivery?.releaseAt ? new Date(order.delivery.releaseAt) : null;
-  return releaseAt && releaseAt > new Date() ? releaseAt : null;
-}
 
 /**
  * @param {object} order   document Order
- * @param {{ force?: boolean }} opts  force = expédier avant la fin de la période de drop
  */
-export async function shipOrder(order, { force = false } = {}) {
+export async function shipOrder(order) {
   const id = order._id.toString();
 
   if (order.status === "cancelled" || order.status === "delivered") {
@@ -76,15 +70,6 @@ export async function shipOrder(order, { force = false } = {}) {
   if (!order.delivery?.methodId) {
     throw new ShipError("Cette commande n'a pas de mode d'expédition SendCloud (ancienne commande)", 422);
   }
-  const hold = holdUntil(order);
-  if (hold && !force) {
-    throw new ShipError(
-      `Période de drop en cours : expédition prévue à partir du ${hold.toLocaleDateString("fr-FR")}`,
-      423,
-      { releaseAt: hold }
-    );
-  }
-
   if (!(await claimShipment(id))) {
     throw new ShipError("Une expédition est déjà en cours ou terminée pour cette commande", 409);
   }
@@ -175,7 +160,7 @@ export async function shipOrder(order, { force = false } = {}) {
 /** Commandes payées, pas encore annoncées au transporteur, dont la période de drop est terminée. */
 export async function findDueOrders() {
   const orders = await Order.find({ status: "paid" });
-  return orders.filter((o) => !o.delivery?.trackingNumber && o.delivery?.methodId && !holdUntil(o));
+  return orders.filter((o) => !o.delivery?.trackingNumber && o.delivery?.methodId);
 }
 
 export async function releaseDueOrders() {

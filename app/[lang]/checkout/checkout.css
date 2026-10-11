@@ -40,15 +40,21 @@
   transition: color .2s ease;
 }
 
-.checkout-back span {
-  color: var(--color-secondary);
-  font-size: 17px;
-  line-height: 1;
+/* Flèche en SVG : un glyphe « ← » ne se centre pas sur la hauteur des majuscules */
+.checkout-back svg {
+  flex-shrink: 0;
+  width: 14px;
+  height: 14px;
+  fill: none;
+  stroke: var(--color-secondary);
+  stroke-width: 1.4;
+  stroke-linecap: round;
+  stroke-linejoin: round;
   transition: transform .2s ease;
 }
 
 .checkout-back:hover { color: var(--pl-ink); }
-.checkout-back:hover span { transform: translateX(-4px); }
+.checkout-back:hover svg { transform: translateX(-4px); }
 
 .checkout-eyebrow {
   margin: 0 0 20px;
@@ -263,7 +269,6 @@
   text-transform: uppercase;
 }
 
-.checkout-pay-button span { font-size: 18px; line-height: 1; }
 
 .checkout-right {
   position: sticky;
@@ -380,6 +385,10 @@
 }
 
 .checkout-summary-total span:last-child { font-size: 30px; font-weight: 400; }
+/* TVA comprise dans le total, rappelée en petit sous le montant */
+.checkout-summary-vat { margin: 6px 0 0; font-size: 12px; }
+.checkout-summary-vat span:last-child { color: var(--pl-muted); }
+.checkout-lead-time { margin: 18px 0 0; padding-top: 14px; border-top: 1px solid var(--pl-line); color: var(--pl-muted); font-size: 12px; line-height: 1.5; }
 
 @media (max-width: 939px) {
   .checkout-page { padding-top: 72px; }

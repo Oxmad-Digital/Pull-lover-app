@@ -131,6 +131,7 @@ export default function Header({ transparent = false, dashboard = false }) {
   const otherLang = lang === "fr" ? "en" : "fr";
   const switchHref = localePath(otherLang, splitLocale(pathname).path);
   const [dropDate, setDropDate] = useState(null);
+  const [bandeauEnabled, setBandeauEnabled] = useState(true);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const { cartItems } = useCart();
   const { data: session } = useSession();
@@ -147,6 +148,7 @@ export default function Header({ transparent = false, dashboard = false }) {
       .then((data) => {
         if (!data) return;
         setDropDate(data.dropDate || null);
+        setBandeauEnabled(data.bandeauEnabled !== false);
       })
       .catch(() => {});
     function dismiss(event) {
@@ -203,7 +205,7 @@ export default function Header({ transparent = false, dashboard = false }) {
   return (
     <header className={`pl-header${transparent ? " pl-header-home" : ""}${dashboard ? " pl-header-dashboard" : ""}`}>
       <a className="pl-skip-link" href="#contenu">{t.skip}</a>
-      <AnnouncementCountdown dropDate={dropDate} lang={lang} t={t} />
+      {bandeauEnabled && <AnnouncementCountdown dropDate={dropDate} lang={lang} t={t} />}
       <div className="pl-nav">
         <Link href={href("/")} className="pl-logo" aria-label={t.home}>
           <Image

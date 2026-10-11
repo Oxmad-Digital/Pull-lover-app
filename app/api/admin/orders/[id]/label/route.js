@@ -8,7 +8,7 @@ import Order                 from "@/app/models/Order";
 import { SENDCLOUD_CONFIGURED } from "@/app/lib/sendcloud";
 import { shipOrder, ShipError } from "@/app/lib/shipOrder";
 
-// POST { force?: boolean } — force = expédier avant la fin de la période de drop
+// POST — annonce la commande au transporteur (action manuelle de l'admin)
 export async function POST(req, { params }) {
   try {
     const denied = await requireAdmin();
@@ -26,20 +26,18 @@ export async function POST(req, { params }) {
       );
     }
 
-    const { force } = await req.json().catch(() => ({}));
-
     await connectDB();
     const order = await Order.findById(id);
     if (!order) {
       return NextResponse.json({ message: "Commande introuvable" }, { status: 404 });
     }
 
-    const { trackingNumber, labelUrl, order: updated } = await shipOrder(order, { force: force === true });
+    const { trackingNumber, labelUrl, order: updated } = await shipOrder(order);
     return NextResponse.json({ success: true, trackingNumber, labelUrl, order: updated });
   } catch (error) {
     if (error instanceof ShipError) {
       return NextResponse.json(
-        { message: error.message, trackingNumber: error.trackingNumber, releaseAt: error.releaseAt },
+        { message: error.message, trackingNumber: error.trackingNumber },
         { status: error.status }
       );
     }

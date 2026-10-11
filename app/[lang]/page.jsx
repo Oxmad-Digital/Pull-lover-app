@@ -135,6 +135,11 @@ export async function generateMetadata({ params }) {
   };
 }
 
+// Affichage de la section « La précommande, simplement » : passer à false pour la masquer
+const SHOW_PROCESS_SECTION = true;
+// Durées des étapes (« Durée : 30 jours »…) masquées pour l'instant ; passer à true pour les réafficher
+const SHOW_STEP_DURATIONS = false;
+
 export default async function HomePage({ params }) {
   const { lang } = await params;
   const t = TEXT[lang];
@@ -206,29 +211,33 @@ export default async function HomePage({ params }) {
         </div>
       </section>
 
-      <section className="pl-process" id="precommande-info" aria-labelledby="process-title">
-        <div className="pl-process-head">
-          <p className="pl-eyebrow">{t.processEyebrow}</p>
-          <h2 id="process-title">{t.processTitle}</h2>
-        </div>
-        <div className="pl-steps-wrap">
-          <span className="pl-process-thread" aria-hidden="true" />
-          <ol className="pl-steps">
-            {t.steps.map(([title, description, duration], index) => (
-              <li key={title}>
-                <div className="pl-step-meta">
-                  <span className="pl-step-number" aria-hidden="true">0{index + 1}</span>
-                  <span className="pl-step-duration">
-                    <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9" /><path d="M12 7v5l3 2" /></svg>
-                    {t.durationLabel} {duration}
-                  </span>
-                </div>
-                <h3>{title}</h3><p>{description}</p>
-              </li>
-            ))}
-          </ol>
-        </div>
-      </section>
+      {SHOW_PROCESS_SECTION && (
+        <section className="pl-process" id="precommande-info" aria-labelledby="process-title">
+          <div className="pl-process-head">
+            <p className="pl-eyebrow">{t.processEyebrow}</p>
+            <h2 id="process-title">{t.processTitle}</h2>
+          </div>
+          <div className="pl-steps-wrap">
+            <span className="pl-process-thread" aria-hidden="true" />
+            <ol className="pl-steps">
+              {t.steps.map(([title, description, duration], index) => (
+                <li key={title}>
+                  <div className="pl-step-meta">
+                    <span className="pl-step-number" aria-hidden="true">0{index + 1}</span>
+                    {SHOW_STEP_DURATIONS && (
+                      <span className="pl-step-duration">
+                        <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9" /><path d="M12 7v5l3 2" /></svg>
+                        {t.durationLabel} {duration}
+                      </span>
+                    )}
+                  </div>
+                  <h3>{title}</h3><p>{description}</p>
+                </li>
+              ))}
+            </ol>
+          </div>
+        </section>
+      )}
 
       <section className="pl-final" aria-labelledby="final-title">
         <Image src="/api/media/pull-lover-manequin-cardigan-2.webp?v=b25ae1191378" alt="" fill sizes="100vw" />

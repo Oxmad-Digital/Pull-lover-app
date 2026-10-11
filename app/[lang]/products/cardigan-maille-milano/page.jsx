@@ -1,6 +1,7 @@
 import MantasoaProductPage from "./MantasoaProductPage";
 import JsonLd from "@/app/components/JsonLd";
 import { getFeaturedProductState } from "@/app/lib/products";
+import Settings from "@/app/models/Settings";
 import { FEATURED_PRODUCT_PATH, breadcrumbJsonLd, openGraphBase, pageAlternates, productJsonLd } from "@/app/lib/seo";
 import { localePath } from "@/app/i18n/config.mjs";
 import { localizeProduct } from "@/app/i18n/product.mjs";
@@ -59,9 +60,19 @@ export async function generateMetadata({ params }) {
   };
 }
 
+// Commandes fermées depuis l'admin : la fiche reste consultable, sans achat possible
+async function getOrdersOpen() {
+  try {
+    const settings = await Settings.findOne();
+    return settings?.ordersOpen !== false;
+  } catch {
+    return true; // le paiement reste bloqué côté serveur
+  }
+}
+
 export default async function MantasoaPage({ params }) {
   const { lang } = await params;
-  const initialState = await getFeaturedProductState();
+  const [initialState, ordersOpen] = await Promise.all([getFeaturedProductState(), getOrdersOpen()]);
   const product = localizeProduct(initialState?.product, lang);
   const path = localePath(lang, FEATURED_PRODUCT_PATH);
   return (
@@ -74,7 +85,7 @@ export default async function MantasoaPage({ params }) {
           ]}
         />
       )}
-      <MantasoaProductPage initialState={initialState} />
+      <MantasoaProductPage initialState={initialState} ordersOpen={ordersOpen} />
     </>
   );
 }
