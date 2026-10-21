@@ -25,16 +25,18 @@ function LegalNoticeFr() {
       <Section title="1. Éditeur du site">
         <p>Le site <strong>pull-lover.com</strong> est édité par :</p>
         <ul>
-          <li><strong>Raison sociale :</strong> Pull Lover</li>
-          <li><strong>Forme juridique :</strong> Entreprise individuelle</li>
-          <li><strong>Adresse :</strong> France</li>
+          <li><strong>Raison sociale :</strong> RED ISLAND, qui exploite la marque Pull Lover</li>
+          <li><strong>Forme juridique :</strong> SAS (société par actions simplifiée) au capital de 5 000 €</li>
+          <li><strong>SIREN :</strong> 530 363 621 (SIRET 530 363 621 00026), immatriculée au Registre national des entreprises</li>
+          <li><strong>Code APE :</strong> 4616Z</li>
+          <li><strong>Siège social :</strong> Apt 25, Résidence La Citronnelle, 1 rue de la République, 97420 Le Port, La Réunion, France</li>
           <li><strong>E-mail :</strong> <a href="mailto:tom.wybo@yahoo.fr">tom.wybo@yahoo.fr</a></li>
         </ul>
       </Section>
 
       <Section title="2. Directeur de la publication">
-        Le directeur de la publication est <strong>Tom Wybo</strong>, joignable à l’adresse e-mail
-        indiquée ci-dessus.
+        Le directeur de la publication est <strong>Frédéric Wybo</strong>, Président de RED ISLAND,
+        joignable à l’adresse e-mail indiquée ci-dessus.
       </Section>
 
       <Section title="3. Hébergement">
@@ -51,7 +53,7 @@ function LegalNoticeFr() {
 
       <Section title="4. Propriété intellectuelle">
         L’ensemble des contenus présents sur ce site (textes, images, vidéos, logos, graphismes) est la
-        propriété exclusive de Pull Lover ou de ses partenaires, et est protégé par les lois françaises et
+        propriété exclusive de RED ISLAND ou de ses partenaires, et est protégé par les lois françaises et
         internationales relatives à la propriété intellectuelle. Toute reproduction, représentation,
         modification ou exploitation, totale ou partielle, sans autorisation écrite préalable est strictement
         interdite.
@@ -93,16 +95,18 @@ function LegalNoticeEn() {
       <Section title="1. Website publisher">
         <p>The website <strong>pull-lover.com</strong> is published by:</p>
         <ul>
-          <li><strong>Company name:</strong> Pull Lover</li>
-          <li><strong>Legal form:</strong> Sole proprietorship (entreprise individuelle)</li>
-          <li><strong>Address:</strong> France</li>
+          <li><strong>Company name:</strong> RED ISLAND, which operates the Pull Lover brand</li>
+          <li><strong>Legal form:</strong> SAS (simplified joint-stock company) with a share capital of €5,000</li>
+          <li><strong>SIREN:</strong> 530 363 621 (SIRET 530 363 621 00026), registered with the French National Business Register (RNE)</li>
+          <li><strong>APE code:</strong> 4616Z</li>
+          <li><strong>Registered office:</strong> Apt 25, Résidence La Citronnelle, 1 rue de la République, 97420 Le Port, La Réunion, France</li>
           <li><strong>Email:</strong> <a href="mailto:tom.wybo@yahoo.fr">tom.wybo@yahoo.fr</a></li>
         </ul>
       </Section>
 
       <Section title="2. Publication director">
-        The publication director is <strong>Tom Wybo</strong>, who can be reached at the email address
-        given above.
+        The publication director is <strong>Frédéric Wybo</strong>, President of RED ISLAND, who can be
+        reached at the email address given above.
       </Section>
 
       <Section title="3. Hosting">
@@ -119,7 +123,7 @@ function LegalNoticeEn() {
 
       <Section title="4. Intellectual property">
         All content on this website (texts, images, videos, logos, graphics) is the exclusive property of
-        Pull Lover or its partners and is protected by French and international intellectual property
+        RED ISLAND or its partners and is protected by French and international intellectual property
         laws. Any reproduction, representation, modification or use, in whole or in part, without prior
         written permission is strictly prohibited.
       </Section>

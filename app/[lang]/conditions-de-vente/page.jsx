@@ -24,7 +24,10 @@ function TermsFr() {
 
       <Section title="1. Objet">
         Les présentes conditions générales de vente (CGV) régissent les relations contractuelles entre
-        Pull Lover (ci-après « le Vendeur ») et toute personne effectuant un achat sur le site
+        RED ISLAND, SAS au capital de 5 000 €, SIRET 530 363 621 00026, dont le siège social est
+        situé Apt 25, Résidence La Citronnelle, 1 rue de la République, 97420 Le Port, La Réunion,
+        joignable à <a href="mailto:tom.wybo@yahoo.fr">tom.wybo@yahoo.fr</a>, qui exploite la
+        marque Pull Lover (ci-après « le Vendeur »), et toute personne effectuant un achat sur le site
         <strong> pull-lover.com</strong> (ci-après « le Client »). Tout achat implique l’acceptation
         pleine et entière des présentes CGV.
       </Section>
@@ -113,7 +116,7 @@ function TermsFr() {
       </Section>
 
       <Section title="10. Propriété intellectuelle">
-        L’ensemble des visuels, textes et contenus du site sont la propriété de Pull Lover. Toute
+        L’ensemble des visuels, textes et contenus du site sont la propriété de RED ISLAND. Toute
         reproduction sans autorisation écrite est interdite. Pour plus d’informations, consultez
         nos{" "}
         <Link href={localePath("fr", "/mentions-legales")}>
@@ -153,7 +156,10 @@ function TermsEn() {
 
       <Section title="1. Purpose">
         These general terms and conditions of sale (the “Terms”) govern the contractual relationship between
-        Pull Lover (the “Seller”) and any person making a purchase on the website
+        RED ISLAND, an SAS with a share capital of €5,000, SIRET 530 363 621 00026, whose registered
+        office is at Apt 25, Résidence La Citronnelle, 1 rue de la République, 97420 Le Port, La Réunion,
+        France, reachable at <a href="mailto:tom.wybo@yahoo.fr">tom.wybo@yahoo.fr</a>, which operates
+        the Pull Lover brand (the “Seller”), and any person making a purchase on the website
         <strong> pull-lover.com</strong> (the “Customer”). Any purchase implies full and unreserved
         acceptance of these Terms.
       </Section>
@@ -239,7 +245,7 @@ function TermsEn() {
       </Section>
 
       <Section title="10. Intellectual property">
-        All visuals, texts and content on the website are the property of Pull Lover. Any reproduction
+        All visuals, texts and content on the website are the property of RED ISLAND. Any reproduction
         without written permission is prohibited. For more information, see our{" "}
         <Link href={localePath("en", "/mentions-legales")}>
           Legal notice
