@@ -56,6 +56,9 @@ const nextConfig: NextConfig = {
       // Ancienne URL de la fiche, renommée d'après le produit
       { source: "/products/mantasoa", destination: "/products/cardigan-maille-milano", permanent: true },
       { source: "/en/products/mantasoa", destination: "/en/products/cardigan-maille-milano", permanent: true },
+      // Ancienne URL des CGV
+      { source: "/conditions-generales-de-vente", destination: "/conditions-de-vente", permanent: true },
+      { source: "/en/conditions-generales-de-vente", destination: "/en/conditions-de-vente", permanent: true },
       // Pages supprimées
       { source: "/NotreMarque", destination: "/", permanent: true },
       { source: "/notre-marque", destination: "/", permanent: true },
