@@ -56,7 +56,7 @@
 }
 @media (max-width: 599px) {
   .pl-contact { --contact-gutter: 24px; }
-  .pl-contact-hero { min-height: max(640px, calc(100svh - 50px)); }
+  .pl-contact-hero { min-height: max(640px, calc(100svh - var(--pl-announcement-h))); }
   .pl-contact-hero-image { object-position: 58% center; }
   .pl-contact-hero-shade { background: linear-gradient(0deg, rgba(13,28,29,.48), rgba(13,28,29,.1) 45%, transparent 82%); }
   .pl-contact-hero-copy { width: 100%; padding-bottom: 96px; }
